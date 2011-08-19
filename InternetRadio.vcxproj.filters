@@ -28,6 +28,12 @@
       <UniqueIdentifier>{f355b386-fffe-4ef9-a1e3-4be4724e1332}</UniqueIdentifier>
       <Extensions>dll</Extensions>
     </Filter>
+    <Filter Include="Header Files\JSONCpp">
+      <UniqueIdentifier>{bc2ebbe6-61cd-44b6-b659-6c06b56f40bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\JSONCpp">
+      <UniqueIdentifier>{d31e54f3-8534-40c8-af53-9ff7bd3d3b20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\bass\bass.lib">
@@ -41,6 +47,15 @@
     <None Include="resource\icon.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="dependencies\jsoncpp\src\json_internalarray.inl">
+      <Filter>Header Files\JSONCpp</Filter>
+    </None>
+    <None Include="dependencies\jsoncpp\src\json_internalmap.inl">
+      <Filter>Header Files\JSONCpp</Filter>
+    </None>
+    <None Include="dependencies\jsoncpp\src\json_valueiterator.inl">
+      <Filter>Header Files\JSONCpp</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">
@@ -52,6 +67,36 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Station.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\config.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\features.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\forwards.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\json.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\reader.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\value.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\writer.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\include\json\autolink.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h">
+      <Filter>Header Files\JSONCpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -59,6 +104,18 @@
     </ClCompile>
     <ClCompile Include="src\MainWindow.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Station.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\jsoncpp\src\json_reader.cpp">
+      <Filter>Source Files\JSONCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\jsoncpp\src\json_value.cpp">
+      <Filter>Source Files\JSONCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp">
+      <Filter>Source Files\JSONCpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

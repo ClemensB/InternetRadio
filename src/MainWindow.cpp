@@ -2,7 +2,7 @@
 
 #include "../resource.h"
 
-#include <bass.h>
+#include <sstream>
 
 using namespace std;
 
@@ -11,6 +11,10 @@ namespace inetr {
 	HWND MainWindow::window;
 	HWND MainWindow::stationListBox;
 	HWND MainWindow::stationLabel;
+
+	HSTREAM MainWindow::currentStream = NULL;
+
+	list<Station> MainWindow::stations;
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
@@ -96,10 +100,53 @@ namespace inetr {
 		BASS_Free();
 	}
 
+	void MainWindow::bufferTimer() {
+		QWORD progress = BASS_StreamGetFilePosition(currentStream,
+			BASS_FILEPOS_BUFFER) * 100 / BASS_StreamGetFilePosition(
+			currentStream, BASS_FILEPOS_END);
+
+		if (progress > 75 || !BASS_StreamGetFilePosition(currentStream,
+			BASS_FILEPOS_CONNECTED)) {
+
+				KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
+
+				SetWindowText(stationLabel, "Connected");
+
+				BASS_ChannelPlay(currentStream, FALSE);
+		} else {
+			stringstream sstreamStatusText;
+			sstreamStatusText << "Buffering... " << progress << "%";
+			SetWindowText(stationLabel, sstreamStatusText.str().c_str());
+		}
+	}
+
+	void MainWindow::openURL(string url) {
+		KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
+
+		if (currentStream != NULL)
+			BASS_StreamFree(currentStream);
+
+		SetWindowText(stationLabel, "Connecting...");
+
+		currentStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
+
+		if (currentStream != NULL)
+			SetTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER, 50, NULL);
+		else
+			SetWindowText(stationLabel, "Connection error!");
+	}
+
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 		LPARAM lParam) {
 		
 		switch (uMsg) {
+		case WM_TIMER:
+			switch (wParam) {
+				case INTERNETRADIO_MAINWINDOW_TIMER_BUFFER:
+					bufferTimer();
+					break;
+			}
+			break;
 		case WM_CREATE:
 			try {
 				createControls(hwnd);

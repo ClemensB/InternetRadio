@@ -2,8 +2,12 @@
 #define INTERNETRADIO_MAINWINDOW_HPP
 
 #include <string>
+#include <list>
 
 #include <Windows.h>
+#include <bass.h>
+
+#include "Station.hpp"
 
 #define INTERNETRADIO_MAINWINDOW_CLASSNAME "InternetRadio"
 #define INTERNETRADIO_MAINWINDOW_TITLE "Internetradio"
@@ -22,6 +26,7 @@
 #define INTERNETRADIO_MAINWINDOW_STATIONLABEL_WIDTH 200
 #define INTERNETRADIO_MAINWINDOW_STATIONLABEL_HEIGHT 30
 
+#define INTERNETRADIO_MAINWINDOW_TIMER_BUFFER 0
 
 namespace inetr {
 	class MainWindow {
@@ -33,6 +38,8 @@ namespace inetr {
 		static void createControls(HWND hwnd);
 		static void initialize(HWND hwnd);
 		static void uninitialize(HWND hwnd);
+		static void bufferTimer();
+		static void openURL(std::string url);
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
@@ -41,6 +48,10 @@ namespace inetr {
 		static HWND window;
 		static HWND stationListBox;
 		static HWND stationLabel;
+
+		static HSTREAM currentStream;
+
+		static std::list<Station> stations;
 	};
 }
 
