@@ -18,6 +18,7 @@ namespace inetr {
 	HWND MainWindow::stationLabel;
 
 	HSTREAM MainWindow::currentStream = NULL;
+	Station *currentStation = NULL;
 
 	list<Station> MainWindow::stations;
 
@@ -189,6 +190,25 @@ namespace inetr {
 		}
 	}
 
+	void MainWindow::handleListboxClick() {
+		int index = SendMessage(stationListBox, LB_GETCURSEL, 0, 0);
+		int textLength = SendMessage(stationListBox, LB_GETTEXTLEN,
+			(WPARAM)index, 0);
+		char* cText = new char[textLength + 1];
+		SendMessage(stationListBox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
+		string text(cText);
+		delete[] cText;
+
+		for (list<Station>::iterator it = stations.begin();
+			it != stations.end(); ++it) {
+			
+			if (text == it->Name && &*it != currentStation) {
+				currentStation = &*it;
+				openURL(it->URL);
+			}
+		}
+	}
+
 	void MainWindow::openURL(string url) {
 		KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
 
@@ -214,6 +234,17 @@ namespace inetr {
 				case INTERNETRADIO_MAINWINDOW_TIMER_BUFFER:
 					bufferTimer();
 					break;
+			}
+			break;
+		case WM_COMMAND:
+			switch (LOWORD(wParam)) {
+			case INTERNETRADIO_MAINWINDOW_STATIONLIST_ID:
+				switch (HIWORD(wParam)) {
+				case LBN_SELCHANGE:
+					handleListboxClick();
+					break;
+				}
+				break;
 			}
 			break;
 		case WM_CREATE:

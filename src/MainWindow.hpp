@@ -42,6 +42,8 @@ namespace inetr {
 		static void populateListbox();
 
 		static void bufferTimer();
+		static void handleListboxClick();
+
 		static void openURL(std::string url);
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
