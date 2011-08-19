@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\BASS">
+      <UniqueIdentifier>{d1f96b0c-12b5-487c-b0a5-883f41914981}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Binary Files">
+      <UniqueIdentifier>{4dbc9cf4-e8e8-4784-83d2-7f5a9c3bf4c7}</UniqueIdentifier>
+      <Extensions>lib;dll;exe</Extensions>
+    </Filter>
+    <Filter Include="Binary Files\Import Libraries">
+      <UniqueIdentifier>{2f534255-2d25-4ef2-a3a2-9a5247d26990}</UniqueIdentifier>
+      <Extensions>lib</Extensions>
+    </Filter>
+    <Filter Include="Binary Files\Dynamic Link Libraries">
+      <UniqueIdentifier>{f355b386-fffe-4ef9-a1e3-4be4724e1332}</UniqueIdentifier>
+      <Extensions>dll</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="dependencies\bass\bass.lib">
+      <Filter>Binary Files\Import Libraries</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dependencies\bass\bass.dll">
+      <Filter>Binary Files\Dynamic Link Libraries</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dependencies\bass\bass.h">
+      <Filter>Header Files\BASS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
