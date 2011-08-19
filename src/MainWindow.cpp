@@ -2,9 +2,14 @@
 
 #include "../resource.h"
 
+#include <iostream>
 #include <sstream>
+#include <fstream>
+
+#include <json/json.h>
 
 using namespace std;
+using namespace Json;
 
 namespace inetr {
 	HINSTANCE MainWindow::instance;
@@ -81,6 +86,10 @@ namespace inetr {
 		if (stationListBox == NULL)
 			throw string("Couldn't create station list box");
 
+		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
+			MAKELPARAM(FALSE, 0));
+
 		stationLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
 			WS_TABSTOP, INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSX,
 			INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSY,
@@ -90,14 +99,74 @@ namespace inetr {
 
 		if (stationLabel == NULL)
 			throw string("Couldn't create station label");
+
+		SendMessage(stationLabel, WM_SETFONT, (WPARAM)defaultFont,
+			MAKELPARAM(FALSE, 0));
 	}
 
 	void MainWindow::initialize(HWND hwnd) {
+		try {
+			loadConfig();
+		} catch (string e) {
+			MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		}
+
+		populateListbox();
+
 		BASS_Init(-1, 44100, 0, hwnd, NULL);
 	}
 
 	void MainWindow::uninitialize(HWND hwnd) {
 		BASS_Free();
+	}
+
+	void MainWindow::loadConfig() {
+		ifstream configFile;
+		configFile.open("config.json");
+
+		if (!configFile.is_open())
+			throw "Couldn't open config file";
+
+		Value rootValue;
+		Reader jsonReader;
+
+		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
+		if (!successfullyParsed)
+			throw string("Couldn't parse config file\n") +
+				string(jsonReader.getFormatedErrorMessages());
+		
+		Value stationList = rootValue.get("stations", NULL);
+		if (stationList == NULL || !stationList.isArray())
+			throw string("Error while parsing config file");
+
+		for (unsigned int i = 0; i < stationList.size(); ++i) {
+			Value stationObject = stationList[i];
+			if (!stationObject.isObject())
+				throw string("Error while parsing config file");
+
+			Value nameValue = stationObject.get("name", NULL);
+			if (nameValue == NULL || !nameValue.isString())
+				throw string("Error while parsing config file");
+			string name = nameValue.asString();
+
+			Value urlValue = stationObject.get("url", NULL);
+			if (urlValue == NULL || !urlValue.isString())
+				throw string("Error while parsing config file");
+			string url = urlValue.asString();
+
+			stations.push_back(Station(name, url));
+		}
+
+		configFile.close();
+	}
+
+	void MainWindow::populateListbox() {
+		for (list<Station>::iterator it = stations.begin();
+			it != stations.end(); ++it) {
+
+			SendMessage(stationListBox, (UINT)LB_ADDSTRING, (WPARAM)0,
+				(LPARAM)it->Name.c_str());
+		}
 	}
 
 	void MainWindow::bufferTimer() {

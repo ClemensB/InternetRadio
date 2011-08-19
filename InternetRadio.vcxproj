@@ -76,6 +76,7 @@
     <Library Include="dependencies\bass\bass.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\config.json" />
     <None Include="dependencies\bass\bass.dll" />
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
     <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />

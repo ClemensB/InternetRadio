@@ -38,6 +38,9 @@ namespace inetr {
 		static void createControls(HWND hwnd);
 		static void initialize(HWND hwnd);
 		static void uninitialize(HWND hwnd);
+		static void loadConfig();
+		static void populateListbox();
+
 		static void bufferTimer();
 		static void openURL(std::string url);
 
