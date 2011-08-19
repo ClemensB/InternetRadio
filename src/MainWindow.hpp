@@ -3,10 +3,42 @@
 
 #include <string>
 
+#include <Windows.h>
+
+#define INTERNETRADIO_MAINWINDOW_CLASSNAME "InternetRadio"
+#define INTERNETRADIO_MAINWINDOW_TITLE "Internetradio"
+#define INTERNETRADIO_MAINWINDOW_WIDTH 350
+#define INTERNETRADIO_MAINWINDOW_HEIGHT 300
+
+#define INTERNETRADIO_MAINWINDOW_STATIONLIST_ID 101
+#define INTERNETRADIO_MAINWINDOW_STATIONLIST_POSX 10
+#define INTERNETRADIO_MAINWINDOW_STATIONLIST_POSY 10
+#define INTERNETRADIO_MAINWINDOW_STATIONLIST_WIDTH 100
+#define INTERNETRADIO_MAINWINDOW_STATIONLIST_HEIGHT 250
+
+#define INTERNETRADIO_MAINWINDOW_STATIONLABEL_ID 201
+#define INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSX 120
+#define INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSY 215
+#define INTERNETRADIO_MAINWINDOW_STATIONLABEL_WIDTH 200
+#define INTERNETRADIO_MAINWINDOW_STATIONLABEL_HEIGHT 30
+
+
 namespace inetr {
 	class MainWindow {
 	public:
-		int Main(std::string commandLine);
+		static int Main(std::string commandLine, HINSTANCE instance,
+			int showCmd);
+	private:
+		static void createWindow();
+		static void createControls(HWND hwnd);
+
+		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+			LPARAM lParam);
+
+		static HINSTANCE instance;
+		static HWND window;
+		static HWND stationListBox;
+		static HWND stationLabel;
 	};
 }
 

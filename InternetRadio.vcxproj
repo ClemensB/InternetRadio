@@ -73,14 +73,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\bass\bass.dll" />
+    <None Include="resource\icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\MainWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="InternetRadio.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 *.vcxproj.user
 *.sdf
 *.opensdf
+*.aps
 /ipch
 /Debug
 /Release
