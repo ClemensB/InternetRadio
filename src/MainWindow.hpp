@@ -31,6 +31,8 @@ namespace inetr {
 	private:
 		static void createWindow();
 		static void createControls(HWND hwnd);
+		static void initialize(HWND hwnd);
+		static void uninitialize(HWND hwnd);
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);

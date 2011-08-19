@@ -2,6 +2,8 @@
 
 #include "../resource.h"
 
+#include <bass.h>
+
 using namespace std;
 
 namespace inetr {
@@ -86,6 +88,14 @@ namespace inetr {
 			throw string("Couldn't create station label");
 	}
 
+	void MainWindow::initialize(HWND hwnd) {
+		BASS_Init(-1, 44100, 0, hwnd, NULL);
+	}
+
+	void MainWindow::uninitialize(HWND hwnd) {
+		BASS_Free();
+	}
+
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 		LPARAM lParam) {
 		
@@ -96,11 +106,13 @@ namespace inetr {
 			} catch (string e) {
 				MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
 			}
+			initialize(hwnd);
 			break;
 		case WM_CTLCOLORSTATIC:
 			return (INT_PTR)GetStockObject(WHITE_BRUSH);
 			break;
 		case WM_CLOSE:
+			uninitialize(hwnd);
 			DestroyWindow(hwnd);
 			break;
 		case WM_DESTROY:
