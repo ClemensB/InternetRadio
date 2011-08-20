@@ -2,11 +2,13 @@
 	"stations" : [
 		{
 			"name" : "NDR 2",
-			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3"
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
+			"image" : "ndr_2.bmp"
 		},
 		{
 			"name" : "N-Joy",
-			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3"
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3",
+			"image" : "n-joy.bmp"
 		}
 	]
 }

@@ -16,6 +16,7 @@ namespace inetr {
 	HWND MainWindow::window;
 	HWND MainWindow::stationListBox;
 	HWND MainWindow::stationLabel;
+	HWND MainWindow::stationImage;
 
 	HSTREAM MainWindow::currentStream = NULL;
 
@@ -101,6 +102,14 @@ namespace inetr {
 		if (stationLabel == NULL)
 			throw string("Couldn't create station label");
 
+		stationImage = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
+			SS_BITMAP, INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSX,
+			INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSY, 0, 0, hwnd,
+			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONIMAGE_ID, instance, NULL);
+
+		if (stationImage == NULL)
+			throw string("Couldn't create station image");
+
 		SendMessage(stationLabel, WM_SETFONT, (WPARAM)defaultFont,
 			MAKELPARAM(FALSE, 0));
 	}
@@ -155,7 +164,12 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string url = urlValue.asString();
 
-			stations.push_back(Station(name, url));
+			Value imageValue = stationObject.get("image", NULL);
+			if (imageValue == NULL || !imageValue.isString())
+				throw string("Error while parsing config file");
+			string image = string("img/") + imageValue.asString();
+
+			stations.push_back(Station(name, url, image));
 		}
 
 		configFile.close();
@@ -204,6 +218,8 @@ namespace inetr {
 			
 			if (text == it->Name && &*it != currentStation) {
 				currentStation = &*it;
+				SendMessage(stationImage, STM_SETIMAGE, IMAGE_BITMAP,
+					(LPARAM)currentStation->Image);
 				openURL(it->URL);
 			}
 		}

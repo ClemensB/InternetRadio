@@ -37,6 +37,9 @@
     <Filter Include="Other Files">
       <UniqueIdentifier>{d8138629-2fc9-4f1c-9d2b-90ad6f978071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Other Files\Station Images">
+      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\bass\bass.lib">
@@ -61,6 +64,9 @@
     </None>
     <None Include="data\config.json">
       <Filter>Other Files</Filter>
+    </None>
+    <None Include="data\img\ndr_2.bmp">
+      <Filter>Other Files\Station Images</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
