@@ -18,9 +18,9 @@ namespace inetr {
 	HWND MainWindow::stationLabel;
 
 	HSTREAM MainWindow::currentStream = NULL;
-	Station *currentStation = NULL;
 
 	list<Station> MainWindow::stations;
+	Station *MainWindow::currentStation = NULL;
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
@@ -126,7 +126,7 @@ namespace inetr {
 		configFile.open("config.json");
 
 		if (!configFile.is_open())
-			throw "Couldn't open config file";
+			throw string("Couldn't open config file");
 
 		Value rootValue;
 		Reader jsonReader;

@@ -57,6 +57,7 @@ namespace inetr {
 		static HSTREAM currentStream;
 
 		static std::list<Station> stations;
+		static Station* currentStation;
 	};
 }
 
