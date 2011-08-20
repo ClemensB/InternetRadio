@@ -127,6 +127,9 @@ namespace inetr {
 	}
 
 	void MainWindow::uninitialize(HWND hwnd) {
+		if (currentStream != NULL)
+			BASS_StreamFree(currentStream);
+
 		BASS_Free();
 	}
 
