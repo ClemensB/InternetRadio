@@ -127,8 +127,10 @@ namespace inetr {
 	}
 
 	void MainWindow::uninitialize(HWND hwnd) {
-		if (currentStream != NULL)
+		if (currentStream != NULL) {
+			BASS_ChannelStop(currentStream);
 			BASS_StreamFree(currentStream);
+		}
 
 		BASS_Free();
 	}
@@ -231,8 +233,10 @@ namespace inetr {
 	void MainWindow::openURL(string url) {
 		KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
 
-		if (currentStream != NULL)
+		if (currentStream != NULL) {
+			BASS_ChannelStop(currentStream);
 			BASS_StreamFree(currentStream);
+		}
 
 		SetWindowText(stationLabel, "Connecting...");
 
