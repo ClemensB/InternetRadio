@@ -200,7 +200,8 @@ namespace inetr {
 		}
 
 		if (language.Name == "Undefined")
-			throw string("Couldn't load language: ") + languageStr;
+			throw string("Error while parsing config file\n") +
+				string("Unsupported language: ") + languageStr;
 
 		Value stationList = rootValue.get("stations", NULL);
 		if (stationList == NULL || !stationList.isArray())
