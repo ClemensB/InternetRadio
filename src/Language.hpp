@@ -12,7 +12,8 @@ namespace inetr {
 			strings);
 
 		std::string Name;
-		std::string operator[](const std::string str);
+		std::string operator[](std::string *str);
+		std::string operator[](char *str);
 	private:
 		std::map<std::string, std::string> strings;
 	};

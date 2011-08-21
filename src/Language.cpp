@@ -12,10 +12,17 @@ namespace inetr {
 		this->strings = strings;
 	}
 
-	string Language::operator[](const string str) {
-		if (strings.count(str) != 0)
-			return strings[str];
+	string Language::operator[](string *str) {
+		if (strings.count(*str) != 0)
+			return strings[*str];
 		else
-			return str;
+			return *str;
+	}
+
+	string Language::operator[](char *str) {
+		if (strings.count(string(str)) != 0)
+			return strings[string(str)];
+		else
+			return string(str);
 	}
 }

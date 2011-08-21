@@ -1,6 +1,6 @@
 #include "MainWindow.hpp"
 
-#include "../resource.h"
+#include "resource.h"
 
 #include <iostream>
 #include <sstream>
@@ -31,14 +31,14 @@ namespace inetr {
 
 		try {
 			loadConfig();
-		} catch (string e) {
-			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		} catch (const string *e) {
+			MessageBox(NULL, e->c_str(), "Error", MB_ICONERROR | MB_OK);
 		}
 
 		try {
 			createWindow();
-		} catch (string e) {
-			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		} catch (const string *e) {
+			MessageBox(NULL, e->c_str(), "Error", MB_ICONERROR | MB_OK);
 		}
 
 		ShowWindow(window, showCmd);
@@ -232,7 +232,7 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string metaStr = metaValue.asString();
 
-			MetadataProvider meta = None;
+			MetadataProviderType meta = None;
 			if (metaStr == "meta")
 				meta = Meta;
 			else if (metaStr == "ogg")
@@ -271,7 +271,7 @@ namespace inetr {
 
 				fetchMeta();
 
-				switch (currentStation->Meta) {
+				switch (currentStation->MetadataProvider) {
 				case Meta:
 					BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
 						&metaSync, 0);
@@ -349,7 +349,7 @@ namespace inetr {
 		if (currentStation == NULL)
 			return;
 
-		switch (currentStation->Meta) {
+		switch (currentStation->MetadataProvider) {
 		case Meta:
 			fetchMeta_meta();
 			break;
@@ -450,8 +450,8 @@ namespace inetr {
 		case WM_CREATE:
 			try {
 				createControls(hwnd);
-			} catch (string e) {
-				MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+			} catch (const string *e) {
+				MessageBox(hwnd, e->c_str(), "Error", MB_ICONERROR | MB_OK);
 			}
 			initialize(hwnd);
 			break;

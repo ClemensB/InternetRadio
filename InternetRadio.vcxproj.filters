@@ -91,9 +91,6 @@
     <ClInclude Include="src\MainWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Station.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,6 +122,9 @@
       <Filter>Header Files\JSONCpp</Filter>
     </ClInclude>
     <ClInclude Include="src\Language.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

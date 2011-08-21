@@ -100,9 +100,9 @@
     <ClInclude Include="dependencies\jsoncpp\include\json\value.h" />
     <ClInclude Include="dependencies\jsoncpp\include\json\writer.h" />
     <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="src\Language.hpp" />
     <ClInclude Include="src\MainWindow.hpp" />
+    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\Station.hpp" />
   </ItemGroup>
   <ItemGroup>
