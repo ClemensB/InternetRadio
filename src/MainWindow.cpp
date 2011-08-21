@@ -18,6 +18,9 @@ namespace inetr {
 	HWND MainWindow::stationLabel;
 	HWND MainWindow::stationImage;
 
+	list<Language> MainWindow::languages;
+	Language MainWindow::language;
+
 	HSTREAM MainWindow::currentStream = NULL;
 
 	list<Station> MainWindow::stations;
@@ -25,6 +28,12 @@ namespace inetr {
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
+
+		try {
+			loadConfig();
+		} catch (string e) {
+			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		}
 
 		try {
 			createWindow();
@@ -62,17 +71,17 @@ namespace inetr {
 		wndClass.lpszClassName		= INTERNETRADIO_MAINWINDOW_CLASSNAME;
 
 		if (!RegisterClassEx(&wndClass))
-			throw string("Window registration failed");
+			throw language["wndRegFailed"];
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
-			INTERNETRADIO_MAINWINDOW_CLASSNAME, INTERNETRADIO_MAINWINDOW_TITLE,
+			INTERNETRADIO_MAINWINDOW_CLASSNAME, language["windowTitle"].c_str(),
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			INTERNETRADIO_MAINWINDOW_WIDTH, INTERNETRADIO_MAINWINDOW_HEIGHT,
 			NULL, NULL, instance, NULL);
 
 		if (window == NULL)
-			throw string("Window creation failed");
+			throw language["wndCreFailed"];
 	}
 
 	void MainWindow::createControls(HWND hwnd) {
@@ -115,12 +124,6 @@ namespace inetr {
 	}
 
 	void MainWindow::initialize(HWND hwnd) {
-		try {
-			loadConfig();
-		} catch (string e) {
-			MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
-		}
-
 		populateListbox();
 
 		BASS_Init(-1, 44100, 0, hwnd, NULL);
@@ -150,6 +153,56 @@ namespace inetr {
 			throw string("Couldn't parse config file\n") +
 				string(jsonReader.getFormatedErrorMessages());
 		
+		Value languageList = rootValue.get("languages", NULL);
+		if (languageList == NULL || !languageList.isArray())
+			throw string("Error while parsing config file");
+
+		for (unsigned int i = 0; i < languageList.size(); ++i) {
+			Value languageObject = languageList[i];
+			if (languageObject == NULL || !languageObject.isObject())
+				throw string("Error while parsing config file");
+
+			Value nameValue = languageObject.get("name", NULL);
+			if (nameValue == NULL || !nameValue.isString())
+				throw string("Error while parsing config file");
+			string name = nameValue.asString();
+
+			Value stringsObject = languageObject.get("strings", NULL);
+			if (stringsObject == NULL || !stringsObject.isObject())
+				throw string("Error while parsing config file");
+
+			map<string, string> strings;
+
+			for (unsigned int j = 0; j < stringsObject.size(); ++j) {
+				string stringKey = stringsObject.getMemberNames().at(j);
+
+				Value stringValueValue = stringsObject.get(stringKey, NULL);
+				if (stringValueValue == NULL || !stringValueValue.isString())
+					throw string("Error while parsing config file");
+				string stringValue = stringValueValue.asString();
+
+				strings.insert(pair<string, string>(stringKey, stringValue));
+			}
+
+			languages.push_back(Language(name, strings));
+		}
+
+		Value languageValue = rootValue.get("language", NULL);
+		if (languageValue == NULL || !languageValue.isString())
+			throw string("Error while parsing config file");
+		string languageStr = languageValue.asString();
+
+		for (list<Language>::iterator it = languages.begin();
+			it != languages.end(); ++it) {
+
+			if (it->Name == languageStr)
+				language = *it;
+		}
+
+		if (language.Name == "Undefined")
+			throw string("Couldn't load language \"") + languageStr +
+				string("\"");
+
 		Value stationList = rootValue.get("stations", NULL);
 		if (stationList == NULL || !stationList.isArray())
 			throw string("Error while parsing config file");
@@ -199,12 +252,13 @@ namespace inetr {
 
 				KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
 
-				SetWindowText(stationLabel, "Connected");
+				SetWindowText(stationLabel, language["connected"].c_str());
 
 				BASS_ChannelPlay(currentStream, FALSE);
 		} else {
 			stringstream sstreamStatusText;
-			sstreamStatusText << "Buffering... " << progress << "%";
+			sstreamStatusText << language["buffering"] << "... " << progress
+				<< "%";
 			SetWindowText(stationLabel, sstreamStatusText.str().c_str());
 		}
 	}
@@ -238,14 +292,15 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(stationLabel, "Connecting...");
+		SetWindowText(stationLabel, (language["connecting"] +
+			string("...")).c_str());
 
 		currentStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
 
 		if (currentStream != NULL)
 			SetTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER, 50, NULL);
 		else
-			SetWindowText(stationLabel, "Connection error!");
+			SetWindowText(stationLabel, language["connectionError"].c_str());
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,

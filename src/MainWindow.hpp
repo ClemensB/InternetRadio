@@ -8,9 +8,9 @@
 #include <bass.h>
 
 #include "Station.hpp"
+#include "Language.hpp"
 
 #define INTERNETRADIO_MAINWINDOW_CLASSNAME "InternetRadio"
-#define INTERNETRADIO_MAINWINDOW_TITLE "Internetradio"
 #define INTERNETRADIO_MAINWINDOW_WIDTH 350
 #define INTERNETRADIO_MAINWINDOW_HEIGHT 300
 
@@ -58,6 +58,9 @@ namespace inetr {
 		static HWND stationListBox;
 		static HWND stationLabel;
 		static HWND stationImage;
+
+		static std::list<Language> languages;
+		static Language language;
 
 		static HSTREAM currentStream;
 

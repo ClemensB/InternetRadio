@@ -68,6 +68,12 @@
     <None Include="data\img\ndr_2.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="data\img\n-joy.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\einslive.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">
@@ -109,6 +115,9 @@
     <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h">
       <Filter>Header Files\JSONCpp</Filter>
     </ClInclude>
+    <ClInclude Include="src\Language.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -128,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp">
       <Filter>Source Files\JSONCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Language.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
