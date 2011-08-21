@@ -31,13 +31,13 @@ namespace inetr {
 
 		try {
 			loadConfig();
-		} catch (const string e) {
+		} catch (const string &e) {
 			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
 		}
 
 		try {
 			createWindow();
-		} catch (const string e) {
+		} catch (const string &e) {
 			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
 		}
 
@@ -450,7 +450,7 @@ namespace inetr {
 		case WM_CREATE:
 			try {
 				createControls(hwnd);
-			} catch (const string e) {
+			} catch (const string &e) {
 				MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
 			}
 			initialize(hwnd);
