@@ -31,6 +31,7 @@
 #define INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSY 10
 
 #define INTERNETRADIO_MAINWINDOW_TIMER_BUFFER 0
+#define INTERNETRADIO_MAINWINDOW_TIMER_META 1
 
 namespace inetr {
 	class MainWindow {
@@ -46,9 +47,15 @@ namespace inetr {
 		static void populateListbox();
 
 		static void bufferTimer();
+		static void metaTimer();
+		static void CALLBACK metaSync(HSYNC handle, DWORD channel, DWORD data,
+			void *user);
 		static void handleListboxClick();
 
 		static void openURL(std::string url);
+		static void fetchMeta();
+		static void fetchMeta_meta();
+		static void fetchMeta_ogg();
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);

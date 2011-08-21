@@ -74,6 +74,15 @@
     <None Include="data\img\einslive.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="data\img\ffn.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\hardbase.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\sputnik.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">

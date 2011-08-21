@@ -78,8 +78,11 @@
   <ItemGroup>
     <None Include="data\config.json" />
     <None Include="data\img\einslive.bmp" />
+    <None Include="data\img\ffn.bmp" />
+    <None Include="data\img\hardbase.bmp" />
     <None Include="data\img\n-joy.bmp" />
     <None Include="data\img\ndr_2.bmp" />
+    <None Include="data\img\sputnik.bmp" />
     <None Include="dependencies\bass\bass.dll" />
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
     <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />

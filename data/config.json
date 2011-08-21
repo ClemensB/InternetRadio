@@ -40,7 +40,25 @@
 		{
 			"name" : "1Live",
 			"url" : "http://gffstream.ic.llnwd.net/stream/gffstream_stream_wdr_einslive_b",
-			"image" : "einslive.bmp"
+			"image" : "einslive.bmp",
+			"meta" : "meta"
+		},
+		{
+			"name" : "FFN",
+			"url" : "http://rs20.stream24.org:8000/stream",
+			"image" : "ffn.bmp",
+			"meta" : "meta"
+		},
+		{
+			"name" : "Sputnik",
+			"url" : "http://c22033-l.i.core.cdn.streamfarm.net/22005mdrsputnik/live/3087mdr_sputnik/live_de_128.mp3",
+			"image" : "sputnik.bmp"
+		},
+		{
+			"name" : "Hardbase.FM",
+			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
+			"image" : "hardbase.bmp",
+			"meta" : "meta"
 		}
 	]
 }

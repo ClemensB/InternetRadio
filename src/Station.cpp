@@ -3,9 +3,11 @@
 using namespace std;
 
 namespace inetr {
-	Station::Station(string name, string url, string imagePath) {
+	Station::Station(string name, string url, string imagePath,
+		MetadataProvider metadataProvider /* = None */) {
 		this->Name = name;
 		this->URL = url;
+		this->Meta = metadataProvider;
 		this->imagePath = imagePath;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
@@ -20,6 +22,7 @@ namespace inetr {
 	Station::Station(const Station &original) {
 		this->Name = original.Name;
 		this->URL = original.URL;
+		this->Meta = original.Meta;
 		this->imagePath = original.imagePath;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
@@ -39,6 +42,7 @@ namespace inetr {
 		if (this != &original) {
 			this->Name = original.Name;
 			this->URL = original.URL;
+			this->Meta = original.Meta;
 			this->imagePath = original.imagePath;
 
 			Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),

@@ -227,7 +227,22 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string image = string("img/") + imageValue.asString();
 
-			stations.push_back(Station(name, url, image));
+			Value metaValue = stationObject.get("meta", Value("none"));
+			if (!metaValue.isString())
+				throw string("Error while parsing config file");
+			string metaStr = metaValue.asString();
+
+			MetadataProvider meta = None;
+			if (metaStr == "meta")
+				meta = Meta;
+			else if (metaStr == "ogg")
+				meta = OGG;
+			else if (metaStr == "none")
+				meta = None;
+			else
+				throw string("Unsupported meta provider: ") + metaStr;
+
+			stations.push_back(Station(name, url, image, meta));
 		}
 
 		configFile.close();
@@ -254,13 +269,39 @@ namespace inetr {
 
 				SetWindowText(stationLabel, language["connected"].c_str());
 
+				fetchMeta();
+
+				switch (currentStation->Meta) {
+				case Meta:
+					BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
+						&metaSync, 0);
+					break;
+				case OGG:
+					BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
+						&metaSync, 0);
+					break;
+				}
+
 				BASS_ChannelPlay(currentStream, FALSE);
+
+				SetTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_META, 5000,
+					NULL);
 		} else {
 			stringstream sstreamStatusText;
 			sstreamStatusText << language["buffering"] << "... " << progress
 				<< "%";
 			SetWindowText(stationLabel, sstreamStatusText.str().c_str());
 		}
+	}
+
+	void MainWindow::metaTimer() {
+		fetchMeta();
+	}
+
+	void CALLBACK MainWindow::metaSync(HSYNC handle, DWORD channel, DWORD data,
+		void *user) {
+
+		fetchMeta();
 	}
 
 	void MainWindow::handleListboxClick() {
@@ -286,6 +327,7 @@ namespace inetr {
 
 	void MainWindow::openURL(string url) {
 		KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
+		KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_META);
 
 		if (currentStream != NULL) {
 			BASS_ChannelStop(currentStream);
@@ -303,6 +345,83 @@ namespace inetr {
 			SetWindowText(stationLabel, language["connectionError"].c_str());
 	}
 
+	void MainWindow::fetchMeta() {
+		if (currentStation == NULL)
+			return;
+
+		switch (currentStation->Meta) {
+		case Meta:
+			fetchMeta_meta();
+			break;
+		case OGG:
+			fetchMeta_ogg();
+			break;
+		}
+	}
+
+	void MainWindow::fetchMeta_meta() {
+		if (currentStream == NULL)
+			return;
+
+		const char *csMetadata =
+			BASS_ChannelGetTags(currentStream, BASS_TAG_META);
+
+		if (!csMetadata)
+			return;
+
+		string metadata(csMetadata);
+		
+		string titleStr("StreamTitle='");
+
+		size_t titlePos = metadata.find(titleStr);
+
+		if (titlePos == metadata.npos)
+			return;
+
+		size_t titleBeginPos = titlePos + titleStr.length();
+		size_t titleEndPos = metadata.find("'", titleBeginPos);
+
+		if (titleEndPos == metadata.npos)
+			return;
+
+		string title = metadata.substr(titleBeginPos, titleEndPos -
+			titleBeginPos);
+
+		SetWindowText(stationLabel, title.c_str());
+	}
+
+	void MainWindow::fetchMeta_ogg() {
+		if (currentStream == NULL)
+			return;
+
+		const char *csMetadata = BASS_ChannelGetTags(currentStream,
+			BASS_TAG_OGG);
+
+		if (!csMetadata)
+			return;
+
+		string artist, title;
+
+		while (*csMetadata) {
+			char* csComment = new char[strlen(csMetadata) + 1];
+			strcpy_s(csComment, strlen(csMetadata) + 1, csMetadata);
+			csMetadata += strlen(csMetadata);
+
+			string comment(csComment);
+			delete[] csComment;
+
+			if (comment.compare(0, 7, "artist=") == 0)
+				artist = comment.substr(7);
+			else if (comment.compare(0, 6, "title=") == 0)
+				title = comment.substr(6);
+		}
+
+		if (!artist.empty() && !title.empty()) {
+			string text = artist + string(" - ") + title;
+			SetWindowText(stationLabel, text.c_str());
+		}
+	}
+
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 		LPARAM lParam) {
 		
@@ -311,6 +430,9 @@ namespace inetr {
 			switch (wParam) {
 				case INTERNETRADIO_MAINWINDOW_TIMER_BUFFER:
 					bufferTimer();
+					break;
+				case INTERNETRADIO_MAINWINDOW_TIMER_META:
+					metaTimer();
 					break;
 			}
 			break;
