@@ -95,7 +95,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (stationListBox == NULL)
-			throw string("Couldn't create station list box");
+			throw string(language["staLboxCreFailed"]);
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
@@ -109,7 +109,7 @@ namespace inetr {
 			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONLABEL_ID, instance, NULL);
 
 		if (statusLabel == NULL)
-			throw string("Couldn't create status label");
+			throw language["staLblCreFailed"];
 
 		stationImage = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
 			SS_BITMAP, INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSX,
@@ -117,7 +117,7 @@ namespace inetr {
 			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONIMAGE_ID, instance, NULL);
 
 		if (stationImage == NULL)
-			throw string("Couldn't create station image");
+			throw language["staImgCreFailed"];
 
 		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
 			MAKELPARAM(FALSE, 0));
