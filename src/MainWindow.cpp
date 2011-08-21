@@ -151,7 +151,7 @@ namespace inetr {
 		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
 		if (!successfullyParsed)
 			throw string("Couldn't parse config file\n") +
-				string(jsonReader.getFormatedErrorMessages());
+				jsonReader.getFormatedErrorMessages();
 		
 		Value languageList = rootValue.get("languages", NULL);
 		if (languageList == NULL || !languageList.isArray())
@@ -200,8 +200,7 @@ namespace inetr {
 		}
 
 		if (language.Name == "Undefined")
-			throw string("Couldn't load language \"") + languageStr +
-				string("\"");
+			throw string("Couldn't load language: ") + languageStr;
 
 		Value stationList = rootValue.get("stations", NULL);
 		if (stationList == NULL || !stationList.isArray())
@@ -240,7 +239,8 @@ namespace inetr {
 			else if (metaStr == "none")
 				meta = None;
 			else
-				throw string("Unsupported meta provider: ") + metaStr;
+				throw string("Error while parsing config file\n") +
+					string("Unsupported meta provider: ") + metaStr;
 
 			stations.push_back(Station(name, url, image, meta));
 		}
