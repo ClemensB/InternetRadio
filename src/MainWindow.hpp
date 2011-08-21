@@ -63,7 +63,7 @@ namespace inetr {
 		static HINSTANCE instance;
 		static HWND window;
 		static HWND stationListBox;
-		static HWND stationLabel;
+		static HWND statusLabel;
 		static HWND stationImage;
 
 		static std::list<Language> languages;

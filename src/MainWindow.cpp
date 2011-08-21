@@ -15,7 +15,7 @@ namespace inetr {
 	HINSTANCE MainWindow::instance;
 	HWND MainWindow::window;
 	HWND MainWindow::stationListBox;
-	HWND MainWindow::stationLabel;
+	HWND MainWindow::statusLabel;
 	HWND MainWindow::stationImage;
 
 	list<Language> MainWindow::languages;
@@ -101,15 +101,15 @@ namespace inetr {
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
 			MAKELPARAM(FALSE, 0));
 
-		stationLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
+		statusLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
 			WS_TABSTOP, INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSX,
 			INTERNETRADIO_MAINWINDOW_STATIONLABEL_POSY,
 			INTERNETRADIO_MAINWINDOW_STATIONLABEL_WIDTH,
 			INTERNETRADIO_MAINWINDOW_STATIONLABEL_HEIGHT, hwnd,
 			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONLABEL_ID, instance, NULL);
 
-		if (stationLabel == NULL)
-			throw string("Couldn't create station label");
+		if (statusLabel == NULL)
+			throw string("Couldn't create status label");
 
 		stationImage = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
 			SS_BITMAP, INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSX,
@@ -119,7 +119,7 @@ namespace inetr {
 		if (stationImage == NULL)
 			throw string("Couldn't create station image");
 
-		SendMessage(stationLabel, WM_SETFONT, (WPARAM)defaultFont,
+		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
 			MAKELPARAM(FALSE, 0));
 	}
 
@@ -267,7 +267,7 @@ namespace inetr {
 
 				KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
 
-				SetWindowText(stationLabel, language["connected"].c_str());
+				SetWindowText(statusLabel, language["connected"].c_str());
 
 				fetchMeta();
 
@@ -290,7 +290,7 @@ namespace inetr {
 			stringstream sstreamStatusText;
 			sstreamStatusText << language["buffering"] << "... " << progress
 				<< "%";
-			SetWindowText(stationLabel, sstreamStatusText.str().c_str());
+			SetWindowText(statusLabel, sstreamStatusText.str().c_str());
 		}
 	}
 
@@ -334,7 +334,7 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(stationLabel, (language["connecting"] +
+		SetWindowText(statusLabel, (language["connecting"] +
 			string("...")).c_str());
 
 		currentStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
@@ -342,7 +342,7 @@ namespace inetr {
 		if (currentStream != NULL)
 			SetTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER, 50, NULL);
 		else
-			SetWindowText(stationLabel, language["connectionError"].c_str());
+			SetWindowText(statusLabel, language["connectionError"].c_str());
 	}
 
 	void MainWindow::fetchMeta() {
@@ -387,7 +387,7 @@ namespace inetr {
 		string title = metadata.substr(titleBeginPos, titleEndPos -
 			titleBeginPos);
 
-		SetWindowText(stationLabel, title.c_str());
+		SetWindowText(statusLabel, title.c_str());
 	}
 
 	void MainWindow::fetchMeta_ogg() {
@@ -418,7 +418,7 @@ namespace inetr {
 
 		if (!artist.empty() && !title.empty()) {
 			string text = artist + string(" - ") + title;
-			SetWindowText(stationLabel, text.c_str());
+			SetWindowText(statusLabel, text.c_str());
 		}
 	}
 
