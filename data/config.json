@@ -36,7 +36,7 @@
 				"connected" : "Verbunden",
 				"connectionError" : "Verbindungsfehler",
 				"wsStartErr" : "Konnte WinSock nicht starten",
-				"hostResErr" : "Konnte Hostnamen nicht auflösen",
+				"hostResErr" : "Konnte Hostnamen nicht aufloesen",
 				"connFailedErr" : "Verbindung zum Server fehlgeschlagen",
 				"recvErr" : "Fehler beim Empfangen von Daten",
 				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
