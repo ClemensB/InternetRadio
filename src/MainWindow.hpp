@@ -55,10 +55,13 @@ namespace inetr {
 		static void handleListboxClick();
 
 		static void openURL(std::string url);
-		static void fetchMeta();
-		static void fetchMeta_meta();
-		static void fetchMeta_ogg();
-		static void fetchMeta_http();
+		static void updateMeta();
+		static std::string fetchMeta();
+		static std::string fetchMeta_meta();
+		static std::string fetchMeta_ogg();
+		static std::string fetchMeta_http();
+		static std::string processMeta_regex(std::string meta);
+		static std::string processMeta_regexAT(std::string meta);
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);

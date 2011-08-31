@@ -9,13 +9,17 @@
 #define INTERNETRADIO_STATION_IMAGEHEIGHT 200
 
 namespace inetr {
-	enum MetadataProviderType { None, Meta, OGG, HTTP };
+	enum MetadataProviderType { NoMetaProvider, Meta, OGG, HTTP };
+	enum MetadataProcessorType { NoMetaProcessor, RegEx, RegExAT };
 
 	class Station {
 	public:
 		Station(std::string name, std::string url, std::string imagePath,
-			MetadataProviderType metadataProvider = None, std::string
-			meta_HTTP_URL = "");
+			MetadataProviderType metadataProvider = NoMetaProvider,
+			MetadataProcessorType metadataProcessor = NoMetaProcessor,
+			std::string meta_HTTP_URL = "", std::string
+			metaProc_RegEx = "", std::string metaProc_RegExA = "", std::string
+			metaProc_RegExT = "");
 		Station(const Station &original);
 		~Station();
 
@@ -25,8 +29,12 @@ namespace inetr {
 		std::string URL;
 		HBITMAP Image;
 		MetadataProviderType MetadataProvider;
+		MetadataProcessorType MetadataProcessor;
 
 		std::string Meta_HTTP_URL;
+		std::string MetaProc_RegEx;
+		std::string MetaProc_RegExA;
+		std::string MetaProc_RegExT;
 	private:
 		std::string imagePath;
 	};

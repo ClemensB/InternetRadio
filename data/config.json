@@ -18,8 +18,7 @@
 				"connFailedErr" : "Connection to server failed",
 				"recvErr" : "Error while receiving data",
 				"unhHTTPStatus" : "Unhandled HTTP status code",
-				"emptyURL" : "Empty or not present URL",
-				"unneededURL" : "URL specified but MetadataProvider is not HTTP"
+				"emptyURL" : "Empty URL"
 			}
 		},
 		{
@@ -40,8 +39,7 @@
 				"connFailedErr" : "Verbindung zum Server fehlgeschlagen",
 				"recvErr" : "Fehler beim Empfangen von Daten",
 				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
-				"emptyURL" : "Leere oder keine URL angegeben",
-				"unneededURL" : "URL angegeben, obwohl der MetadataProvider nicht HTTP ist"
+				"emptyURL" : "Leere URL angegeben"
 			}
 		}
 	],
@@ -50,12 +48,20 @@
 		{
 			"name" : "NDR 2",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
-			"image" : "ndr_2.bmp"
+			"image" : "ndr_2.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html",
+			"metaProc" : "regex",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
 		},
 		{
 			"name" : "N-Joy",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3",
-			"image" : "n-joy.bmp"
+			"image" : "n-joy.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.n-joy.de/onaircenter121-onaircenterpopup.html",
+			"metaProc" : "regex",
+			"regex" : "currentsong\">\\n<div class=\"scrollingtext\">\\n<p>\\n([^<>]+)"
 		},
 		{
 			"name" : "1Live",
@@ -72,7 +78,12 @@
 		{
 			"name" : "Sputnik",
 			"url" : "http://c22033-l.i.core.cdn.streamfarm.net/22005mdrsputnik/live/3087mdr_sputnik/live_de_128.mp3",
-			"image" : "sputnik.bmp"
+			"image" : "sputnik.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.sputnik.de/programm/streaming/der-sputnik-livestream",
+			"metaProc" : "regexAT",
+			"regexA" : "<p><strong>([^<>]+)",
+			"regexT" : "songname\">([^<>]+)"
 		},
 		{
 			"name" : "Hardbase.FM",

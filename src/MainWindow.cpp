@@ -5,12 +5,14 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <regex>
 
 #include <json/json.h>
 
 #include "HTTP.hpp"
 
 using namespace std;
+using namespace std::tr1;
 using namespace Json;
 
 namespace inetr {
@@ -234,7 +236,7 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string metaStr = metaValue.asString();
 
-			MetadataProviderType meta = None;
+			MetadataProviderType meta = NoMetaProvider;
 			if (metaStr == "meta")
 				meta = Meta;
 			else if (metaStr == "ogg")
@@ -242,10 +244,30 @@ namespace inetr {
 			else if (metaStr == "http")
 				meta = HTTP;
 			else if (metaStr == "none")
-				meta = None;
+				meta = NoMetaProvider;
 			else
 				throw string("Error while parsing config file\n") +
 					string("Unsupported meta provider: ") + metaStr;
+
+			Value metaProcValue = stationObject.get("metaProc", Value("none"));
+			if (!metaProcValue.isString())
+				throw string("Error while parsing config file");
+			string metaProcStr = metaProcValue.asString();
+
+			MetadataProcessorType metaProc = NoMetaProcessor;
+			if (metaProcStr == "regex")
+				metaProc = RegEx;
+			else if (metaProcStr == "regexAT")
+				metaProc = RegExAT;
+			else if (metaProcStr == "none")
+				metaProc = NoMetaProcessor;
+			else
+				throw string("Error while parsing config file\n") +
+					string("Unsupported meta processor: ") + metaProcStr;
+
+			if (meta == NoMetaProvider && metaProc != NoMetaProcessor)
+				throw string("Error while parsing config file\n") +
+					string("MetaProcessor specified, but no MetaProvider");
 
 			Value meta_HTTP_URLValue = stationObject.get("httpURL", Value(""));
 			if (!meta_HTTP_URLValue.isString())
@@ -253,11 +275,44 @@ namespace inetr {
 			string meta_HTTP_URL = meta_HTTP_URLValue.asString();
 
 			if (meta == HTTP && meta_HTTP_URL == "")
-				throw CurrentLanguage["emptyURL"];
+				throw string("Error while parsing config file\n") +
+					string("Empty or not present URL");
 			if (meta != HTTP && meta_HTTP_URL != "")
-				throw CurrentLanguage["unneededURL"];
+				throw string("Error while parsing config file") + 
+					string("URL specified but MetadataProvider is not HTTP");
 
-			stations.push_back(Station(name, url, image, meta, meta_HTTP_URL));
+			Value metaProc_RegExValue = stationObject.get("regex", Value(""));
+			if (!metaProc_RegExValue.isString())
+				throw string("Error while parsing config file");
+			string metaProc_RegEx = metaProc_RegExValue.asString();
+
+			if (metaProc == RegEx && metaProc_RegEx == "")
+				throw string("Error while parsing config file\n") +
+					string("No RegEx specified");
+			if (metaProc != RegEx && metaProc_RegEx != "")
+				throw string("Error while parsing config file\n") +
+					string("RegEx specified but MetaProcessor isn't RegEx");
+
+			Value metaProc_RegExAValue = stationObject.get("regexA", Value(""));
+			if (!metaProc_RegExAValue.isString())
+				throw string("Error while parsing config file");
+			string metaProc_RegExA = metaProc_RegExAValue.asString();
+
+			Value metaProc_RegExTValue = stationObject.get("regexT", Value(""));
+			if (!metaProc_RegExTValue.isString())
+				throw string("Error while parsing config file");
+			string metaProc_RegExT = metaProc_RegExTValue.asString();
+
+			if (metaProc == RegExAT && (metaProc_RegExA == "" ||
+				metaProc_RegExT == ""))
+				throw string("No RegEx specified");
+			if (metaProc != RegExAT && (metaProc_RegExA != "" ||
+				metaProc_RegExT != ""))
+				throw string("RegEx specified but MetaProcessor isn't RegExAT");
+
+			stations.push_back(Station(name, url, image, meta, metaProc,
+				meta_HTTP_URL, metaProc_RegEx, metaProc_RegExA,
+				metaProc_RegExT));
 		}
 
 		configFile.close();
@@ -284,7 +339,7 @@ namespace inetr {
 
 				SetWindowText(statusLabel, CurrentLanguage["connected"].c_str());
 
-				fetchMeta();
+				updateMeta();
 
 				switch (currentStation->MetadataProvider) {
 				case Meta:
@@ -310,13 +365,13 @@ namespace inetr {
 	}
 
 	void MainWindow::metaTimer() {
-		fetchMeta();
+		updateMeta();
 	}
 
 	void CALLBACK MainWindow::metaSync(HSYNC handle, DWORD channel, DWORD data,
 		void *user) {
 
-		fetchMeta();
+		updateMeta();
 	}
 
 	void MainWindow::handleListboxClick() {
@@ -360,32 +415,51 @@ namespace inetr {
 			SetWindowText(statusLabel, CurrentLanguage["connectionError"].c_str());
 	}
 
-	void MainWindow::fetchMeta() {
-		if (currentStation == NULL)
-			return;
+	void MainWindow::updateMeta() {
+		string meta = fetchMeta();
 
-		switch (currentStation->MetadataProvider) {
-		case Meta:
-			fetchMeta_meta();
-			break;
-		case OGG:
-			fetchMeta_ogg();
-			break;
-		case HTTP:
-			fetchMeta_http();
-			break;
+		if (meta != "") {
+			switch(currentStation->MetadataProcessor) {
+			case RegEx:
+				meta = processMeta_regex(meta);
+				break;
+			case RegExAT:
+				meta = processMeta_regexAT(meta);
+				break;
+			}
+
+			SetWindowText(statusLabel, meta.c_str());
 		}
 	}
 
-	void MainWindow::fetchMeta_meta() {
+	string MainWindow::fetchMeta() {
+		if (currentStation == NULL)
+			return "";
+
+		switch (currentStation->MetadataProvider) {
+		case Meta:
+			return fetchMeta_meta();
+			break;
+		case OGG:
+			return fetchMeta_ogg();
+			break;
+		case HTTP:
+			return fetchMeta_http();
+			break;
+		}
+
+		return "";
+	}
+
+	string MainWindow::fetchMeta_meta() {
 		if (currentStream == NULL)
-			return;
+			return "";
 
 		const char *csMetadata =
 			BASS_ChannelGetTags(currentStream, BASS_TAG_META);
 
 		if (!csMetadata)
-			return;
+			return "";
 
 		string metadata(csMetadata);
 		
@@ -394,29 +468,29 @@ namespace inetr {
 		size_t titlePos = metadata.find(titleStr);
 
 		if (titlePos == metadata.npos)
-			return;
+			return "";
 
 		size_t titleBeginPos = titlePos + titleStr.length();
 		size_t titleEndPos = metadata.find("'", titleBeginPos);
 
 		if (titleEndPos == metadata.npos)
-			return;
+			return "";
 
 		string title = metadata.substr(titleBeginPos, titleEndPos -
 			titleBeginPos);
 
-		SetWindowText(statusLabel, title.c_str());
+		return title;
 	}
 
-	void MainWindow::fetchMeta_ogg() {
+	string MainWindow::fetchMeta_ogg() {
 		if (currentStream == NULL)
-			return;
+			return "";
 
 		const char *csMetadata = BASS_ChannelGetTags(currentStream,
 			BASS_TAG_OGG);
 
 		if (!csMetadata)
-			return;
+			return "";
 
 		string artist, title;
 
@@ -436,11 +510,13 @@ namespace inetr {
 
 		if (!artist.empty() && !title.empty()) {
 			string text = artist + string(" - ") + title;
-			SetWindowText(statusLabel, text.c_str());
+			return text;
+		} else {
+			return "";
 		}
 	}
 
-	void MainWindow::fetchMeta_http() {
+	string MainWindow::fetchMeta_http() {
 		stringstream httpstream;
 		try {
 			HTTP::Get(currentStation->Meta_HTTP_URL, &httpstream);
@@ -448,7 +524,25 @@ namespace inetr {
 			MessageBox(window, e.c_str(), "Error", MB_ICONERROR | MB_OK);
 		}
 
-		SetWindowText(statusLabel, httpstream.str().c_str());
+		return httpstream.str();
+	}
+
+	string MainWindow::processMeta_regex(string meta) {
+		regex rx(currentStation->MetaProc_RegEx);
+		cmatch res;
+		regex_search(meta.c_str(), res, rx);
+		
+		return res[1];
+	}
+
+	string MainWindow::processMeta_regexAT(string meta) {
+		regex rxA(currentStation->MetaProc_RegExA);
+		regex rxT(currentStation->MetaProc_RegExT);
+		cmatch resA, resT;
+		regex_search(meta.c_str(), resA, rxA);
+		regex_search(meta.c_str(), resT, rxT);
+
+		return string(resA[1]) + " - " + string(resT[1]);
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,

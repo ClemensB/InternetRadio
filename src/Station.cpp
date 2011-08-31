@@ -4,14 +4,20 @@ using namespace std;
 
 namespace inetr {
 	Station::Station(string name, string url, string imagePath,
-		MetadataProviderType metadataProvider /* = None */, string
-		meta_HTTP_URL /* = "" */) {
+		MetadataProviderType metadataProvider /* = NoMetaProvider */,
+		MetadataProcessorType metadataProcessor /* = NoMetaProcessor */,
+		string meta_HTTP_URL /* = "" */, string metaProc_RegEx /* = "" */,
+		string metaProc_RegExA /* = "" */, string metaProc_RegExT /* = "" */) {
 		this->Name = name;
 		this->URL = url;
 		this->MetadataProvider = metadataProvider;
+		this->MetadataProcessor = metadataProcessor;
 		this->imagePath = imagePath;
 
 		this->Meta_HTTP_URL = meta_HTTP_URL;
+		this->MetaProc_RegEx = metaProc_RegEx;
+		this->MetaProc_RegExA = metaProc_RegExA;
+		this->MetaProc_RegExT = metaProc_RegExT;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 			IMAGE_BITMAP, INTERNETRADIO_STATION_IMAGEWIDTH,
@@ -26,9 +32,13 @@ namespace inetr {
 		this->Name = original.Name;
 		this->URL = original.URL;
 		this->MetadataProvider = original.MetadataProvider;
+		this->MetadataProcessor = original.MetadataProcessor;
 		this->imagePath = original.imagePath;
 
 		this->Meta_HTTP_URL = original.Meta_HTTP_URL;
+		this->MetaProc_RegEx = original.MetaProc_RegEx;
+		this->MetaProc_RegExA = original.MetaProc_RegExA;
+		this->MetaProc_RegExT = original.MetaProc_RegExT;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 			IMAGE_BITMAP, 200, 200, LR_LOADFROMFILE);
@@ -48,9 +58,13 @@ namespace inetr {
 			this->Name = original.Name;
 			this->URL = original.URL;
 			this->MetadataProvider = original.MetadataProvider;
+			this->MetadataProcessor = original.MetadataProcessor;
 			this->imagePath = original.imagePath;
 
 			this->Meta_HTTP_URL = original.Meta_HTTP_URL;
+			this->MetaProc_RegEx = original.MetaProc_RegEx;
+			this->MetaProc_RegExA = original.MetaProc_RegExA;
+			this->MetaProc_RegExT = original.MetaProc_RegExT;
 
 			Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 				IMAGE_BITMAP, 200, 200, LR_LOADFROMFILE);
