@@ -38,6 +38,8 @@ namespace inetr {
 	public:
 		static int Main(std::string commandLine, HINSTANCE instance,
 			int showCmd);
+
+		static Language CurrentLanguage;
 	private:
 		static void createWindow();
 		static void createControls(HWND hwnd);
@@ -56,6 +58,7 @@ namespace inetr {
 		static void fetchMeta();
 		static void fetchMeta_meta();
 		static void fetchMeta_ogg();
+		static void fetchMeta_http();
 
 		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
@@ -67,7 +70,6 @@ namespace inetr {
 		static HWND stationImage;
 
 		static std::list<Language> languages;
-		static Language language;
 
 		static HSTREAM currentStream;
 

@@ -8,6 +8,8 @@
 
 #include <json/json.h>
 
+#include "HTTP.hpp"
+
 using namespace std;
 using namespace Json;
 
@@ -19,7 +21,7 @@ namespace inetr {
 	HWND MainWindow::stationImage;
 
 	list<Language> MainWindow::languages;
-	Language MainWindow::language;
+	Language MainWindow::CurrentLanguage;
 
 	HSTREAM MainWindow::currentStream = NULL;
 
@@ -71,17 +73,17 @@ namespace inetr {
 		wndClass.lpszClassName		= INTERNETRADIO_MAINWINDOW_CLASSNAME;
 
 		if (!RegisterClassEx(&wndClass))
-			throw language["wndRegFailed"];
+			throw CurrentLanguage["wndRegFailed"];
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
-			INTERNETRADIO_MAINWINDOW_CLASSNAME, language["windowTitle"].c_str(),
+			INTERNETRADIO_MAINWINDOW_CLASSNAME, CurrentLanguage["windowTitle"].c_str(),
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			INTERNETRADIO_MAINWINDOW_WIDTH, INTERNETRADIO_MAINWINDOW_HEIGHT,
 			NULL, NULL, instance, NULL);
 
 		if (window == NULL)
-			throw language["wndCreFailed"];
+			throw CurrentLanguage["wndCreFailed"];
 	}
 
 	void MainWindow::createControls(HWND hwnd) {
@@ -95,7 +97,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (stationListBox == NULL)
-			throw string(language["staLboxCreFailed"]);
+			throw string(CurrentLanguage["staLboxCreFailed"]);
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
@@ -109,7 +111,7 @@ namespace inetr {
 			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONLABEL_ID, instance, NULL);
 
 		if (statusLabel == NULL)
-			throw language["staLblCreFailed"];
+			throw CurrentLanguage["staLblCreFailed"];
 
 		stationImage = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
 			SS_BITMAP, INTERNETRADIO_MAINWINDOW_STATIONIMAGE_POSX,
@@ -117,7 +119,7 @@ namespace inetr {
 			(HMENU)INTERNETRADIO_MAINWINDOW_STATIONIMAGE_ID, instance, NULL);
 
 		if (stationImage == NULL)
-			throw language["staImgCreFailed"];
+			throw CurrentLanguage["staImgCreFailed"];
 
 		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
 			MAKELPARAM(FALSE, 0));
@@ -196,10 +198,10 @@ namespace inetr {
 			it != languages.end(); ++it) {
 
 			if (it->Name == languageStr)
-				language = *it;
+				CurrentLanguage = *it;
 		}
 
-		if (language.Name == "Undefined")
+		if (CurrentLanguage.Name == "Undefined")
 			throw string("Error while parsing config file\n") +
 				string("Unsupported language: ") + languageStr;
 
@@ -237,13 +239,25 @@ namespace inetr {
 				meta = Meta;
 			else if (metaStr == "ogg")
 				meta = OGG;
+			else if (metaStr == "http")
+				meta = HTTP;
 			else if (metaStr == "none")
 				meta = None;
 			else
 				throw string("Error while parsing config file\n") +
 					string("Unsupported meta provider: ") + metaStr;
 
-			stations.push_back(Station(name, url, image, meta));
+			Value meta_HTTP_URLValue = stationObject.get("httpURL", Value(""));
+			if (!meta_HTTP_URLValue.isString())
+				throw string("Error while parsing config file");
+			string meta_HTTP_URL = meta_HTTP_URLValue.asString();
+
+			if (meta == HTTP && meta_HTTP_URL == "")
+				throw CurrentLanguage["emptyURL"];
+			if (meta != HTTP && meta_HTTP_URL != "")
+				throw CurrentLanguage["unneededURL"];
+
+			stations.push_back(Station(name, url, image, meta, meta_HTTP_URL));
 		}
 
 		configFile.close();
@@ -268,7 +282,7 @@ namespace inetr {
 
 				KillTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER);
 
-				SetWindowText(statusLabel, language["connected"].c_str());
+				SetWindowText(statusLabel, CurrentLanguage["connected"].c_str());
 
 				fetchMeta();
 
@@ -289,7 +303,7 @@ namespace inetr {
 					NULL);
 		} else {
 			stringstream sstreamStatusText;
-			sstreamStatusText << language["buffering"] << "... " << progress
+			sstreamStatusText << CurrentLanguage["buffering"] << "... " << progress
 				<< "%";
 			SetWindowText(statusLabel, sstreamStatusText.str().c_str());
 		}
@@ -335,7 +349,7 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(statusLabel, (language["connecting"] +
+		SetWindowText(statusLabel, (CurrentLanguage["connecting"] +
 			string("...")).c_str());
 
 		currentStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
@@ -343,7 +357,7 @@ namespace inetr {
 		if (currentStream != NULL)
 			SetTimer(window, INTERNETRADIO_MAINWINDOW_TIMER_BUFFER, 50, NULL);
 		else
-			SetWindowText(statusLabel, language["connectionError"].c_str());
+			SetWindowText(statusLabel, CurrentLanguage["connectionError"].c_str());
 	}
 
 	void MainWindow::fetchMeta() {
@@ -356,6 +370,9 @@ namespace inetr {
 			break;
 		case OGG:
 			fetchMeta_ogg();
+			break;
+		case HTTP:
+			fetchMeta_http();
 			break;
 		}
 	}
@@ -421,6 +438,17 @@ namespace inetr {
 			string text = artist + string(" - ") + title;
 			SetWindowText(statusLabel, text.c_str());
 		}
+	}
+
+	void MainWindow::fetchMeta_http() {
+		stringstream httpstream;
+		try {
+			HTTP::Get(currentStation->Meta_HTTP_URL, &httpstream);
+		} catch (const string &e) {
+			MessageBox(window, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		}
+
+		SetWindowText(statusLabel, httpstream.str().c_str());
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,

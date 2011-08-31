@@ -12,7 +12,14 @@
 				"connecting" : "Connecting",
 				"buffering" : "Buffering",
 				"connected" : "Connected",
-				"connectionError" : "Connection error"
+				"connectionError" : "Connection error",
+				"wsStartErr" : "Couldn't start winsock",
+				"hostResErr" : "Couldn't resolve hostname",
+				"connFailedErr" : "Connection to server failed",
+				"recvErr" : "Error while receiving data",
+				"unhHTTPStatus" : "Unhandled HTTP status code",
+				"emptyURL" : "Empty or not present URL",
+				"unneededURL" : "URL specified but MetadataProvider is not HTTP"
 			}
 		},
 		{
@@ -27,7 +34,14 @@
 				"connecting" : "Verbinden",
 				"buffering" : "Puffern",
 				"connected" : "Verbunden",
-				"connectionError" : "Verbindungsfehler"
+				"connectionError" : "Verbindungsfehler",
+				"wsStartErr" : "Konnte WinSock nicht starten",
+				"hostResErr" : "Konnte Hostnamen nicht auflösen",
+				"connFailedErr" : "Verbindung zum Server fehlgeschlagen",
+				"recvErr" : "Fehler beim Empfangen von Daten",
+				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
+				"emptyURL" : "Leere oder keine URL angegeben",
+				"unneededURL" : "URL angegeben, obwohl der MetadataProvider nicht HTTP ist"
 			}
 		}
 	],

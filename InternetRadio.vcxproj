@@ -54,7 +54,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -69,7 +69,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>bass.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -100,6 +100,7 @@
     <ClInclude Include="dependencies\jsoncpp\include\json\value.h" />
     <ClInclude Include="dependencies\jsoncpp\include\json\writer.h" />
     <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h" />
+    <ClInclude Include="src\HTTP.hpp" />
     <ClInclude Include="src\Language.hpp" />
     <ClInclude Include="src\MainWindow.hpp" />
     <ClInclude Include="src\resource.h" />
@@ -109,6 +110,7 @@
     <ClCompile Include="dependencies\jsoncpp\src\json_reader.cpp" />
     <ClCompile Include="dependencies\jsoncpp\src\json_value.cpp" />
     <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp" />
+    <ClCompile Include="src\HTTP.cpp" />
     <ClCompile Include="src\Language.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
