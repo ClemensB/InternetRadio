@@ -82,6 +82,7 @@
     <None Include="data\img\hardbase.bmp" />
     <None Include="data\img\n-joy.bmp" />
     <None Include="data\img\ndr_2.bmp" />
+    <None Include="data\img\raktiv.bmp" />
     <None Include="data\img\sputnik.bmp" />
     <None Include="dependencies\bass\bass.dll" />
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />

@@ -86,6 +86,11 @@
 			"regexT" : "songname\">([^<>]+)"
 		},
 		{
+			"name" : "Radio Aktiv",
+			"url" : "http://92.51.133.241:8000/",
+			"image" : "raktiv.bmp"
+		},
+		{
 			"name" : "Hardbase.FM",
 			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
 			"image" : "hardbase.bmp",
