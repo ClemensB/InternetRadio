@@ -5,13 +5,14 @@ using namespace std;
 namespace inetr {
 	Station::Station(string name, string url, string imagePath,
 		MetadataProviderType metadataProvider /* = NoMetaProvider */,
-		MetadataProcessorType metadataProcessor /* = NoMetaProcessor */,
+		vector<MetadataProcessorType> metadataProcessors
+		/* = vector<MetadataProcessorType>() */,
 		string meta_HTTP_URL /* = "" */, string metaProc_RegEx /* = "" */,
 		string metaProc_RegExA /* = "" */, string metaProc_RegExT /* = "" */) {
 		this->Name = name;
 		this->URL = url;
 		this->MetadataProvider = metadataProvider;
-		this->MetadataProcessor = metadataProcessor;
+		this->MetadataProcessors = metadataProcessors;
 		this->imagePath = imagePath;
 
 		this->Meta_HTTP_URL = meta_HTTP_URL;
@@ -32,7 +33,7 @@ namespace inetr {
 		this->Name = original.Name;
 		this->URL = original.URL;
 		this->MetadataProvider = original.MetadataProvider;
-		this->MetadataProcessor = original.MetadataProcessor;
+		this->MetadataProcessors = original.MetadataProcessors;
 		this->imagePath = original.imagePath;
 
 		this->Meta_HTTP_URL = original.Meta_HTTP_URL;
@@ -58,7 +59,7 @@ namespace inetr {
 			this->Name = original.Name;
 			this->URL = original.URL;
 			this->MetadataProvider = original.MetadataProvider;
-			this->MetadataProcessor = original.MetadataProcessor;
+			this->MetadataProcessors = original.MetadataProcessors;
 			this->imagePath = original.imagePath;
 
 			this->Meta_HTTP_URL = original.Meta_HTTP_URL;

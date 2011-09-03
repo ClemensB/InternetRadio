@@ -10,6 +10,7 @@
 #include <json/json.h>
 
 #include "HTTP.hpp"
+#include "StringUtil.hpp"
 
 using namespace std;
 using namespace std::tr1;
@@ -282,20 +283,32 @@ namespace inetr {
 			Value metaProcValue = stationObject.get("metaProc", Value("none"));
 			if (!metaProcValue.isString())
 				throw string("Error while parsing config file");
-			string metaProcStr = metaProcValue.asString();
+			string metaProcsStr = metaProcValue.asString();
 
-			MetadataProcessorType metaProc = NoMetaProcessor;
-			if (metaProcStr == "regex")
-				metaProc = RegEx;
-			else if (metaProcStr == "regexAT")
-				metaProc = RegExAT;
-			else if (metaProcStr == "none")
-				metaProc = NoMetaProcessor;
-			else
-				throw string("Error while parsing config file\n") +
+			vector<string> metaProcsVec = StringUtil::Explode(metaProcsStr,
+				",");
+			vector<MetadataProcessorType> metaProcs;
+			for (vector<string>::iterator it = metaProcsVec.begin();
+				it != metaProcsVec.end(); ++it) {
+				
+				string metaProcStr = *it;
+
+				MetadataProcessorType metaProc = NoMetaProcessor;
+				if (metaProcStr == "regex")
+					metaProc = RegEx;
+				else if (metaProcStr == "regexAT")
+					metaProc = RegExAT;
+				else if (metaProcStr == "none")
+					metaProc = NoMetaProcessor;
+				else
+					throw string("Error while parsing config file\n") +
 					string("Unsupported meta processor: ") + metaProcStr;
 
-			if (meta == NoMetaProvider && metaProc != NoMetaProcessor)
+				if (metaProc != NoMetaProcessor)
+					metaProcs.push_back(metaProc);
+			}
+
+			if (meta == NoMetaProvider && metaProcs.size() > 0)
 				throw string("Error while parsing config file\n") +
 					string("MetaProcessor specified, but no MetaProvider");
 
@@ -316,10 +329,12 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string metaProc_RegEx = metaProc_RegExValue.asString();
 
-			if (metaProc == RegEx && metaProc_RegEx == "")
+			if (find(metaProcs.begin(), metaProcs.end(), RegEx) !=
+				metaProcs.end() && metaProc_RegEx == "")
 				throw string("Error while parsing config file\n") +
 					string("No RegEx specified");
-			if (metaProc != RegEx && metaProc_RegEx != "")
+			if (find(metaProcs.begin(), metaProcs.end(), RegEx) ==
+				metaProcs.end() && metaProc_RegEx != "")
 				throw string("Error while parsing config file\n") +
 					string("RegEx specified but MetaProcessor isn't RegEx");
 
@@ -333,14 +348,16 @@ namespace inetr {
 				throw string("Error while parsing config file");
 			string metaProc_RegExT = metaProc_RegExTValue.asString();
 
-			if (metaProc == RegExAT && (metaProc_RegExA == "" ||
+			if (find(metaProcs.begin(), metaProcs.end(), RegExAT) !=
+				metaProcs.end() && (metaProc_RegExA == "" ||
 				metaProc_RegExT == ""))
 				throw string("No RegEx specified");
-			if (metaProc != RegExAT && (metaProc_RegExA != "" ||
+			if (find(metaProcs.begin(), metaProcs.end(), RegExAT) ==
+				metaProcs.end() && (metaProc_RegExA != "" ||
 				metaProc_RegExT != ""))
 				throw string("RegEx specified but MetaProcessor isn't RegExAT");
 
-			stations.push_back(Station(name, url, image, meta, metaProc,
+			stations.push_back(Station(name, url, image, meta, metaProcs,
 				meta_HTTP_URL, metaProc_RegEx, metaProc_RegExA,
 				metaProc_RegExT));
 		}
@@ -670,13 +687,17 @@ namespace inetr {
 		string meta = fetchMeta();
 
 		if (meta != "") {
-			switch(currentStation->MetadataProcessor) {
-			case RegEx:
-				meta = processMeta_regex(meta);
-				break;
-			case RegExAT:
-				meta = processMeta_regexAT(meta);
-				break;
+			for (vector<MetadataProcessorType>::iterator it =
+				currentStation->MetadataProcessors.begin();
+				it != currentStation->MetadataProcessors.end(); ++it) {
+				switch(*it) {
+				case RegEx:
+					meta = processMeta_regex(meta);
+					break;
+				case RegExAT:
+					meta = processMeta_regexAT(meta);
+					break;
+				}
 			}
 
 			SetWindowText(statusLabel, meta.c_str());

@@ -2,6 +2,7 @@
 #define INTERNETRADIO_STATION_HPP
 
 #include <string>
+#include <vector>
 
 #include <Windows.h>
 
@@ -16,7 +17,8 @@ namespace inetr {
 	public:
 		Station(std::string name, std::string url, std::string imagePath,
 			MetadataProviderType metadataProvider = NoMetaProvider,
-			MetadataProcessorType metadataProcessor = NoMetaProcessor,
+			std::vector<MetadataProcessorType> metadataProcessors = 
+			std::vector<MetadataProcessorType>(),
 			std::string meta_HTTP_URL = "", std::string
 			metaProc_RegEx = "", std::string metaProc_RegExA = "", std::string
 			metaProc_RegExT = "");
@@ -29,7 +31,7 @@ namespace inetr {
 		std::string URL;
 		HBITMAP Image;
 		MetadataProviderType MetadataProvider;
-		MetadataProcessorType MetadataProcessor;
+		std::vector<MetadataProcessorType> MetadataProcessors;
 
 		std::string Meta_HTTP_URL;
 		std::string MetaProc_RegEx;
