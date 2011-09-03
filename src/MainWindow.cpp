@@ -466,7 +466,8 @@ namespace inetr {
 
 				KillTimer(window, INETR_MWND_TIMER_BUFFER);
 
-				SetWindowText(statusLabel, CurrentLanguage["connected"].c_str());
+				SetWindowText(statusLabel,
+					CurrentLanguage["connected"].c_str());
 
 				updateMeta();
 
@@ -487,8 +488,8 @@ namespace inetr {
 					NULL);
 		} else {
 			stringstream sstreamStatusText;
-			sstreamStatusText << CurrentLanguage["buffering"] << "... " << progress
-				<< "%";
+			sstreamStatusText << CurrentLanguage["buffering"] << "... " <<
+				progress << "%";
 			SetWindowText(statusLabel, sstreamStatusText.str().c_str());
 		}
 	}
@@ -645,7 +646,8 @@ namespace inetr {
 		if (currentStream != NULL)
 			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
 		else
-			SetWindowText(statusLabel, CurrentLanguage["connectionError"].c_str());
+			SetWindowText(statusLabel,
+				CurrentLanguage["connectionError"].c_str());
 	}
 
 	void MainWindow::stop() {
