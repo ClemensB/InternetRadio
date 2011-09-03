@@ -43,7 +43,7 @@
 			}
 		}
 	],
-	"language" : "German",
+	"defaultLanguage" : "German",
 	"stations" : [
 		{
 			"name" : "NDR 2",

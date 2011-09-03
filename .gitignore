@@ -6,3 +6,5 @@
 /ipch
 /Debug
 /Release
+
+/data/userconfig.json
