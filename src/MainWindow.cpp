@@ -622,7 +622,8 @@ namespace inetr {
 		for (list<Station>::iterator it = stations.begin();
 			it != stations.end(); ++it) {
 			
-			if (text == it->Name)
+			if (text == it->Name && find(favoriteStations.begin(),
+				favoriteStations.end(), &*it) == favoriteStations.end())
 				favoriteStations.push_back(&*it);
 		}
 

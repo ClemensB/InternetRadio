@@ -91,6 +91,16 @@
 			"image" : "raktiv.bmp"
 		},
 		{
+			"name" : "bigFM",
+			"url" : "http://217.151.152.245/bigfm-mp3-96",
+			"image" : "bigfm.bmp"
+		},
+		{
+			"name" : "89.0 RTL",
+			"url" : "http://62.75.176.45/rtl-high",
+			"image" : "98_0rtl.bmp"
+		},
+		{
 			"name" : "Hardbase.FM",
 			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
 			"image" : "hardbase.bmp",
