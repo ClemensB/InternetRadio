@@ -93,7 +93,12 @@
 		{
 			"name" : "bigFM",
 			"url" : "http://217.151.152.245/bigfm-mp3-96",
-			"image" : "bigfm.bmp"
+			"image" : "bigfm.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.bigfm.de/content/html/shared/playlist/index.html",
+			"metaProc" : "regexAT",
+			"regexA" : "win-pls-track-rgt\">\\n   <h1>[^<>]+</h1>\\n   <h2>([^<>]+)",
+			"regexT" : "win-pls-track-rgt\">\\n   <h1>([^<>]+)"
 		},
 		{
 			"name" : "89.0 RTL",
