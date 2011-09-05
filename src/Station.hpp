@@ -11,7 +11,8 @@
 
 namespace inetr {
 	enum MetadataProviderType { NoMetaProvider, Meta, OGG, HTTP };
-	enum MetadataProcessorType { NoMetaProcessor, RegEx, RegExAT };
+	enum MetadataProcessorType { NoMetaProcessor, RegEx, RegExAT,
+		HTMLEntityFix };
 
 	class Station {
 	public:

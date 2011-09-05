@@ -16,4 +16,17 @@ namespace inetr {
 			results.push_back(str);
 		return results;
 	}
+
+	void StringUtil::SearchAndReplace(string &str, const string &search,
+		const string &replace) {
+
+		string::size_type next;
+
+		for (next = str.find(search); next != string::npos;
+			next = str.find(search, next)) {
+
+			str.replace(next, search.length(), replace);
+			next += replace.length();
+		}
+	}
 }

@@ -82,6 +82,7 @@ namespace inetr {
 		static std::string fetchMeta_http();
 		static std::string processMeta_regex(std::string meta);
 		static std::string processMeta_regexAT(std::string meta);
+		static std::string processMeta_htmlEntityFix(std::string meta);
 
 		static void expand();
 		static void retract();

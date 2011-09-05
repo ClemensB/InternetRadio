@@ -298,6 +298,8 @@ namespace inetr {
 					metaProc = RegEx;
 				else if (metaProcStr == "regexAT")
 					metaProc = RegExAT;
+				else if (metaProcStr == "htmlEntityFix")
+					metaProc = HTMLEntityFix;
 				else if (metaProcStr == "none")
 					metaProc = NoMetaProcessor;
 				else
@@ -308,7 +310,7 @@ namespace inetr {
 					metaProcs.push_back(metaProc);
 			}
 
-			if (meta == NoMetaProvider && metaProcs.size() > 0)
+			if (meta == NoMetaProvider && !metaProcs.empty())
 				throw string("Error while parsing config file\n") +
 					string("MetaProcessor specified, but no MetaProvider");
 
@@ -697,8 +699,13 @@ namespace inetr {
 				case RegExAT:
 					meta = processMeta_regexAT(meta);
 					break;
+				case HTMLEntityFix:
+					meta = processMeta_htmlEntityFix(meta);
+					break;
 				}
 			}
+
+			StringUtil::SearchAndReplace(meta, string("&"), string("&&"));
 
 			SetWindowText(statusLabel, meta.c_str());
 		}
@@ -815,6 +822,108 @@ namespace inetr {
 		regex_search(meta.c_str(), resT, rxT);
 
 		return string(resA[1]) + " - " + string(resT[1]);
+	}
+
+	string MainWindow::processMeta_htmlEntityFix(string meta) {
+		static const char* const entities[][2] = {
+			{ "amp", "&" },
+			{ "lt", "<" },
+			{ "gt", ">" },
+			{ "nbsp", " "},
+			{ "quot", "\"" },
+			{ "apos", "'" },
+			{ "sect", "§"},
+			{ "euro", "€"},
+			{ "pound", "£" },
+			{ "cent", "¢" },
+			{ "yen", "¥" },
+			{ "copy", "©" },
+			{ "reg", "®" },
+			{ "trade", "™" },
+			{ "Auml", "Ä" },
+			{ "auml", "ä" },
+			{ "Ouml", "Ö" },
+			{ "ouml", "ö" },
+			{ "Uuml", "Ü" },
+			{ "uuml", "ü" },
+			{ "szlig", "ß" }
+		};
+		static const int entityCount = (sizeof(entities) / sizeof(entities[0]));
+
+		const char* const str = meta.c_str();
+		char* const newStr = new char[strlen(str) + 1];
+
+		const char *ptrA = str;
+		char *ptrB = newStr;
+
+		while (*ptrA) {
+			if (*ptrA == '&') {
+				++ptrA;
+
+				char buf[16];
+				char* ptrBuf = buf;
+
+				while (*ptrA != ';') {
+					*ptrBuf = *ptrA;
+
+					++ptrA;
+					++ptrBuf;
+				}
+				*ptrBuf = 0;
+
+				*ptrB = 0;
+
+				if (buf[0] == '#') {
+					int n, id;
+
+					if (buf[1] == 'x')
+						n = sscanf_s(&buf[2], "%x", &id);
+					else
+						n = sscanf_s(&buf[1], "%u", &id);
+
+					if (n != 1)
+						MessageBox(window, CurrentLanguage["error"].c_str(),
+							CurrentLanguage["error"].c_str(),
+							MB_ICONERROR | MB_OK);
+
+					*ptrB = id;
+				} else {
+					for (int i = 0; i < entityCount; ++i) {
+						if (strcmp(entities[i][0], buf) == 0)
+							*ptrB = *entities[i][1];
+					}
+				}
+
+				if (*ptrB == 0) {
+					const char* const errMsgStr =
+						CurrentLanguage["unkHTMLEnt"].c_str();
+
+					char* const errStr = new char[strlen(errMsgStr) +
+						strlen(buf) + 1];
+
+					strcpy_s(errStr, sizeof(errStr), errMsgStr);
+					strcat_s(errStr, sizeof(errStr), buf);
+
+					MessageBox(window, errStr, CurrentLanguage["error"].c_str(),
+						MB_ICONERROR | MB_OK);
+
+					delete[] errStr;
+
+					return CurrentLanguage["error"];
+				}
+			} else {
+				*ptrB = *ptrA;
+			}
+
+			++ptrA;
+			++ptrB;
+		}
+		*ptrB = 0;
+
+		string newMeta(newStr);
+		delete[] newStr;
+
+		return newMeta;
 	}
 
 	void MainWindow::expand() {

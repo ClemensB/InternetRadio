@@ -4,6 +4,7 @@
 			"name" : "English",
 			"strings" : {
 				"windowTitle" : "Internet radio",
+				"error" : "Error",
 				"wndRegFailed" : "Window registration failed",
 				"wndCreFailed" : "Window creation failed",
 				"staLboxCreFailed" : "Station listbox creation failed",
@@ -18,13 +19,15 @@
 				"connFailedErr" : "Connection to server failed",
 				"recvErr" : "Error while receiving data",
 				"unhHTTPStatus" : "Unhandled HTTP status code",
-				"emptyURL" : "Empty URL"
+				"emptyURL" : "Empty URL",
+				"unkHTMLEnt" : "Unknown HTML Entity: "
 			}
 		},
 		{
 			"name" : "German",
 			"strings" : {
 				"windowTitle" : "Internetradio",
+				"error" : "Fehler",
 				"wndRegFailed" : "Fensterregistrierung fehlgeschlagen",
 				"wndCreFailed" : "Fenstererstellung fehlgeschlagen",
 				"staLboxCreFailed" : "Radiosender-Listenelement konnte nicht erstellt werden",
@@ -39,7 +42,8 @@
 				"connFailedErr" : "Verbindung zum Server fehlgeschlagen",
 				"recvErr" : "Fehler beim Empfangen von Daten",
 				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
-				"emptyURL" : "Leere URL angegeben"
+				"emptyURL" : "Leere URL angegeben",
+				"unkHTMLEnt" : "Unbekanntes HTML Entity: "
 			}
 		}
 	],
@@ -51,7 +55,7 @@
 			"image" : "ndr_2.bmp",
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html",
-			"metaProc" : "regex",
+			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "webradio_song_now\">\\n([^<>]+)"
 		},
 		{
@@ -60,7 +64,7 @@
 			"image" : "n-joy.bmp",
 			"meta" : "http",
 			"httpURL" : "http://www.n-joy.de/onaircenter121-onaircenterpopup.html",
-			"metaProc" : "regex",
+			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "currentsong\">\\n<div class=\"scrollingtext\">\\n<p>\\n([^<>]+)"
 		},
 		{
@@ -81,7 +85,7 @@
 			"image" : "sputnik.bmp",
 			"meta" : "http",
 			"httpURL" : "http://www.sputnik.de/programm/streaming/der-sputnik-livestream",
-			"metaProc" : "regexAT",
+			"metaProc" : "regexAT,htmlEntityFix",
 			"regexA" : "<p><strong>([^<>]+)",
 			"regexT" : "songname\">([^<>]+)"
 		},
@@ -96,7 +100,7 @@
 			"image" : "bigfm.bmp",
 			"meta" : "http",
 			"httpURL" : "http://www.bigfm.de/content/html/shared/playlist/index.html",
-			"metaProc" : "regexAT",
+			"metaProc" : "regexAT,htmlEntityFix",
 			"regexA" : "win-pls-track-rgt\">\\n   <h1>[^<>]+</h1>\\n   <h2>([^<>]+)",
 			"regexT" : "win-pls-track-rgt\">\\n   <h1>([^<>]+)"
 		},
@@ -111,7 +115,7 @@
 			"image" : "hardbase.bmp",
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",
-			"metaProc" : "regex",
+			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">([^<>]+)"
 		}
 	]
