@@ -3,7 +3,7 @@
 		{
 			"name" : "English",
 			"strings" : {
-				"windowTitle" : "Internet radio",
+				"windowTitle" : "Internet Radio",
 				"error" : "Error",
 				"wndRegFailed" : "Window registration failed",
 				"wndCreFailed" : "Window creation failed",
