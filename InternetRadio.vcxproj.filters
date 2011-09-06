@@ -127,13 +127,13 @@
     <ClInclude Include="src\Language.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\HTTP.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\StringUtil.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -167,7 +167,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="InternetRadio.rc">
+    <ResourceCompile Include="resource\InternetRadio.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

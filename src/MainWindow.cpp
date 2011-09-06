@@ -1,6 +1,6 @@
 #include "MainWindow.hpp"
 
-#include "resource.h"
+#include "../resource/resource.h"
 
 #include <iostream>
 #include <sstream>
