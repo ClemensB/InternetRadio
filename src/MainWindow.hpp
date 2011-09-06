@@ -10,40 +10,6 @@
 #include "Station.hpp"
 #include "Language.hpp"
 
-#define INETR_MWND_CLASSNAME "InternetRadio"
-#define INETR_MWND_WIDTH 350
-#define INETR_MWND_HEIGHT 292
-
-#define INETR_MWND_STATIONLIST_ID 101
-#define INETR_MWND_STATIONLIST_POSX 10
-#define INETR_MWND_STATIONLIST_POSY 10
-#define INETR_MWND_STATIONLIST_WIDTH 100
-#define INETR_MWND_STATIONLIST_HEIGHT 250
-
-#define INETR_MWND_STATUSLABEL_ID 201
-#define INETR_MWND_STATUSLABEL_POSX 120
-#define INETR_MWND_STATUSLABEL_POSY 215
-#define INETR_MWND_STATUSLABEL_WIDTH 200
-#define INETR_MWND_STATUSLABEL_HEIGHT 30
-
-#define INETR_MWND_STATIONIMAGE_ID 301
-#define INETR_MWND_STATIONIMAGE_POSX 120
-#define INETR_MWND_STATIONIMAGE_POSY 10
-
-#define INETR_MWND_MORESTATIONLIST_ID 401
-#define INETR_MWND_MORESTATIONLIST_POSX 10
-#define INETR_MWND_MORESTATIONLIST_POSY 10
-#define INETR_MWND_MORESTATIONLIST_WIDTH 100
-#define INETR_MWND_MORESTATIONLIST_HEIGHT 250
-
-#define INETR_MWND_SLIDE_MAX 110
-#define INETR_MWND_SLIDE_STEP 2
-#define INETR_MWND_SLIDE_SPEED 1
-
-#define INETR_MWND_TIMER_BUFFER 0
-#define INETR_MWND_TIMER_META 1
-#define INETR_MWND_TIMER_SLIDE 2
-
 namespace inetr {
 	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
 
@@ -63,6 +29,7 @@ namespace inetr {
 		static void saveUserConfig();
 		static void populateStationsListbox();
 		static void populateMoreStationsListbox();
+		static void populateLanguageComboBox();
 
 		static void bufferTimer();
 		static void metaTimer();
@@ -72,6 +39,7 @@ namespace inetr {
 		static void handleStationsListboxClick();
 		static void handleStationsListboxDblClick();
 		static void handleMoreStationsListboxDblClick();
+		static void handleLanguageComboBoxClick();
 
 		static void openURL(std::string url);
 		static void stop();
@@ -96,6 +64,7 @@ namespace inetr {
 		static HWND statusLabel;
 		static HWND stationImage;
 		static HWND moreStationListBox;
+		static HWND languageComboBox;
 
 		static std::list<Language> languages;
 		static Language *defaultLanguage;

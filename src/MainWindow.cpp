@@ -12,6 +12,46 @@
 #include "HTTP.hpp"
 #include "StringUtil.hpp"
 
+#define INETR_MWND_CLASSNAME "InternetRadio"
+#define INETR_MWND_WIDTH 350
+#define INETR_MWND_HEIGHT 292
+
+#define INETR_MWND_STATIONLIST_ID 101
+#define INETR_MWND_STATIONLIST_POSX 10
+#define INETR_MWND_STATIONLIST_POSY 10
+#define INETR_MWND_STATIONLIST_WIDTH 100
+#define INETR_MWND_STATIONLIST_HEIGHT 250
+
+#define INETR_MWND_STATUSLABEL_ID 201
+#define INETR_MWND_STATUSLABEL_POSX 120
+#define INETR_MWND_STATUSLABEL_POSY 215
+#define INETR_MWND_STATUSLABEL_WIDTH 200
+#define INETR_MWND_STATUSLABEL_HEIGHT 30
+
+#define INETR_MWND_STATIONIMAGE_ID 301
+#define INETR_MWND_STATIONIMAGE_POSX 120
+#define INETR_MWND_STATIONIMAGE_POSY 10
+
+#define INETR_MWND_MORESTATIONLIST_ID 401
+#define INETR_MWND_MORESTATIONLIST_POSX 10
+#define INETR_MWND_MORESTATIONLIST_POSY 10
+#define INETR_MWND_MORESTATIONLIST_WIDTH 100
+#define INETR_MWND_MORESTATIONLIST_HEIGHT 220
+
+#define INETR_MWND_LANGUAGECOMBOBOX_ID 501
+#define INETR_MWND_LANGUAGECOMBOBOX_POSX 10
+#define INETR_MWND_LANGUAGECOMBOBOX_POSY 230
+#define INETR_MWND_LANGUAGECOMBOBOX_WIDTH 100
+#define INETR_MWND_LANGUAGECOMBOBOX_HEIGHT 60
+
+#define INETR_MWND_SLIDE_MAX 110
+#define INETR_MWND_SLIDE_STEP 2
+#define INETR_MWND_SLIDE_SPEED 1
+
+#define INETR_MWND_TIMER_BUFFER 0
+#define INETR_MWND_TIMER_META 1
+#define INETR_MWND_TIMER_SLIDE 2
+
 using namespace std;
 using namespace std::tr1;
 using namespace Json;
@@ -23,6 +63,7 @@ namespace inetr {
 	HWND MainWindow::statusLabel;
 	HWND MainWindow::stationImage;
 	HWND MainWindow::moreStationListBox;
+	HWND MainWindow::languageComboBox;
 
 	list<Language> MainWindow::languages;
 	Language MainWindow::CurrentLanguage;
@@ -117,10 +158,10 @@ namespace inetr {
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
-			MAKELPARAM(FALSE, 0));
+			(LPARAM)0);
 
-		statusLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE |
-			WS_TABSTOP, INETR_MWND_STATUSLABEL_POSX,
+		statusLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
+			INETR_MWND_STATUSLABEL_POSX,
 			INETR_MWND_STATUSLABEL_POSY,
 			INETR_MWND_STATUSLABEL_WIDTH,
 			INETR_MWND_STATUSLABEL_HEIGHT, hwnd,
@@ -150,16 +191,29 @@ namespace inetr {
 			throw string(CurrentLanguage["staLboxCreFailed"]);
 
 		SendMessage(moreStationListBox, WM_SETFONT, (WPARAM)defaultFont,
-			MAKELPARAM(FALSE, 0));
+			(LPARAM)0);
+
+		languageComboBox = CreateWindowEx(WS_EX_CLIENTEDGE, "COMBOBOX", "",
+			WS_CHILD | CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_OVERLAPPED,
+			INETR_MWND_LANGUAGECOMBOBOX_POSX,
+			INETR_MWND_LANGUAGECOMBOBOX_POSY,
+			INETR_MWND_LANGUAGECOMBOBOX_WIDTH,
+			INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, hwnd,
+			(HMENU)INETR_MWND_LANGUAGECOMBOBOX_ID,
+			instance, NULL);
+		
+		SendMessage(languageComboBox, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
 
 
 		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
-			MAKELPARAM(FALSE, 0));
+			(LPARAM)0);
 	}
 
 	void MainWindow::initialize(HWND hwnd) {
 		populateStationsListbox();
 		populateMoreStationsListbox();
+		populateLanguageComboBox();
 
 		BASS_Init(-1, 44100, 0, hwnd, NULL);
 	}
@@ -461,7 +515,7 @@ namespace inetr {
 		for (list<Station*>::iterator it = favoriteStations.begin();
 			it != favoriteStations.end(); ++it) {
 
-			SendMessage(stationListBox, (UINT)LB_ADDSTRING, (WPARAM)0,
+			SendMessage(stationListBox, LB_ADDSTRING, (WPARAM)0,
 				(LPARAM)(*it)->Name.c_str());
 		}
 	}
@@ -470,8 +524,21 @@ namespace inetr {
 		for (list<Station>::iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
-				SendMessage(moreStationListBox, (UINT)LB_ADDSTRING, (WPARAM)0,
+				SendMessage(moreStationListBox, LB_ADDSTRING, (WPARAM)0,
 					(LPARAM)it->Name.c_str());
+		}
+	}
+
+	void MainWindow::populateLanguageComboBox() {
+		for (list<Language>::iterator it = languages.begin();
+			it != languages.end(); ++it) {
+			
+			int i = SendMessage(languageComboBox, CB_ADDSTRING, (WPARAM)0,
+				(LPARAM)it->Name.c_str());
+
+			if (CurrentLanguage.Name == it->Name)
+				SendMessage(languageComboBox, CB_SETCURSEL, (WPARAM)i,
+				(LPARAM)0);
 		}
 	}
 
@@ -561,11 +628,16 @@ namespace inetr {
 		int moreStationListBoxWidth = slideOffset - 10;
 		if (moreStationListBoxWidth <= 0) {
 			ShowWindow(moreStationListBox, SW_HIDE);
+			ShowWindow(languageComboBox, SW_HIDE);
 		} else {
 			SetWindowPos(moreStationListBox, NULL,
 				0, 0, moreStationListBoxWidth,
 				INETR_MWND_MORESTATIONLIST_HEIGHT, SWP_NOMOVE);
 			ShowWindow(moreStationListBox, SW_SHOW);
+			SetWindowPos(languageComboBox, NULL,
+				0, 0, moreStationListBoxWidth,
+				INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, SWP_NOMOVE);
+			ShowWindow(languageComboBox, SW_SHOW);
 		}
 	}
 
@@ -579,9 +651,10 @@ namespace inetr {
 		if (slideStatus != Retracted)
 			return;
 
-		int index = SendMessage(stationListBox, LB_GETCURSEL, 0, 0);
+		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
+			(LPARAM)0);
 		int textLength = SendMessage(stationListBox, LB_GETTEXTLEN,
-			(WPARAM)index, 0);
+			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
 		SendMessage(stationListBox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
@@ -604,9 +677,10 @@ namespace inetr {
 		if (slideStatus != Expanded)
 			return;
 
-		int index = SendMessage(stationListBox, LB_GETCURSEL, 0, 0);
+		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
+			(LPARAM)0);
 		int textLength = SendMessage(stationListBox, LB_GETTEXTLEN,
-			(WPARAM)index, 0);
+			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
 		SendMessage(stationListBox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
@@ -629,9 +703,10 @@ namespace inetr {
 		if (slideStatus != Expanded)
 			return;
 
-		int index = SendMessage(moreStationListBox, LB_GETCURSEL, 0, 0);
+		int index = SendMessage(moreStationListBox, LB_GETCURSEL, (WPARAM)0,
+			(LPARAM)0);
 		int textLength = SendMessage(moreStationListBox, LB_GETTEXTLEN,
-			(WPARAM)index, 0);
+			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
 		SendMessage(moreStationListBox, LB_GETTEXT, (WPARAM)index,
 			(LPARAM)cText);
@@ -647,6 +722,35 @@ namespace inetr {
 		}
 
 		populateStationsListbox();
+	}
+
+	void MainWindow::handleLanguageComboBoxClick() {
+		if (slideStatus != Expanded)
+			return;
+
+		int index = SendMessage(languageComboBox, CB_GETCURSEL, 0, 0);
+		int textLength = SendMessage(languageComboBox, CB_GETLBTEXTLEN,
+			(WPARAM)index, 0);
+		char* cText = new char[textLength + 1];
+		SendMessage(languageComboBox, CB_GETLBTEXT, (WPARAM)index,
+			(LPARAM)cText);
+		string text(cText);
+		delete[] cText;
+
+		if (CurrentLanguage.Name == text)
+			return;
+
+		for (list<Language>::iterator it = languages.begin();
+			it != languages.end(); ++it) {
+
+			if (text == it->Name) {
+				CurrentLanguage = *it;
+
+				CurrentLanguage = *it;
+
+				SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+			}
+		}
 	}
 
 	void MainWindow::openURL(string url) {
@@ -974,9 +1078,16 @@ namespace inetr {
 				}
 				break;
 			case INETR_MWND_MORESTATIONLIST_ID:
-				switch(HIWORD(wParam)) {
+				switch (HIWORD(wParam)) {
 				case LBN_DBLCLK:
 					handleMoreStationsListboxDblClick();
+					break;
+				}
+				break;
+			case INETR_MWND_LANGUAGECOMBOBOX_ID:
+				switch (HIWORD(wParam)) {
+				case CBN_SELCHANGE:
+					handleLanguageComboBoxClick();
 					break;
 				}
 				break;
