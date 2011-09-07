@@ -9,14 +9,14 @@ namespace inetr {
 	class MetadataProcessor {
 	private:
 		std::string identifier;
-		std::list<std::string> additionalParameters;
+		std::map<std::string, bool> additionalParameters;
 	public:
 		MetadataProcessor(std::string identifier, int additionalParameterCount,
 			...);
 		virtual ~MetadataProcessor() { }
 
 		std::string& GetIdentifier();
-		std::list<std::string>* GetAdditionalParameters();
+		std::map<std::string, bool>* GetAdditionalParameters();
 
 		virtual void Process(std::string &meta, std::map<std::string,
 			std::string> &additionalParameterValues) = 0;

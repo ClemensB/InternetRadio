@@ -43,41 +43,52 @@ namespace inetr {
 
 		while (*ptrMeta) {
 			if (*ptrMeta == '&') {
+				const char* ptrMetaOld = ptrMeta;
 				++ptrMeta;
 
-				char buf[16];
+				char buf[6];
 				char *ptrBuf = buf;
 
-				while (*ptrMeta != ';') {
+				bool incomplete = true;
+				while (*ptrMeta != ';' && (ptrBuf - &buf[0]) < sizeof(buf)) {
 					*ptrBuf = *ptrMeta;
 
 					++ptrMeta;
 					++ptrBuf;
+
+					if (*ptrMeta == ';')
+						incomplete = false;
 				}
-				*ptrBuf = 0;
 
-				*ptrNew = 0;
+				if (!incomplete) {
+					*ptrBuf = 0;
 
-				if (buf[0] == '#') {
-					int n, id;
+					*ptrNew = 0;
 
-					if (buf[1] == 'x')
-						n = sscanf_s(&buf[2], "%x", &id);
-					else
-						n = sscanf_s(&buf[1], "%u", &id);
-					if (n != 1)
-						throw INETRException("error", true);
+					if (buf[0] == '#') {
+						int n, id;
 
-					*ptrNew = id;
-				} else {
-					for (int i = 0; i < entityCount; ++i) {
-						if (strcmp(entities[i][0], buf) == 0)
-							*ptrNew = *entities[i][1];
+						if (buf[1] == 'x')
+							n = sscanf_s(&buf[2], "%x", &id);
+						else
+							n = sscanf_s(&buf[1], "%u", &id);
+						if (n != 1)
+							throw INETRException("error", true);
+
+						*ptrNew = id;
+					} else {
+						for (int i = 0; i < entityCount; ++i) {
+							if (strcmp(entities[i][0], buf) == 0)
+								*ptrNew = *entities[i][1];
+						}
 					}
-				}
 
-				if (*ptrNew == 0)
-					throw INETRException("unkHTMLEnt", true);
+					if (*ptrNew == 0)
+						throw INETRException("unkHTMLEnt", true);
+				} else {
+					ptrMeta = ptrMetaOld;
+					*ptrNew = *ptrMeta;
+				}
 			} else {
 				*ptrNew = *ptrMeta;
 			}

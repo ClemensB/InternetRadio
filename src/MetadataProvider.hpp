@@ -11,14 +11,14 @@ namespace inetr {
 	class MetadataProvider {
 	private:
 		std::string identifier;
-		std::list<std::string> additionalParameters;
+		std::map<std::string, bool> additionalParameters;
 	public:
 		MetadataProvider(std::string identifier, int additionalParameterCount,
 			...);
 		virtual ~MetadataProvider() { }
 
 		std::string& GetIdentifier();
-		std::list<std::string>* GetAdditionalParameters();
+		std::map<std::string, bool>* GetAdditionalParameters();
 
 		virtual std::string Fetch(HSTREAM stream,
 			std::map<std::string, std::string> &additionalParameterValues) = 0;

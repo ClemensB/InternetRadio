@@ -14,7 +14,11 @@ namespace inetr {
 			va_start(vl, additionalParameterCount);
 			for (int i = 0; i < additionalParameterCount; ++i) {
 				const char* parameter = va_arg(vl, const char*);
-				additionalParameters.push_back(string(parameter));
+				string sParameter(parameter);
+				bool optional = sParameter.compare(0, 1, "_") == 0;
+				if (optional) sParameter = sParameter.substr(1);
+				additionalParameters.insert(pair<string, bool>(sParameter,
+					optional));
 			}
 			va_end(vl);
 	}
@@ -23,7 +27,7 @@ namespace inetr {
 		return identifier;
 	}
 
-	list<string>* MetadataProvider::GetAdditionalParameters() {
+	map<string, bool>* MetadataProvider::GetAdditionalParameters() {
 		return &additionalParameters;
 	}
 }

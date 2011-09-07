@@ -58,7 +58,8 @@
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
-			"regex" : "webradio_song_now\">\\n([^<>]+)"
+			"regex" : "webradio_song_now\">\\n([^<>]+)",
+			"regexExpr" : "1"
 		},
 		{
 			"name" : "N-Joy",
@@ -118,7 +119,8 @@
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",
 			"metaProc" : "regex,htmlEntityFix",
-			"regex" : "<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">([^<>]+)"
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
 		}
 	]
 }

@@ -366,21 +366,26 @@ namespace inetr {
 					throw INETRException(string("Error while parsing config ") +
 						string("file\nUnsupported meta provider: ") + metaStr);
 
-				list<string> *additionalParametersStr =
+				map<string, bool> *additionalParametersStr =
 					meta->GetAdditionalParameters();
-				for (list<string>::iterator it =
+				for (map<string, bool>::iterator it =
 					additionalParametersStr->begin();
 					it != additionalParametersStr->end(); ++it) {
 
-						Value parameterValue = stationObject.get(*it, NULL);
+						Value parameterValue = stationObject.get(it->first,
+							NULL);
 						if (parameterValue == NULL ||
-							!parameterValue.isString())
-							throw INETRException(string("Missing or invalid ") +
-							string("meta provider parameter: ") + *it);
-						string parameterStr = parameterValue.asString();
+							!parameterValue.isString()) {
+							if (!it->second)
+								throw INETRException(string("Missing or ") +
+									string("invalid meta provider parameter: ")
+									+ it->first);
+						} else {
+							string parameterStr = parameterValue.asString();
 
-						additionalParameters.insert(
-							pair<string, string>(*it, parameterStr));
+							additionalParameters.insert(
+								pair<string, string>(it->first, parameterStr));
+						}
 				}
 			}
 
@@ -414,21 +419,26 @@ namespace inetr {
 						string("config file\nUnsupported meta processor: ") +
 						metaProcStr);
 
-					list<string> *additionalParametersStr =
+					map<string, bool> *additionalParametersStr =
 						metaProc->GetAdditionalParameters();
-					for (list<string>::iterator it = 
+					for (map<string, bool>::iterator it = 
 						additionalParametersStr->begin();
 						it != additionalParametersStr->end(); ++it) {
 					
-						Value parameterValue = stationObject.get(*it, NULL);
+						Value parameterValue = stationObject.get(it->first,
+							NULL);
 						if (parameterValue == NULL ||
-							!parameterValue.isString())
-							throw INETRException(string("Missing or invalid ") +
-								string("meta processor parameter: ") + *it);
-						string parameterStr = parameterValue.asString();
+							!parameterValue.isString()) {
+							if (!it->second)
+								throw INETRException(string("Missing or inv") +
+									string("alid meta processor parameter: ") +
+									it->first);
+						} else {
+							string parameterStr = parameterValue.asString();
 
-						additionalParameters.insert(pair<string, string>
-							(*it, parameterStr));
+							additionalParameters.insert(pair<string, string>
+								(it->first, parameterStr));
+						}
 					}
 
 					metaProcs.push_back(metaProc);
@@ -505,6 +515,9 @@ namespace inetr {
 		} else {
 			CurrentLanguage = *defaultLanguage;
 		}
+
+		if (CurrentLanguage.Name == "Undefined")
+			CurrentLanguage = *defaultLanguage;
 	}
 
 	void MainWindow::saveUserConfig() {

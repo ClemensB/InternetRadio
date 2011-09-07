@@ -6,8 +6,8 @@
 namespace inetr {
 	class RegExMetadataProcessor : public MetadataProcessor {
 	public:
-		RegExMetadataProcessor() : MetadataProcessor(std::string("regex"), 1,
-			"regex") { }
+		RegExMetadataProcessor() : MetadataProcessor(std::string("regex"), 2,
+			"regex", "_regexExpr") { }
 		~RegExMetadataProcessor() { }
 
 		void Process(std::string &meta, std::map<std::string, std::string>
