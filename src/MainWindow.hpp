@@ -9,6 +9,8 @@
 
 #include "Station.hpp"
 #include "Language.hpp"
+#include "MetadataProvider.hpp"
+#include "MetadataProcessor.hpp"
 
 namespace inetr {
 	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
@@ -22,20 +24,26 @@ namespace inetr {
 	private:
 		static void createWindow();
 		static void createControls(HWND hwnd);
-		static void initialize(HWND hwnd);
-		static void uninitialize(HWND hwnd);
+
+		static void initialize();
+		static void uninitialize();
+		static void initializeWindow(HWND hwnd);
+		static void uninitializeWindow(HWND hwnd);
+
 		static void loadConfig();
 		static void loadUserConfig();
 		static void saveUserConfig();
+
 		static void populateStationsListbox();
 		static void populateMoreStationsListbox();
 		static void populateLanguageComboBox();
 
+		static void CALLBACK metaSync(HSYNC handle, DWORD channel, DWORD data,
+			void *user);
+
 		static void bufferTimer();
 		static void metaTimer();
 		static void slideTimer();
-		static void CALLBACK metaSync(HSYNC handle, DWORD channel, DWORD data,
-			void *user);
 		static void handleStationsListboxClick();
 		static void handleStationsListboxDblClick();
 		static void handleMoreStationsListboxDblClick();
@@ -43,14 +51,14 @@ namespace inetr {
 
 		static void openURL(std::string url);
 		static void stop();
+
 		static void updateMeta();
-		static std::string fetchMeta();
-		static std::string fetchMeta_meta();
-		static std::string fetchMeta_ogg();
-		static std::string fetchMeta_http();
-		static std::string processMeta_regex(std::string meta);
-		static std::string processMeta_regexAT(std::string meta);
-		static std::string processMeta_htmlEntityFix(std::string meta);
+		static std::string fetchMeta(MetadataProvider* metadataProvider,
+			HSTREAM stream, std::map<std::string, std::string>
+			&additionalParameters);
+		static void processMeta(std::string &meta,
+			std::vector<MetadataProcessor*> &processors,
+			std::map<std::string, std::string> &additionalParameters);
 
 		static void expand();
 		static void retract();
@@ -69,11 +77,14 @@ namespace inetr {
 		static std::list<Language> languages;
 		static Language *defaultLanguage;
 
-		static HSTREAM currentStream;
+		static std::list<MetadataProvider*> metaProviders;
+		static std::list<MetadataProcessor*> metaProcessors;
 
 		static std::list<Station> stations;
 		static std::list<Station*> favoriteStations;
+
 		static Station* currentStation;
+		static HSTREAM currentStream;
 
 		static WindowSlideStatus slideStatus;
 		static int slideOffset;

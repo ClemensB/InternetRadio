@@ -40,6 +40,12 @@
     <Filter Include="Other Files\Station Images">
       <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Metadata Providers/Processors">
+      <UniqueIdentifier>{00cf091c-f840-466b-b423-bd0b9d5d3ecd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Metadata Providers/Processors">
+      <UniqueIdentifier>{93603c30-4ff9-4596-8bdb-4764dcfb18f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\bass\bass.lib">
@@ -136,6 +142,33 @@
     <ClInclude Include="resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MetadataProcessor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\INETRException.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MetadataProvider.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HTTPMetadataProvider.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HTMLEntityFixMetadataProcessor.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RegExMetadataProcessor.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RegExArtistTitleMetadataProcessor.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OGGMetadataProvider.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MetaMetadataProvider.hpp">
+      <Filter>Header Files\Metadata Providers/Processors</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -164,6 +197,33 @@
     </ClCompile>
     <ClCompile Include="src\StringUtil.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MetadataProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\INETRException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MetadataProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTMLEntityFixMetadataProcessor.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTTPMetadataProvider.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MetaMetadataProvider.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OGGMetadataProvider.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegExMetadataProcessor.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegExArtistTitleMetadataProcessor.cpp">
+      <Filter>Source Files\Metadata Providers/Processors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@
 
 #include <WS2tcpip.h>
 
-#include "MainWindow.hpp"
+#include "INETRException.hpp"
 
 using namespace std;
 
@@ -17,8 +17,7 @@ namespace inetr {
 		if (int result = WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 			stringstream ssresult;
 			ssresult << result;
-			throw MainWindow::CurrentLanguage["wsStartErr"] + "\nError #" +
-				ssresult.str();
+			throw INETRException("wsStartErr", true);
 		}
 
 
@@ -49,7 +48,7 @@ namespace inetr {
 		hints.ai_protocol = IPPROTO_TCP;
 
 		if (getaddrinfo(hostname.c_str(), "http", &hints, &serverInfo) != 0)
-			throw MainWindow::CurrentLanguage["hostResErr"] + "\n" + hostname;
+			throw INETRException("hostResErr", true);
 
 		for (ptr = serverInfo; ptr != NULL; ptr = ptr->ai_next) {
 			if ((sock = socket(ptr->ai_family, ptr->ai_socktype,
@@ -65,7 +64,7 @@ namespace inetr {
 		freeaddrinfo(serverInfo);
 
 		if (ptr == NULL)
-			throw MainWindow::CurrentLanguage["connFailedErr"];
+			throw INETRException("connFailedErr", true);
 
 		string request = "GET "
 			+ filePath
@@ -109,10 +108,7 @@ namespace inetr {
 				}
 			}
 			
-			stringstream sscode;
-			sscode << code;
-			throw MainWindow::CurrentLanguage["unhHTTPStatus"] + "\n" +
-				sscode.str();
+			throw INETRException("unhHTTPStatus", true);
 		}
 
 		bool chunked = false;
@@ -145,7 +141,7 @@ namespace inetr {
 		if (size != -1) {
 			while (recvSize < size) {
 				if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) <= 0)
-					throw MainWindow::CurrentLanguage["recvErr"];
+					throw INETRException("recvErr", true);
 
 				recvSize += bytesRecv;
 				stream->write(buf, bytesRecv);
@@ -154,7 +150,7 @@ namespace inetr {
 			if (!chunked) {
 				while (bytesRecv != 0) {
 					if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) < 0)
-						throw MainWindow::CurrentLanguage["recvErr"];
+						throw INETRException("recvErr", true);
 
 					stream->write(buf, bytesRecv);
 				}
@@ -174,7 +170,7 @@ namespace inetr {
 
 						if ((bytesRecv = recv(sock, buf, bytesToRecv >
 							sizeof(buf) ? sizeof(buf) : bytesToRecv, 0)) <= 0)
-							throw MainWindow::CurrentLanguage["recvErr"];
+							throw INETRException("recvErr", true);
 
 						recvSize += bytesRecv;
 						stream->write(buf, bytesRecv);

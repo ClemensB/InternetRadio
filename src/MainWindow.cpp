@@ -11,6 +11,15 @@
 
 #include "HTTP.hpp"
 #include "StringUtil.hpp"
+#include "INETRException.hpp"
+
+#include "MetaMetadataProvider.hpp"
+#include "OGGMetadataProvider.hpp"
+#include "HTTPMetadataProvider.hpp"
+
+#include "RegExMetadataProcessor.hpp"
+#include "RegExArtistTitleMetadataProcessor.hpp"
+#include "HTMLEntityFixMetadataProcessor.hpp"
 
 #define INETR_MWND_CLASSNAME "InternetRadio"
 #define INETR_MWND_WIDTH 350
@@ -69,11 +78,14 @@ namespace inetr {
 	Language MainWindow::CurrentLanguage;
 	Language *MainWindow::defaultLanguage = NULL;
 
-	HSTREAM MainWindow::currentStream = NULL;
+	list<MetadataProvider*> MainWindow::metaProviders;
+	list<MetadataProcessor*> MainWindow::metaProcessors;
 
 	list<Station> MainWindow::stations;
 	list<Station*> MainWindow::favoriteStations;
+
 	Station *MainWindow::currentStation = NULL;
+	HSTREAM MainWindow::currentStream = NULL;
 
 	WindowSlideStatus MainWindow::slideStatus = Retracted;
 	int MainWindow::slideOffset = 0;
@@ -81,17 +93,12 @@ namespace inetr {
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
 
-		try {
-			loadConfig();
-			loadUserConfig();
-		} catch (const string &e) {
-			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
-		}
+		initialize();
 
 		try {
 			createWindow();
-		} catch (const string &e) {
-			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+		} catch (INETRException &e) {
+			e.mbox(NULL, &CurrentLanguage);
 		}
 
 		ShowWindow(window, showCmd);
@@ -103,11 +110,7 @@ namespace inetr {
 			DispatchMessage(&msg);
 		}
 
-		try {
-			saveUserConfig();
-		} catch (const string &e) {
-			MessageBox(NULL, e.c_str(), "Error", MB_ICONERROR | MB_OK);
-		}
+		uninitialize();
 
 		return msg.wParam;
 	}
@@ -130,7 +133,7 @@ namespace inetr {
 		wndClass.lpszClassName		= INETR_MWND_CLASSNAME;
 
 		if (!RegisterClassEx(&wndClass))
-			throw CurrentLanguage["wndRegFailed"];
+			throw INETRException("wndRegFailed", true);
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
 			INETR_MWND_CLASSNAME, CurrentLanguage["windowTitle"].c_str(),
@@ -140,7 +143,7 @@ namespace inetr {
 			NULL, NULL, instance, NULL);
 
 		if (window == NULL)
-			throw CurrentLanguage["wndCreFailed"];
+			throw INETRException("wndCreFailed", true);
 	}
 
 	void MainWindow::createControls(HWND hwnd) {
@@ -154,7 +157,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (stationListBox == NULL)
-			throw string(CurrentLanguage["staLboxCreFailed"]);
+			throw INETRException("staLboxCreFailed", true);
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
@@ -168,7 +171,7 @@ namespace inetr {
 			(HMENU)INETR_MWND_STATUSLABEL_ID, instance, NULL);
 
 		if (statusLabel == NULL)
-			throw CurrentLanguage["staLblCreFailed"];
+			throw INETRException("staLblCreFailed", true);
 
 		stationImage = CreateWindow("STATIC", "", WS_CHILD |
 			SS_BITMAP, INETR_MWND_STATIONIMAGE_POSX,
@@ -176,7 +179,7 @@ namespace inetr {
 			(HMENU)INETR_MWND_STATIONIMAGE_ID, instance, NULL);
 
 		if (stationImage == NULL)
-			throw CurrentLanguage["staImgCreFailed"];
+			throw INETRException("staImgCreFailed", true);
 
 		moreStationListBox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
@@ -188,7 +191,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (moreStationListBox == NULL)
-			throw string(CurrentLanguage["staLboxCreFailed"]);
+			throw INETRException("staLboxCreFailed", true);
 
 		SendMessage(moreStationListBox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -201,6 +204,9 @@ namespace inetr {
 			INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, hwnd,
 			(HMENU)INETR_MWND_LANGUAGECOMBOBOX_ID,
 			instance, NULL);
+
+		if (languageComboBox == NULL)
+			throw INETRException("lngCboxCreFailed", true);
 		
 		SendMessage(languageComboBox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -210,7 +216,44 @@ namespace inetr {
 			(LPARAM)0);
 	}
 
-	void MainWindow::initialize(HWND hwnd) {
+	void MainWindow::initialize() {
+		metaProviders.push_back(new MetaMetadataProvider());
+		metaProviders.push_back(new OGGMetadataProvider());
+		metaProviders.push_back(new HTTPMetadataProvider());
+
+		metaProcessors.push_back(new RegExMetadataProcessor());
+		metaProcessors.push_back(new RegExArtistTitleMetadataProcessor());
+		metaProcessors.push_back(new HTMLEntityFixMetadataProcessor());
+
+		try {
+			loadConfig();
+			loadUserConfig();
+		} catch (INETRException &e) {
+			e.mbox();
+		}
+	}
+
+	void MainWindow::uninitialize() {
+		try {
+			saveUserConfig();
+		} catch (INETRException &e) {
+			e.mbox();
+		}
+
+		for (list<MetadataProvider*>::iterator it = metaProviders.begin();
+			it != metaProviders.end(); ++it) {
+			
+			delete *it;
+		}
+			
+		for (list<MetadataProcessor*>::iterator it = metaProcessors.begin();
+			it != metaProcessors.end(); ++it) {
+
+			delete *it;
+		}
+	}
+
+	void MainWindow::initializeWindow(HWND hwnd) {
 		populateStationsListbox();
 		populateMoreStationsListbox();
 		populateLanguageComboBox();
@@ -218,7 +261,7 @@ namespace inetr {
 		BASS_Init(-1, 44100, 0, hwnd, NULL);
 	}
 
-	void MainWindow::uninitialize(HWND hwnd) {
+	void MainWindow::uninitializeWindow(HWND hwnd) {
 		if (currentStream != NULL) {
 			BASS_ChannelStop(currentStream);
 			BASS_StreamFree(currentStream);
@@ -232,33 +275,33 @@ namespace inetr {
 		configFile.open("config.json");
 
 		if (!configFile.is_open())
-			throw string("Couldn't open config file");
+			throw INETRException("Couldn't open config file");
 
 		Value rootValue;
 		Reader jsonReader;
 
 		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
 		if (!successfullyParsed)
-			throw string("Couldn't parse config file\n") +
-				jsonReader.getFormatedErrorMessages();
+			throw INETRException(string("Couldn't parse config file\n") +
+				jsonReader.getFormatedErrorMessages());
 		
 		Value languageList = rootValue.get("languages", NULL);
 		if (languageList == NULL || !languageList.isArray())
-			throw string("Error while parsing config file");
+			throw INETRException("Error while parsing config file");
 
 		for (unsigned int i = 0; i < languageList.size(); ++i) {
 			Value languageObject = languageList[i];
 			if (languageObject == NULL || !languageObject.isObject())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 
 			Value nameValue = languageObject.get("name", NULL);
 			if (nameValue == NULL || !nameValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string name = nameValue.asString();
 
 			Value stringsObject = languageObject.get("strings", NULL);
 			if (stringsObject == NULL || !stringsObject.isObject())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 
 			map<string, string> strings;
 
@@ -267,7 +310,7 @@ namespace inetr {
 
 				Value stringValueValue = stringsObject.get(stringKey, NULL);
 				if (stringValueValue == NULL || !stringValueValue.isString())
-					throw string("Error while parsing config file");
+					throw INETRException("Error while parsing config file");
 				string stringValue = stringValueValue.asString();
 
 				strings.insert(pair<string, string>(stringKey, stringValue));
@@ -278,7 +321,7 @@ namespace inetr {
 
 		Value defaultLanguageValue = rootValue.get("defaultLanguage", NULL);
 		if (defaultLanguageValue == NULL || !defaultLanguageValue.isString())
-			throw string("Error while parsing config file");
+			throw INETRException("Error while parsing config file");
 		string strDefaultLanguage = defaultLanguageValue.asString();
 
 		for (list<Language>::iterator it = languages.begin();
@@ -289,133 +332,129 @@ namespace inetr {
 		}
 
 		if (defaultLanguage == NULL)
-			throw string("Error while parsing config file\n") +
-				string("Unsupported language: ") + strDefaultLanguage;
+			throw INETRException(string("Error while parsing config file\n") +
+				string("Unsupported language: ") + strDefaultLanguage);
 
 		Value stationList = rootValue.get("stations", NULL);
 		if (stationList == NULL || !stationList.isArray())
-			throw string("Error while parsing config file");
+			throw INETRException("Error while parsing config file");
 
 		for (unsigned int i = 0; i < stationList.size(); ++i) {
 			Value stationObject = stationList[i];
 			if (!stationObject.isObject())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 
 			Value nameValue = stationObject.get("name", NULL);
 			if (nameValue == NULL || !nameValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string name = nameValue.asString();
 
 			Value urlValue = stationObject.get("url", NULL);
 			if (urlValue == NULL || !urlValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string url = urlValue.asString();
 
 			Value imageValue = stationObject.get("image", NULL);
 			if (imageValue == NULL || !imageValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string image = string("img/") + imageValue.asString();
 
 			Value metaValue = stationObject.get("meta", Value("none"));
 			if (!metaValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string metaStr = metaValue.asString();
+			
+			map<string, string> additionalParameters;
 
-			MetadataProviderType meta = NoMetaProvider;
-			if (metaStr == "meta")
-				meta = Meta;
-			else if (metaStr == "ogg")
-				meta = OGG;
-			else if (metaStr == "http")
-				meta = HTTP;
-			else if (metaStr == "none")
-				meta = NoMetaProvider;
-			else
-				throw string("Error while parsing config file\n") +
-					string("Unsupported meta provider: ") + metaStr;
+			MetadataProvider* meta = NULL;
+			if (metaStr != string("none")) {
+				for (list<MetadataProvider*>::iterator it =
+					metaProviders.begin();
+					it != metaProviders.end(); ++it) {
+				
+					if ((*it)->GetIdentifier() == metaStr)
+						meta = *it;
+				}
+
+				if (meta == NULL)
+					throw INETRException(string("Error while parsing config ") +
+						string("file\nUnsupported meta provider: ") + metaStr);
+
+				list<string> *additionalParametersStr =
+					meta->GetAdditionalParameters();
+				for (list<string>::iterator it =
+					additionalParametersStr->begin();
+					it != additionalParametersStr->end(); ++it) {
+
+						Value parameterValue = stationObject.get(*it, NULL);
+						if (parameterValue == NULL ||
+							!parameterValue.isString())
+							throw INETRException(string("Missing or invalid ") +
+							string("meta provider parameter: ") + *it);
+						string parameterStr = parameterValue.asString();
+
+						additionalParameters.insert(
+							pair<string, string>(*it, parameterStr));
+				}
+			}
 
 			Value metaProcValue = stationObject.get("metaProc", Value("none"));
 			if (!metaProcValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string metaProcsStr = metaProcValue.asString();
 
-			vector<string> metaProcsVec = StringUtil::Explode(metaProcsStr,
-				",");
-			vector<MetadataProcessorType> metaProcs;
-			for (vector<string>::iterator it = metaProcsVec.begin();
-				it != metaProcsVec.end(); ++it) {
+			vector<MetadataProcessor*> metaProcs;
+
+			if (metaProcsStr != string("none")) {
+				vector<string> metaProcsVec = StringUtil::Explode(metaProcsStr,
+					",");
+
+				for (vector<string>::iterator it = metaProcsVec.begin();
+					it != metaProcsVec.end(); ++it) {
 				
-				string metaProcStr = *it;
+					string metaProcStr = *it;
 
-				MetadataProcessorType metaProc = NoMetaProcessor;
-				if (metaProcStr == "regex")
-					metaProc = RegEx;
-				else if (metaProcStr == "regexAT")
-					metaProc = RegExAT;
-				else if (metaProcStr == "htmlEntityFix")
-					metaProc = HTMLEntityFix;
-				else if (metaProcStr == "none")
-					metaProc = NoMetaProcessor;
-				else
-					throw string("Error while parsing config file\n") +
-					string("Unsupported meta processor: ") + metaProcStr;
+					MetadataProcessor* metaProc = NULL;
+					for (list<MetadataProcessor*>::iterator it =
+						metaProcessors.begin(); it != metaProcessors.end();
+						++it) {
+					
+						if ((*it)->GetIdentifier() == metaProcStr)
+							metaProc = *it;
+					}
 
-				if (metaProc != NoMetaProcessor)
+					if (metaProc == NULL)
+						throw INETRException(string("Error while parsing ") +
+						string("config file\nUnsupported meta processor: ") +
+						metaProcStr);
+
+					list<string> *additionalParametersStr =
+						metaProc->GetAdditionalParameters();
+					for (list<string>::iterator it = 
+						additionalParametersStr->begin();
+						it != additionalParametersStr->end(); ++it) {
+					
+						Value parameterValue = stationObject.get(*it, NULL);
+						if (parameterValue == NULL ||
+							!parameterValue.isString())
+							throw INETRException(string("Missing or invalid ") +
+								string("meta processor parameter: ") + *it);
+						string parameterStr = parameterValue.asString();
+
+						additionalParameters.insert(pair<string, string>
+							(*it, parameterStr));
+					}
+
 					metaProcs.push_back(metaProc);
+				}
 			}
 
-			if (meta == NoMetaProvider && !metaProcs.empty())
-				throw string("Error while parsing config file\n") +
-					string("MetaProcessor specified, but no MetaProvider");
-
-			Value meta_HTTP_URLValue = stationObject.get("httpURL", Value(""));
-			if (!meta_HTTP_URLValue.isString())
-				throw string("Error while parsing config file");
-			string meta_HTTP_URL = meta_HTTP_URLValue.asString();
-
-			if (meta == HTTP && meta_HTTP_URL == "")
-				throw string("Error while parsing config file\n") +
-					string("Empty or not present URL");
-			if (meta != HTTP && meta_HTTP_URL != "")
-				throw string("Error while parsing config file") + 
-					string("URL specified but MetadataProvider is not HTTP");
-
-			Value metaProc_RegExValue = stationObject.get("regex", Value(""));
-			if (!metaProc_RegExValue.isString())
-				throw string("Error while parsing config file");
-			string metaProc_RegEx = metaProc_RegExValue.asString();
-
-			if (find(metaProcs.begin(), metaProcs.end(), RegEx) !=
-				metaProcs.end() && metaProc_RegEx == "")
-				throw string("Error while parsing config file\n") +
-					string("No RegEx specified");
-			if (find(metaProcs.begin(), metaProcs.end(), RegEx) ==
-				metaProcs.end() && metaProc_RegEx != "")
-				throw string("Error while parsing config file\n") +
-					string("RegEx specified but MetaProcessor isn't RegEx");
-
-			Value metaProc_RegExAValue = stationObject.get("regexA", Value(""));
-			if (!metaProc_RegExAValue.isString())
-				throw string("Error while parsing config file");
-			string metaProc_RegExA = metaProc_RegExAValue.asString();
-
-			Value metaProc_RegExTValue = stationObject.get("regexT", Value(""));
-			if (!metaProc_RegExTValue.isString())
-				throw string("Error while parsing config file");
-			string metaProc_RegExT = metaProc_RegExTValue.asString();
-
-			if (find(metaProcs.begin(), metaProcs.end(), RegExAT) !=
-				metaProcs.end() && (metaProc_RegExA == "" ||
-				metaProc_RegExT == ""))
-				throw string("No RegEx specified");
-			if (find(metaProcs.begin(), metaProcs.end(), RegExAT) ==
-				metaProcs.end() && (metaProc_RegExA != "" ||
-				metaProc_RegExT != ""))
-				throw string("RegEx specified but MetaProcessor isn't RegExAT");
+			if (meta == NULL && !metaProcs.empty())
+				throw INETRException(string("Error while parsing config file") +
+					string("\nMetaProcessors specified, but no MetaProvider"));
 
 			stations.push_back(Station(name, url, image, meta, metaProcs,
-				meta_HTTP_URL, metaProc_RegEx, metaProc_RegExA,
-				metaProc_RegExT));
+				additionalParameters));
 		}
 
 		configFile.close();
@@ -431,12 +470,12 @@ namespace inetr {
 
 			bool successfullyParsed = jsonReader.parse(configFile, rootValue);
 			if (!successfullyParsed)
-				throw string("Couldn't parse user config file\n") +
-				jsonReader.getFormatedErrorMessages();
+				throw INETRException(string("Couldn't parse user config file") +
+				string("\n") + jsonReader.getFormatedErrorMessages());
 
 			Value languageValue = rootValue.get("language", NULL);
 			if (languageValue == NULL || !languageValue.isString())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 			string languageStr = languageValue.asString();
 
 			for (list<Language>::iterator it = languages.begin();
@@ -447,19 +486,19 @@ namespace inetr {
 			}
 
 			if (CurrentLanguage.Name == "Undefined")
-				throw string("Error while parsing user config file\n") +
-				string("Unsupported language: ") + languageStr;
+				throw INETRException(string("Error while parsing user config") +
+				string(" file\nUnsupported language: ") + languageStr);
 
 			Value favoriteStationsValue = rootValue.get("favoriteStations",
 				NULL);
 			if (favoriteStationsValue == NULL ||
 				!favoriteStationsValue.isArray())
-				throw string("Error while parsing config file");
+				throw INETRException("Error while parsing config file");
 
 			for (unsigned int i = 0; i < favoriteStationsValue.size(); ++i) {
 				Value favoriteStationValue = favoriteStationsValue[i];
 				if (!favoriteStationValue.isString())
-					throw string("Error while parsing config file");
+					throw INETRException("Error while parsing config file");
 				string favoriteStationStr = favoriteStationValue.asString();
 
 				Station *favoriteStation = NULL;
@@ -471,8 +510,8 @@ namespace inetr {
 				}
 
 				if (favoriteStation == NULL)
-					throw string("Error while parsing config file\n") +
-						string("Unknown station: ") + favoriteStationStr;
+					throw INETRException(string("Error while parsing config ") +
+						string("file\nUnknown station: ") + favoriteStationStr);
 
 				favoriteStations.push_back(favoriteStation);
 			}
@@ -502,7 +541,7 @@ namespace inetr {
 		configFile.open("userconfig.json", ios::out | ios::trunc);
 
 		if (!configFile.is_open())
-			throw string("Couldn't open user config file");
+			throw INETRException("Couldn't open user config file");
 
 		configFile << json;
 
@@ -557,16 +596,10 @@ namespace inetr {
 
 				updateMeta();
 
-				switch (currentStation->MetadataProvider) {
-				case Meta:
-					BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
-						&metaSync, 0);
-					break;
-				case OGG:
-					BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
-						&metaSync, 0);
-					break;
-				}
+				BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
+					&metaSync, 0);
+				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
+					&metaSync, 0);
 
 				BASS_ChannelPlay(currentStream, FALSE);
 
@@ -790,24 +823,12 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMeta() {
-		string meta = fetchMeta();
+		string meta = fetchMeta(currentStation->MyMetadataProvider,
+			currentStream, currentStation->AdditionalParameters);
 
 		if (meta != "") {
-			for (vector<MetadataProcessorType>::iterator it =
-				currentStation->MetadataProcessors.begin();
-				it != currentStation->MetadataProcessors.end(); ++it) {
-				switch(*it) {
-				case RegEx:
-					meta = processMeta_regex(meta);
-					break;
-				case RegExAT:
-					meta = processMeta_regexAT(meta);
-					break;
-				case HTMLEntityFix:
-					meta = processMeta_htmlEntityFix(meta);
-					break;
-				}
-			}
+			processMeta(meta, currentStation->MetadataProcessors,
+				currentStation->AdditionalParameters);
 
 			StringUtil::SearchAndReplace(meta, string("&"), string("&&"));
 
@@ -815,221 +836,35 @@ namespace inetr {
 		}
 	}
 
-	string MainWindow::fetchMeta() {
-		if (currentStation == NULL)
+	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
+		HSTREAM stream, map<string, string> &additionalParameters) {
+
+		if (currentStation == NULL ||
+			currentStation->MyMetadataProvider == NULL)
 			return "";
-
-		switch (currentStation->MetadataProvider) {
-		case Meta:
-			return fetchMeta_meta();
-			break;
-		case OGG:
-			return fetchMeta_ogg();
-			break;
-		case HTTP:
-			return fetchMeta_http();
-			break;
-		}
-
-		return "";
-	}
-
-	string MainWindow::fetchMeta_meta() {
-		if (currentStream == NULL)
-			return "";
-
-		const char *csMetadata =
-			BASS_ChannelGetTags(currentStream, BASS_TAG_META);
-
-		if (!csMetadata)
-			return "";
-
-		string metadata(csMetadata);
 		
-		string titleStr("StreamTitle='");
-
-		size_t titlePos = metadata.find(titleStr);
-
-		if (titlePos == metadata.npos)
-			return "";
-
-		size_t titleBeginPos = titlePos + titleStr.length();
-		size_t titleEndPos = metadata.find("'", titleBeginPos);
-
-		if (titleEndPos == metadata.npos)
-			return "";
-
-		string title = metadata.substr(titleBeginPos, titleEndPos -
-			titleBeginPos);
-
-		return title;
-	}
-
-	string MainWindow::fetchMeta_ogg() {
-		if (currentStream == NULL)
-			return "";
-
-		const char *csMetadata = BASS_ChannelGetTags(currentStream,
-			BASS_TAG_OGG);
-
-		if (!csMetadata)
-			return "";
-
-		string artist, title;
-
-		while (*csMetadata) {
-			char* csComment = new char[strlen(csMetadata) + 1];
-			strcpy_s(csComment, strlen(csMetadata) + 1, csMetadata);
-			csMetadata += strlen(csMetadata);
-
-			string comment(csComment);
-			delete[] csComment;
-
-			if (comment.compare(0, 7, "artist=") == 0)
-				artist = comment.substr(7);
-			else if (comment.compare(0, 6, "title=") == 0)
-				title = comment.substr(6);
-		}
-
-		if (!artist.empty() && !title.empty()) {
-			string text = artist + string(" - ") + title;
-			return text;
-		} else {
-			return "";
-		}
-	}
-
-	string MainWindow::fetchMeta_http() {
-		stringstream httpstream;
 		try {
-			HTTP::Get(currentStation->Meta_HTTP_URL, &httpstream);
-		} catch (const string &e) {
-			MessageBox(window, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+			return metadataProvider->Fetch(currentStream, additionalParameters);
+		} catch (INETRException &e) {
+			e.mbox(window, &CurrentLanguage);
+			return "";
 		}
-
-		return httpstream.str();
 	}
+	
+	void MainWindow::processMeta(string &meta, vector<MetadataProcessor*>
+		&processors, map<string, string> &additionalParameters) {
 
-	string MainWindow::processMeta_regex(string meta) {
-		regex rx(currentStation->MetaProc_RegEx);
-		cmatch res;
-		regex_search(meta.c_str(), res, rx);
-		
-		return res[1];
-	}
+		for (vector<MetadataProcessor*>::iterator it = processors.begin();
+			it != processors.end(); ++it) {
 
-	string MainWindow::processMeta_regexAT(string meta) {
-		regex rxA(currentStation->MetaProc_RegExA);
-		regex rxT(currentStation->MetaProc_RegExT);
-		cmatch resA, resT;
-		regex_search(meta.c_str(), resA, rxA);
-		regex_search(meta.c_str(), resT, rxT);
-
-		return string(resA[1]) + " - " + string(resT[1]);
-	}
-
-	string MainWindow::processMeta_htmlEntityFix(string meta) {
-		static const char* const entities[][2] = {
-			{ "amp", "&" },
-			{ "lt", "<" },
-			{ "gt", ">" },
-			{ "nbsp", " "},
-			{ "quot", "\"" },
-			{ "apos", "'" },
-			{ "sect", "§"},
-			{ "euro", "€"},
-			{ "pound", "£" },
-			{ "cent", "¢" },
-			{ "yen", "¥" },
-			{ "copy", "©" },
-			{ "reg", "®" },
-			{ "trade", "™" },
-			{ "Auml", "Ä" },
-			{ "auml", "ä" },
-			{ "Ouml", "Ö" },
-			{ "ouml", "ö" },
-			{ "Uuml", "Ü" },
-			{ "uuml", "ü" },
-			{ "szlig", "ß" }
-		};
-		static const int entityCount = (sizeof(entities) / sizeof(entities[0]));
-
-		const char* const str = meta.c_str();
-		char* const newStr = new char[strlen(str) + 1];
-
-		const char *ptrA = str;
-		char *ptrB = newStr;
-
-		while (*ptrA) {
-			if (*ptrA == '&') {
-				++ptrA;
-
-				char buf[16];
-				char* ptrBuf = buf;
-
-				while (*ptrA != ';') {
-					*ptrBuf = *ptrA;
-
-					++ptrA;
-					++ptrBuf;
-				}
-				*ptrBuf = 0;
-
-				*ptrB = 0;
-
-				if (buf[0] == '#') {
-					int n, id;
-
-					if (buf[1] == 'x')
-						n = sscanf_s(&buf[2], "%x", &id);
-					else
-						n = sscanf_s(&buf[1], "%u", &id);
-
-					if (n != 1)
-						MessageBox(window, CurrentLanguage["error"].c_str(),
-							CurrentLanguage["error"].c_str(),
-							MB_ICONERROR | MB_OK);
-
-					*ptrB = id;
-				} else {
-					for (int i = 0; i < entityCount; ++i) {
-						if (strcmp(entities[i][0], buf) == 0)
-							*ptrB = *entities[i][1];
-					}
-				}
-
-				if (*ptrB == 0) {
-					const char* const errMsgStr =
-						CurrentLanguage["unkHTMLEnt"].c_str();
-
-					char* const errStr = new char[strlen(errMsgStr) +
-						strlen(buf) + 1];
-
-					strcpy_s(errStr, sizeof(errStr), errMsgStr);
-					strcat_s(errStr, sizeof(errStr), buf);
-
-					MessageBox(window, errStr, CurrentLanguage["error"].c_str(),
-						MB_ICONERROR | MB_OK);
-
-					delete[] errStr;
-
-					return CurrentLanguage["error"];
-				}
-			} else {
-				*ptrB = *ptrA;
+			try {
+				(*it)->Process(meta, additionalParameters);
+			} catch (INETRException &e) {
+				e.mbox(window, &CurrentLanguage);
 			}
-
-			++ptrA;
-			++ptrB;
 		}
-		*ptrB = 0;
-
-		string newMeta(newStr);
-		delete[] newStr;
-
-		return newMeta;
 	}
-
+	
 	void MainWindow::expand() {
 		if (slideStatus != Retracted)
 			return;
@@ -1096,10 +931,10 @@ namespace inetr {
 		case WM_CREATE:
 			try {
 				createControls(hwnd);
-			} catch (const string &e) {
-				MessageBox(hwnd, e.c_str(), "Error", MB_ICONERROR | MB_OK);
+			} catch (INETRException &e) {
+				e.mbox(hwnd, &CurrentLanguage);
 			}
-			initialize(hwnd);
+			initializeWindow(hwnd);
 			break;
 		case WM_CTLCOLORSTATIC:
 			return (INT_PTR)GetStockObject(WHITE_BRUSH);
@@ -1113,7 +948,7 @@ namespace inetr {
 			}
 			break;
 		case WM_CLOSE:
-			uninitialize(hwnd);
+			uninitializeWindow(hwnd);
 			DestroyWindow(hwnd);
 			break;
 		case WM_DESTROY:

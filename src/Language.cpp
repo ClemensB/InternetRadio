@@ -25,4 +25,11 @@ namespace inetr {
 		else
 			return string(str);
 	}
+
+	string Language::get(string str) {
+		if (strings.count(str) != 0)
+			return strings[str];
+		else
+			return str;
+	}
 }

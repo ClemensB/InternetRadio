@@ -4,21 +4,18 @@ using namespace std;
 
 namespace inetr {
 	Station::Station(string name, string url, string imagePath,
-		MetadataProviderType metadataProvider /* = NoMetaProvider */,
-		vector<MetadataProcessorType> metadataProcessors
-		/* = vector<MetadataProcessorType>() */,
-		string meta_HTTP_URL /* = "" */, string metaProc_RegEx /* = "" */,
-		string metaProc_RegExA /* = "" */, string metaProc_RegExT /* = "" */) {
+		MetadataProvider* metadataProvider,
+		vector<MetadataProcessor*> metadataProcessors,
+		map<string, string> metadataProcessor_additionalParameters) {
+
 		this->Name = name;
 		this->URL = url;
-		this->MetadataProvider = metadataProvider;
+		this->MyMetadataProvider = metadataProvider;
 		this->MetadataProcessors = metadataProcessors;
 		this->imagePath = imagePath;
 
-		this->Meta_HTTP_URL = meta_HTTP_URL;
-		this->MetaProc_RegEx = metaProc_RegEx;
-		this->MetaProc_RegExA = metaProc_RegExA;
-		this->MetaProc_RegExT = metaProc_RegExT;
+		this->AdditionalParameters =
+			metadataProcessor_additionalParameters;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 			IMAGE_BITMAP, INTERNETRADIO_STATION_IMAGEWIDTH,
@@ -32,14 +29,12 @@ namespace inetr {
 	Station::Station(const Station &original) {
 		this->Name = original.Name;
 		this->URL = original.URL;
-		this->MetadataProvider = original.MetadataProvider;
+		this->MyMetadataProvider = original.MyMetadataProvider;
 		this->MetadataProcessors = original.MetadataProcessors;
 		this->imagePath = original.imagePath;
 
-		this->Meta_HTTP_URL = original.Meta_HTTP_URL;
-		this->MetaProc_RegEx = original.MetaProc_RegEx;
-		this->MetaProc_RegExA = original.MetaProc_RegExA;
-		this->MetaProc_RegExT = original.MetaProc_RegExT;
+		this->AdditionalParameters =
+			original.AdditionalParameters;
 
 		Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 			IMAGE_BITMAP, 200, 200, LR_LOADFROMFILE);
@@ -58,14 +53,12 @@ namespace inetr {
 		if (this != &original) {
 			this->Name = original.Name;
 			this->URL = original.URL;
-			this->MetadataProvider = original.MetadataProvider;
+			this->MyMetadataProvider = original.MyMetadataProvider;
 			this->MetadataProcessors = original.MetadataProcessors;
 			this->imagePath = original.imagePath;
 
-			this->Meta_HTTP_URL = original.Meta_HTTP_URL;
-			this->MetaProc_RegEx = original.MetaProc_RegEx;
-			this->MetaProc_RegExA = original.MetaProc_RegExA;
-			this->MetaProc_RegExT = original.MetaProc_RegExT;
+			this->AdditionalParameters =
+				original.AdditionalParameters;
 
 			Image = (HBITMAP)LoadImage(GetModuleHandle(NULL), imagePath.c_str(),
 				IMAGE_BITMAP, 200, 200, LR_LOADFROMFILE);
