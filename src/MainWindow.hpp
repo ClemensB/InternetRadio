@@ -17,77 +17,84 @@ namespace inetr {
 
 	class MainWindow {
 	public:
-		static int Main(std::string commandLine, HINSTANCE instance,
+		MainWindow();
+
+		int Main(std::string commandLine, HINSTANCE instance,
 			int showCmd);
 
-		static Language CurrentLanguage;
+		Language CurrentLanguage;
 	private:
-		static void createWindow();
-		static void createControls(HWND hwnd);
-
-		static void initialize();
-		static void uninitialize();
-		static void initializeWindow(HWND hwnd);
-		static void uninitializeWindow(HWND hwnd);
-
-		static void loadConfig();
-		static void loadUserConfig();
-		static void saveUserConfig();
-
-		static void populateStationsListbox();
-		static void populateMoreStationsListbox();
-		static void populateLanguageComboBox();
-
-		static void CALLBACK metaSync(HSYNC handle, DWORD channel, DWORD data,
+		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
 			void *user);
 
-		static void bufferTimer();
-		static void metaTimer();
-		static void slideTimer();
-		static void handleStationsListboxClick();
-		static void handleStationsListboxDblClick();
-		static void handleMoreStationsListboxDblClick();
-		static void handleLanguageComboBoxClick();
+		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
+			wParam, LPARAM lParam);
 
-		static void openURL(std::string url);
-		static void stop();
 
-		static void updateMeta();
-		static std::string fetchMeta(MetadataProvider* metadataProvider,
+		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+			LPARAM lParam);
+
+		void createWindow();
+		void createControls(HWND hwnd);
+
+		void initialize();
+		void uninitialize();
+		void initializeWindow(HWND hwnd);
+		void uninitializeWindow(HWND hwnd);
+
+		void loadConfig();
+		void loadUserConfig();
+		void saveUserConfig();
+
+		void populateStationsListbox();
+		void populateMoreStationsListbox();
+		void populateLanguageComboBox();
+
+		void expandWindow();
+		void retractWindow();
+
+		void bufferTimer_Tick();
+		void metaTime_Tick();
+		void slideTimer_Tick();
+		void stationsListBox_SelChange();
+		void stationsListBox_DblClick();
+		void moreStationsListBox_DblClick();
+		void languageComboBox_SelChange();
+
+		void radioOpenURL(std::string url);
+		void radioStop();
+
+		void updateMeta();
+		std::string fetchMeta(MetadataProvider* metadataProvider,
 			HSTREAM stream, std::map<std::string, std::string>
 			&additionalParameters);
-		static void processMeta(std::string &meta,
+		void processMeta(std::string &meta,
 			std::vector<MetadataProcessor*> &processors,
 			std::map<std::string, std::string> &additionalParameters);
 
-		static void expand();
-		static void retract();
 
-		static LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
-			LPARAM lParam);
+		HINSTANCE instance;
+		HWND window;
+		HWND stationListBox;
+		HWND statusLabel;
+		HWND stationImage;
+		HWND moreStationListBox;
+		HWND languageComboBox;
 
-		static HINSTANCE instance;
-		static HWND window;
-		static HWND stationListBox;
-		static HWND statusLabel;
-		static HWND stationImage;
-		static HWND moreStationListBox;
-		static HWND languageComboBox;
+		WindowSlideStatus slideStatus;
+		int slideProgress;
 
-		static std::list<Language> languages;
-		static Language *defaultLanguage;
+		std::list<Language> languages;
+		Language *defaultLanguage;
 
-		static std::list<MetadataProvider*> metaProviders;
-		static std::list<MetadataProcessor*> metaProcessors;
+		std::list<MetadataProvider*> metaProviders;
+		std::list<MetadataProcessor*> metaProcessors;
 
-		static std::list<Station> stations;
-		static std::list<Station*> favoriteStations;
+		std::list<Station> stations;
+		std::list<Station*> favoriteStations;
 
-		static Station* currentStation;
-		static HSTREAM currentStream;
-
-		static WindowSlideStatus slideStatus;
-		static int slideOffset;
+		Station* currentStation;
+		HSTREAM currentStream;
 	};
 }
 

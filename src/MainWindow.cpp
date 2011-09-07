@@ -66,29 +66,15 @@ using namespace std::tr1;
 using namespace Json;
 
 namespace inetr {
-	HINSTANCE MainWindow::instance;
-	HWND MainWindow::window;
-	HWND MainWindow::stationListBox;
-	HWND MainWindow::statusLabel;
-	HWND MainWindow::stationImage;
-	HWND MainWindow::moreStationListBox;
-	HWND MainWindow::languageComboBox;
+	MainWindow::MainWindow() {
+		defaultLanguage = NULL;
 
-	list<Language> MainWindow::languages;
-	Language MainWindow::CurrentLanguage;
-	Language *MainWindow::defaultLanguage = NULL;
+		currentStation = NULL;
+		currentStream = NULL;
 
-	list<MetadataProvider*> MainWindow::metaProviders;
-	list<MetadataProcessor*> MainWindow::metaProcessors;
-
-	list<Station> MainWindow::stations;
-	list<Station*> MainWindow::favoriteStations;
-
-	Station *MainWindow::currentStation = NULL;
-	HSTREAM MainWindow::currentStream = NULL;
-
-	WindowSlideStatus MainWindow::slideStatus = Retracted;
-	int MainWindow::slideOffset = 0;
+		slideStatus = Retracted;
+		slideProgress = 0;
+	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
@@ -119,7 +105,7 @@ namespace inetr {
 		WNDCLASSEX wndClass;
 		wndClass.cbSize				= sizeof(WNDCLASSEX);
 		wndClass.style				= CS_DBLCLKS;
-		wndClass.lpfnWndProc		= (WNDPROC)(&(MainWindow::wndProc));
+		wndClass.lpfnWndProc		= (WNDPROC)(&(MainWindow::staticWndProc));
 		wndClass.cbClsExtra			= 0;
 		wndClass.cbWndExtra			= 0;
 		wndClass.hInstance			= instance;
@@ -140,7 +126,7 @@ namespace inetr {
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			INETR_MWND_WIDTH, INETR_MWND_HEIGHT,
-			NULL, NULL, instance, NULL);
+			NULL, NULL, instance, (LPVOID)this);
 
 		if (window == NULL)
 			throw INETRException("wndCreFailed", true);
@@ -581,7 +567,7 @@ namespace inetr {
 		}
 	}
 
-	void MainWindow::bufferTimer() {
+	void MainWindow::bufferTimer_Tick() {
 		QWORD progress = BASS_StreamGetFilePosition(currentStream,
 			BASS_FILEPOS_BUFFER) * 100 / BASS_StreamGetFilePosition(
 			currentStream, BASS_FILEPOS_END);
@@ -597,9 +583,9 @@ namespace inetr {
 				updateMeta();
 
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
-					&metaSync, 0);
+					&staticMetaSync, (void*)this);
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
-					&metaSync, 0);
+					&staticMetaSync, (void*)this);
 
 				BASS_ChannelPlay(currentStream, FALSE);
 
@@ -613,26 +599,26 @@ namespace inetr {
 		}
 	}
 
-	void MainWindow::metaTimer() {
+	void MainWindow::metaTime_Tick() {
 		updateMeta();
 	}
 
-	void MainWindow::slideTimer() {
-		int oSlideOffset = slideOffset;
+	void MainWindow::slideTimer_Tick() {
+		int oSlideOffset = slideProgress;
 
 		switch (slideStatus) {
 		case Expanding:
-			slideOffset += INETR_MWND_SLIDE_STEP;
-			if (slideOffset >= INETR_MWND_SLIDE_MAX) {
-				slideOffset = INETR_MWND_SLIDE_MAX;
+			slideProgress += INETR_MWND_SLIDE_STEP;
+			if (slideProgress >= INETR_MWND_SLIDE_MAX) {
+				slideProgress = INETR_MWND_SLIDE_MAX;
 				slideStatus = Expanded;
 				KillTimer(window, INETR_MWND_TIMER_SLIDE);
 			}
 			break;
 		case Retracting:
-			slideOffset -= INETR_MWND_SLIDE_STEP;
-			if (slideOffset <= 0) {
-				slideOffset = 0;
+			slideProgress -= INETR_MWND_SLIDE_STEP;
+			if (slideProgress <= 0) {
+				slideProgress = 0;
 				slideStatus = Retracted;
 				KillTimer(window, INETR_MWND_TIMER_SLIDE);
 			}
@@ -640,25 +626,25 @@ namespace inetr {
 		
 		RECT wndPos;
 		GetWindowRect(window, &wndPos);
-		int slideOffsetDiff = slideOffset - oSlideOffset;
+		int slideOffsetDiff = slideProgress - oSlideOffset;
 
 		MoveWindow(window, wndPos.left - slideOffsetDiff,
-			wndPos.top, INETR_MWND_WIDTH + slideOffset,
+			wndPos.top, INETR_MWND_WIDTH + slideProgress,
 			INETR_MWND_HEIGHT, TRUE);
 
 		SetWindowPos(stationListBox, NULL,
-			INETR_MWND_STATIONLIST_POSX + slideOffset,
+			INETR_MWND_STATIONLIST_POSX + slideProgress,
 			INETR_MWND_STATIONLIST_POSY, 0, 0, SWP_NOSIZE);
 
 		SetWindowPos(stationImage, NULL,
-			INETR_MWND_STATIONIMAGE_POSX + slideOffset,
+			INETR_MWND_STATIONIMAGE_POSX + slideProgress,
 			INETR_MWND_STATIONIMAGE_POSY, 0, 0, SWP_NOSIZE);
 
 		SetWindowPos(statusLabel, NULL,
-			INETR_MWND_STATUSLABEL_POSX + slideOffset,
+			INETR_MWND_STATUSLABEL_POSX + slideProgress,
 			INETR_MWND_STATUSLABEL_POSY, 0, 0, SWP_NOSIZE);
 
-		int moreStationListBoxWidth = slideOffset - 10;
+		int moreStationListBoxWidth = slideProgress - 10;
 		if (moreStationListBoxWidth <= 0) {
 			ShowWindow(moreStationListBox, SW_HIDE);
 			ShowWindow(languageComboBox, SW_HIDE);
@@ -674,13 +660,15 @@ namespace inetr {
 		}
 	}
 
-	void CALLBACK MainWindow::metaSync(HSYNC handle, DWORD channel, DWORD data,
+	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
 		void *user) {
 
-		updateMeta();
+		MainWindow* parent = (MainWindow*)user;
+		if (parent)
+			parent->updateMeta();
 	}
 
-	void MainWindow::handleStationsListboxClick() {
+	void MainWindow::stationsListBox_SelChange() {
 		if (slideStatus != Retracted)
 			return;
 
@@ -701,12 +689,12 @@ namespace inetr {
 				ShowWindow(stationImage, SW_SHOW);
 				SendMessage(stationImage, STM_SETIMAGE, IMAGE_BITMAP,
 					(LPARAM)currentStation->Image);
-				openURL(it->URL);
+				radioOpenURL(it->URL);
 			}
 		}
 	}
 
-	void MainWindow::handleStationsListboxDblClick() {
+	void MainWindow::stationsListBox_DblClick() {
 		if (slideStatus != Expanded)
 			return;
 
@@ -732,7 +720,7 @@ namespace inetr {
 		populateStationsListbox();
 	}
 
-	void MainWindow::handleMoreStationsListboxDblClick() {
+	void MainWindow::moreStationsListBox_DblClick() {
 		if (slideStatus != Expanded)
 			return;
 
@@ -757,7 +745,7 @@ namespace inetr {
 		populateStationsListbox();
 	}
 
-	void MainWindow::handleLanguageComboBoxClick() {
+	void MainWindow::languageComboBox_SelChange() {
 		if (slideStatus != Expanded)
 			return;
 
@@ -786,7 +774,7 @@ namespace inetr {
 		}
 	}
 
-	void MainWindow::openURL(string url) {
+	void MainWindow::radioOpenURL(string url) {
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
@@ -807,7 +795,7 @@ namespace inetr {
 				CurrentLanguage["connectionError"].c_str());
 	}
 
-	void MainWindow::stop() {
+	void MainWindow::radioStop() {
 		if (currentStream != NULL) {
 			BASS_ChannelStop(currentStream);
 			BASS_StreamFree(currentStream);
@@ -865,7 +853,7 @@ namespace inetr {
 		}
 	}
 	
-	void MainWindow::expand() {
+	void MainWindow::expandWindow() {
 		if (slideStatus != Retracted)
 			return;
 
@@ -874,13 +862,28 @@ namespace inetr {
 			INETR_MWND_SLIDE_SPEED, NULL);
 	}
 
-	void MainWindow::retract() {
+	void MainWindow::retractWindow() {
 		if (slideStatus != Expanded)
 			return;
 
 		slideStatus = Retracting;
 		SetTimer(window, INETR_MWND_TIMER_SLIDE,
 			INETR_MWND_SLIDE_SPEED, NULL);
+	}
+
+	LRESULT CALLBACK MainWindow::staticWndProc(HWND hwnd, UINT uMsg, WPARAM
+		wParam, LPARAM lParam) {
+
+		MainWindow *parent;
+		if (uMsg == WM_CREATE) {
+			parent = (MainWindow*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+			SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)parent);
+		} else {
+			parent = (MainWindow*)GetWindowLongPtr(hwnd, GWL_USERDATA);
+			if (!parent)
+				return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		}
+		return parent->wndProc(hwnd, uMsg, wParam, lParam);
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
@@ -890,13 +893,13 @@ namespace inetr {
 		case WM_TIMER:
 			switch (wParam) {
 				case INETR_MWND_TIMER_BUFFER:
-					bufferTimer();
+					bufferTimer_Tick();
 					break;
 				case INETR_MWND_TIMER_META:
-					metaTimer();
+					metaTime_Tick();
 					break;
 				case INETR_MWND_TIMER_SLIDE:
-					slideTimer();
+					slideTimer_Tick();
 					break;
 			}
 			break;
@@ -905,24 +908,24 @@ namespace inetr {
 			case INETR_MWND_STATIONLIST_ID:
 				switch (HIWORD(wParam)) {
 				case LBN_SELCHANGE:
-					handleStationsListboxClick();
+					stationsListBox_SelChange();
 					break;
 				case LBN_DBLCLK:
-					handleStationsListboxDblClick();
+					stationsListBox_DblClick();
 					break;
 				}
 				break;
 			case INETR_MWND_MORESTATIONLIST_ID:
 				switch (HIWORD(wParam)) {
 				case LBN_DBLCLK:
-					handleMoreStationsListboxDblClick();
+					moreStationsListBox_DblClick();
 					break;
 				}
 				break;
 			case INETR_MWND_LANGUAGECOMBOBOX_ID:
 				switch (HIWORD(wParam)) {
 				case CBN_SELCHANGE:
-					handleLanguageComboBoxClick();
+					languageComboBox_SelChange();
 					break;
 				}
 				break;
@@ -941,10 +944,10 @@ namespace inetr {
 			break;
 		case WM_LBUTTONDBLCLK:
 			if (slideStatus == Retracted) {
-				stop();
-				expand();
+				radioStop();
+				expandWindow();
 			} else if (slideStatus == Expanded) {
-				retract();
+				retractWindow();
 			}
 			break;
 		case WM_CLOSE:
