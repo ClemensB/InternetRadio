@@ -58,8 +58,7 @@
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
-			"regex" : "webradio_song_now\">\\n([^<>]+)",
-			"regexExpr" : "1"
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
 		},
 		{
 			"name" : "N-Joy",
