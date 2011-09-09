@@ -24,12 +24,15 @@ namespace inetr {
 
 		Language CurrentLanguage;
 	private:
-		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
-			void *user);
+		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel,
+			DWORD data, void *user);
 
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
 
+		static DWORD WINAPI staticUpdateMetaThread(__in LPVOID parameter);
+
+		static DWORD WINAPI staticOpenURLThread(__in LPVOID parameter);
 
 		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
@@ -62,9 +65,12 @@ namespace inetr {
 		void languageComboBox_SelChange();
 
 		void radioOpenURL(std::string url);
+		void radioOpenURLThread(std::string url);
 		void radioStop();
 
 		void updateMeta();
+		void updateMetaThread();
+
 		std::string fetchMeta(MetadataProvider* metadataProvider,
 			HSTREAM stream, std::map<std::string, std::string>
 			&additionalParameters);
@@ -94,6 +100,7 @@ namespace inetr {
 		std::list<Station*> favoriteStations;
 
 		Station* currentStation;
+		std::string currentStreamURL;
 		HSTREAM currentStream;
 	};
 }

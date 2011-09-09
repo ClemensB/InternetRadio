@@ -788,6 +788,34 @@ namespace inetr {
 	}
 
 	void MainWindow::radioOpenURL(string url) {
+		LPVOID *args = new LPVOID[2];
+
+		string *str = new string(url);
+		*args = this;
+		*(args + 1) = str;
+
+		currentStreamURL = url;
+
+		CreateThread(NULL, 0, staticOpenURLThread, (LPVOID)args, 0, NULL);
+	}
+
+	DWORD WINAPI MainWindow::staticOpenURLThread(__in LPVOID parameter) {
+		LPVOID *args = (LPVOID*)parameter;
+
+		MainWindow *parent = (MainWindow*)*args;
+		string *strPtr = (string*)*(args + 1);
+
+		string str(*strPtr);
+
+		delete strPtr;
+		delete[] args;
+
+		parent->radioOpenURLThread(str);
+
+		return 0;
+	}
+
+	void MainWindow::radioOpenURLThread(string url) {
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
@@ -799,7 +827,12 @@ namespace inetr {
 		SetWindowText(statusLabel, (CurrentLanguage["connecting"] +
 			string("...")).c_str());
 
-		currentStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
+		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
+
+		if (currentStreamURL != url)
+			return;
+
+		currentStream = tempStream;
 
 		if (currentStream != NULL)
 			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
@@ -824,6 +857,18 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMeta() {
+		CreateThread(NULL, 0, &staticUpdateMetaThread, (LPVOID)this, 0, NULL);
+	}
+
+	DWORD WINAPI MainWindow::staticUpdateMetaThread(__in LPVOID parameter) {
+		MainWindow *parent = (MainWindow*)parameter;
+		if (parent)
+			parent->updateMetaThread();
+
+		return 0;
+	}
+
+	void MainWindow::updateMetaThread() {
 		string meta = fetchMeta(currentStation->MyMetadataProvider,
 			currentStream, currentStation->AdditionalParameters);
 
