@@ -79,13 +79,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="data\config.json" />
+    <None Include="data\img\98_0rtl.bmp" />
+    <None Include="data\img\bigfm.bmp" />
+    <None Include="data\img\dlf.bmp" />
+    <None Include="data\img\dlr_kultur.bmp" />
     <None Include="data\img\einslive.bmp" />
     <None Include="data\img\ffn.bmp" />
     <None Include="data\img\hardbase.bmp" />
     <None Include="data\img\n-joy.bmp" />
+    <None Include="data\img\ndr1nds.bmp" />
+    <None Include="data\img\ndrinfo.bmp" />
     <None Include="data\img\ndr_2.bmp" />
     <None Include="data\img\raktiv.bmp" />
     <None Include="data\img\sputnik.bmp" />
+    <None Include="data\img\wdr2.bmp" />
+    <None Include="data\img\wdr3.bmp" />
+    <None Include="data\img\wdr4.bmp" />
+    <None Include="data\img\wdr5.bmp" />
     <None Include="dependencies\bass\bass.dll" />
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
     <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />

@@ -52,6 +52,15 @@
 	"defaultLanguage" : "Deutsch",
 	"stations" : [
 		{
+			"name" : "NDR 1 Niedersachsen",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1niedersachsen_hi_mp3",
+			"image": "ndr1nds.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/ndr1niedersachsen/onaircenter109-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
+		},
+		{
 			"name" : "NDR 2",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
 			"image" : "ndr_2.bmp",
@@ -70,15 +79,66 @@
 			"regex" : "currentsong\">\\n<div class=\"scrollingtext\">\\n<p>\\n([^<>]+)"
 		},
 		{
+			"name" : "NDR Info",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrinfo_hi_mp3",
+			"image" : "ndrinfo.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/info/onaircenter113-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "<h2>([^<>]+)</h2>\\n<p class=\"timing\">"
+		},
+		{
 			"name" : "1Live",
 			"url" : "http://gffstream.ic.llnwd.net/stream/gffstream_stream_wdr_einslive_b",
 			"image" : "einslive.bmp",
 			"meta" : "meta"
 		},
 		{
+			"name" : "WDR 2",
+			"url" : "http://wdr-2.akacast.akamaistream.net/7/48/119436/v1/gnl.akacast.akamaistream.net/wdr-2",
+			"image" : "wdr2.bmp",
+			"meta" : "meta"
+		},
+		{
+			"name" : "WDR 3",
+			"url" : "http://wdr-3-320.akacast.akamaistream.net/7/827/119437/v1/gnl.akacast.akamaistream.net/wdr-3-320",
+			"image" : "wdr3.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.wdr3.de",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "Jetzt im Programm: <strong>(.+)</strong>"
+		},
+		{
+			"name" : "WDR 4",
+			"url" : "http://wdr-4.akacast.akamaistream.net/7/42/119438/v1/gnl.akacast.akamaistream.net/wdr-4",
+			"image" : "wdr4.bmp",
+			"meta" : "http",
+			"httpURL" : "http://www.wdr.de/radio/wdr4/playlist/index.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "songtitel\">(.+)</td>"
+		},
+		{
+			"name" : "WDR 5",
+			"url" : "http://wdr-5.akacast.akamaistream.net/7/41/119439/v1/gnl.akacast.akamaistream.net/wdr-5",
+			"image" : "wdr5.bmp",
+			"meta" : "meta"
+		},
+		{
 			"name" : "FFN",
 			"url" : "http://rs20.stream24.org:8000/stream",
 			"image" : "ffn.bmp",
+			"meta" : "meta"
+		},
+		{
+			"name" : "Deutschlandfunk",
+			"url" : "http://dradio.ic.llnwd.net/stream/dradio_dlf_m_a",
+			"image" : "dlf.bmp",
+			"meta" : "meta"
+		},
+		{
+			"name" : "Deutschlandradio Kultur",
+			"url" : "http://dradio.ic.llnwd.net/stream/dradio_dkultur_m_a",
+			"image" : "dlr_kultur.bmp",
 			"meta" : "meta"
 		},
 		{

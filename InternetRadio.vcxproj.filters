@@ -92,6 +92,36 @@
     <None Include="data\img\raktiv.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="data\img\bigfm.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\98_0rtl.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\ndrinfo.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\dlf.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\dlr_kultur.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr5.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr2.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr3.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr4.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\ndr1nds.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">
