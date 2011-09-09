@@ -86,6 +86,7 @@
     <None Include="data\img\einslive.bmp" />
     <None Include="data\img\ffn.bmp" />
     <None Include="data\img\hardbase.bmp" />
+    <None Include="data\img\klassikradio.bmp" />
     <None Include="data\img\n-joy.bmp" />
     <None Include="data\img\ndr1nds.bmp" />
     <None Include="data\img\ndrinfo.bmp" />

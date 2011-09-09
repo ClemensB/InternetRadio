@@ -122,6 +122,9 @@
     <None Include="data\img\ndr1nds.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="data\img\klassikradio.bmp">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">
