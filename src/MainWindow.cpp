@@ -829,8 +829,10 @@ namespace inetr {
 
 		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
 
-		if (currentStreamURL != url)
+		if (currentStreamURL != url) {
+			BASS_StreamFree(tempStream);
 			return;
+		}
 
 		currentStream = tempStream;
 
