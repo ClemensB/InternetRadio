@@ -827,6 +827,17 @@ namespace inetr {
 		string meta = fetchMeta(currentStation->MyMetadataProvider,
 			currentStream, currentStation->AdditionalParameters);
 
+		const char* metaStr = meta.c_str();
+		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr, strlen(metaStr),
+			NULL, NULL);
+		wchar_t *wide = new wchar_t[length + 1];
+		MultiByteToWideChar(CP_UTF8, 0, metaStr, -1, wide, length + 1);
+		char *ansi = new char[length + 1];
+		WideCharToMultiByte(CP_ACP, 0, wide, -1, ansi, length + 1, NULL, NULL);
+		delete[] wide;
+		meta = string(ansi);
+		delete[] ansi;
+
 		if (meta != "") {
 			processMeta(meta, currentStation->MetadataProcessors,
 				currentStation->AdditionalParameters);
