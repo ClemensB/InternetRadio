@@ -6,11 +6,13 @@ for /f "delims=" %%a in ('git rev-parse HEAD') do set gitrev=%%a
 set ver=%gittag%_%gitbranch%_%gitrev%
 set timestamp=%date%_%time%
 symstore add /r /f Release\*.* /s C:\Symbols /t "InternetRadio" /v "%ver%" /c "%timestamp%"
-if exist out rmdir /s /q out
-mkdir out
-xcopy Release\InternetRadio.exe out
-xcopy Release\InternetRadio.pdb out
-xcopy dependencies\bass\bass.dll out
-xcopy data\config.json out
-mkdir out\img
-xcopy data\img out\img
+set dir=%ver%
+if not exist out mkdir out
+if exist out\%dir% rmdir /s /q out\%dir%
+mkdir out\%dir%
+xcopy Release\InternetRadio.exe out\%dir%
+xcopy Release\InternetRadio.pdb out\%dir%
+xcopy dependencies\bass\bass.dll out\%dir%
+xcopy data\config.json out\%dir%
+mkdir out\%dir%\img
+xcopy data\img out\%dir%\img
