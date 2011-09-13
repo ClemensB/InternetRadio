@@ -21,7 +21,9 @@
 				"recvErr" : "Error while receiving data",
 				"unhHTTPStatus" : "Unhandled HTTP status code",
 				"emptyURL" : "Empty URL",
-				"unkHTMLEnt" : "Unknown HTML Entity: "
+				"unkHTMLEnt" : "Unknown HTML Entity: ",
+				"cryptoStartErr" : "Couldn't start crypto library",
+				"openFileErr" : "Unable to open file"
 			}
 		},
 		{
@@ -45,7 +47,9 @@
 				"recvErr" : "Fehler beim Empfangen von Daten",
 				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
 				"emptyURL" : "Leere URL angegeben",
-				"unkHTMLEnt" : "Unbekanntes HTML Entity: "
+				"unkHTMLEnt" : "Unbekanntes HTML Entity: ",
+				"cryptoStartErr" : "Konnte Cryptobibliothek nicht starten",
+				"openFileErr" : "Konnte Datei nicht oeffnen"
 			}
 		}
 	],
