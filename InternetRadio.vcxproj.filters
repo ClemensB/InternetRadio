@@ -125,6 +125,9 @@
     <None Include="data\img\klassikradio.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="Release.bat">
+      <Filter>Other Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">

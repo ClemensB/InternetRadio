@@ -101,6 +101,7 @@
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
     <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />
     <None Include="dependencies\jsoncpp\src\json_valueiterator.inl" />
+    <None Include="Release.bat" />
     <None Include="resource\icon.ico" />
   </ItemGroup>
   <ItemGroup>
