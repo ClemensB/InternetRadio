@@ -7,10 +7,7 @@
 				"error" : "Error",
 				"wndRegFailed" : "Window registration failed",
 				"wndCreFailed" : "Window creation failed",
-				"staLboxCreFailed" : "Station listbox creation failed",
-				"staLblCreFailed" : "Status label creation failed",
-				"staImgCreFailed" : "Station imagebox creation failed",
-				"lngCboxCreFailed" : "Language combobox creation failed",
+				"ctlCreFailed" : "Couldn't create controls",
 				"connecting" : "Connecting",
 				"buffering" : "Buffering",
 				"connected" : "Connected",
@@ -23,7 +20,11 @@
 				"emptyURL" : "Empty URL",
 				"unkHTMLEnt" : "Unknown HTML Entity: ",
 				"cryptoStartErr" : "Couldn't start crypto library",
-				"openFileErr" : "Unable to open file"
+				"openFileErr" : "Unable to open file",
+				"updateAvail" : "There is an update available",
+				"updateBtn" : "Update",
+				"dUpdateBtn" : "Don't update",
+				"updatingLbl" : "Updating..."
 			}
 		},
 		{
@@ -33,10 +34,7 @@
 				"error" : "Fehler",
 				"wndRegFailed" : "Fensterregistrierung fehlgeschlagen",
 				"wndCreFailed" : "Fenstererstellung fehlgeschlagen",
-				"staLboxCreFailed" : "Radiosender-Listenelement konnte nicht erstellt werden",
-				"staLblCreFailed" : "Status-Textelement konnte nicht erstellt werden",
-				"staImgCreFailed" : "Radiosender-Bildelement konnte nicht erstellt werden",
-				"lngCboxCreFailed" : "Sprachauswahl-ComboBox konnte nicht erstellt werden",
+				"ctlCreFailed" : "Konnte Steuerelemente nicht erstellen",
 				"connecting" : "Verbinden",
 				"buffering" : "Puffern",
 				"connected" : "Verbunden",
@@ -49,7 +47,11 @@
 				"emptyURL" : "Leere URL angegeben",
 				"unkHTMLEnt" : "Unbekanntes HTML Entity: ",
 				"cryptoStartErr" : "Konnte Cryptobibliothek nicht starten",
-				"openFileErr" : "Konnte Datei nicht oeffnen"
+				"openFileErr" : "Konnte Datei nicht oeffnen",
+				"updateAvail" : "Es ist ein Update verfuegbar",
+				"updateBtn" : "Updaten",
+				"dUpdateBtn" : "Nicht updaten",
+				"updatingLbl" : "Updaten..."
 			}
 		}
 	],

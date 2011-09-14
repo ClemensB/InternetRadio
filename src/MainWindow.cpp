@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <map>
 #include <regex>
 
 #include <json/json.h>
@@ -12,6 +13,7 @@
 #include "HTTP.hpp"
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
+#include "CryptUtil.hpp"
 
 #include "MetaMetadataProvider.hpp"
 #include "OGGMetadataProvider.hpp"
@@ -53,7 +55,22 @@
 #define INETR_MWND_LANGUAGECOMBOBOX_WIDTH 100
 #define INETR_MWND_LANGUAGECOMBOBOX_HEIGHT 60
 
-#define INETR_MWND_SLIDE_MAX 110
+#define INETR_MWND_UPDATEINFOLABEL_ID 601
+#define INETR_MWND_UPDATEINFOLABEL_POSX 10
+#define INETR_MWND_UPDATEINFOLABEL_POSY 259
+#define INETR_MWND_UPDATEINFOLABEL_WIDTH 200
+#define INETR_MWND_UPDATEINFOLABEL_HEIGHT 15
+
+#define INETR_MWND_UPDATEBUTTON_ID 701
+#define INETR_MWND_DONTUPDATEBUTTON_ID 801
+#define INETR_MWND_UPDATEBUTTONS_POSX 170
+#define INETR_MWND_UPDATEBUTTONS_POSY 254
+#define INETR_MWND_UPDATEBUTTONS_DISTANCE 5
+#define INETR_MWND_UPDATEBUTTONS_WIDTH 80
+#define INETR_MWND_UPDATEBUTTONS_HEIGHT 22
+
+#define INETR_MWND_SLIDE_LEFT_MAX 110
+#define INETR_MWND_SLIDE_BOTTOM_MAX 20
 #define INETR_MWND_SLIDE_STEP 2
 #define INETR_MWND_SLIDE_SPEED 1
 
@@ -67,17 +84,23 @@ using namespace Json;
 
 namespace inetr {
 	MainWindow::MainWindow() {
+		initialized = false;
+
 		defaultLanguage = NULL;
 
 		currentStation = NULL;
 		currentStream = NULL;
 
-		slideStatus = Retracted;
-		slideProgress = 0;
+		leftPanelSlideStatus = Retracted;
+		leftPanelSlideProgress = 0;
+		bottomPanelSlideStatus = Retracted;
+		bottomPanelSlideProgress = 0;
 	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
+
+		checkUpdate();
 
 		initialize();
 
@@ -90,6 +113,8 @@ namespace inetr {
 		ShowWindow(window, showCmd);
 		UpdateWindow(window);
 
+		initialized = true;
+
 		MSG msg;
 		while (GetMessage(&msg, NULL, 0, 0) > 0) {
 			TranslateMessage(&msg);
@@ -99,6 +124,10 @@ namespace inetr {
 		uninitialize();
 
 		return msg.wParam;
+	}
+
+	HWND MainWindow::GetWindow() {
+		return window;
 	}
 
 	void MainWindow::createWindow() {
@@ -143,7 +172,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (stationListBox == NULL)
-			throw INETRException("staLboxCreFailed", true);
+			throw INETRException("ctlCreFailed", true);
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
@@ -157,7 +186,10 @@ namespace inetr {
 			(HMENU)INETR_MWND_STATUSLABEL_ID, instance, NULL);
 
 		if (statusLabel == NULL)
-			throw INETRException("staLblCreFailed", true);
+			throw INETRException("ctlCreFailed", true);
+
+		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
 
 		stationImage = CreateWindow("STATIC", "", WS_CHILD |
 			SS_BITMAP, INETR_MWND_STATIONIMAGE_POSX,
@@ -165,7 +197,7 @@ namespace inetr {
 			(HMENU)INETR_MWND_STATIONIMAGE_ID, instance, NULL);
 
 		if (stationImage == NULL)
-			throw INETRException("staImgCreFailed", true);
+			throw INETRException("ctlCreFailed", true);
 
 		moreStationListBox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
@@ -177,7 +209,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (moreStationListBox == NULL)
-			throw INETRException("staLboxCreFailed", true);
+			throw INETRException("ctlCreFailed", true);
 
 		SendMessage(moreStationListBox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -192,13 +224,40 @@ namespace inetr {
 			instance, NULL);
 
 		if (languageComboBox == NULL)
-			throw INETRException("lngCboxCreFailed", true);
+			throw INETRException("ctlCreFailed", true);
 		
 		SendMessage(languageComboBox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 
+		updateInfoLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
+			INETR_MWND_UPDATEINFOLABEL_POSX,
+			INETR_MWND_UPDATEINFOLABEL_POSY,
+			INETR_MWND_UPDATEINFOLABEL_WIDTH,
+			INETR_MWND_UPDATEINFOLABEL_HEIGHT, hwnd,
+			(HMENU)INETR_MWND_UPDATEINFOLABEL_ID, instance, NULL);
 
-		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
+		if (updateInfoLabel == NULL)
+			throw INETRException("ctlCreFailed", true);
+
+		SendMessage(updateInfoLabel, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
+
+		updateButton = CreateWindow("BUTTON", "", WS_CHILD |
+			BS_DEFPUSHBUTTON, INETR_MWND_UPDATEBUTTONS_POSX,
+			INETR_MWND_UPDATEBUTTONS_POSY, INETR_MWND_UPDATEBUTTONS_WIDTH,
+			INETR_MWND_UPDATEBUTTONS_HEIGHT, hwnd,
+			(HMENU)INETR_MWND_UPDATEBUTTON_ID, instance, NULL);
+
+		SendMessage(updateButton, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
+
+		dontUpdateButton = CreateWindow("BUTTON", "", WS_CHILD |
+			BS_DEFPUSHBUTTON, INETR_MWND_UPDATEBUTTONS_POSX +
+			INETR_MWND_UPDATEBUTTONS_WIDTH + INETR_MWND_UPDATEBUTTONS_DISTANCE,
+			INETR_MWND_UPDATEBUTTONS_POSY, INETR_MWND_UPDATEBUTTONS_WIDTH,
+			INETR_MWND_UPDATEBUTTONS_HEIGHT, hwnd,
+			(HMENU)INETR_MWND_DONTUPDATEBUTTON_ID, instance, NULL);
+
+		SendMessage(dontUpdateButton, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 	}
 
@@ -244,6 +303,8 @@ namespace inetr {
 		populateMoreStationsListbox();
 		populateLanguageComboBox();
 
+		updateControlLanguageStrings();
+
 		BASS_Init(-1, 44100, 0, hwnd, NULL);
 	}
 
@@ -254,6 +315,81 @@ namespace inetr {
 		}
 
 		BASS_Free();
+	}
+
+	void MainWindow::updateControlLanguageStrings() {
+		SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+		SetWindowText(updateInfoLabel, CurrentLanguage["updateAvail"].c_str());
+		SetWindowText(updateButton, CurrentLanguage["updateBtn"].c_str());
+		SetWindowText(dontUpdateButton, CurrentLanguage["dUpdateBtn"].c_str());
+	}
+
+	void MainWindow::checkUpdate() {
+		CreateThread(NULL, 0, staticCheckUpdateThread, (LPVOID)this, 0, NULL);
+	}
+
+	void MainWindow::checkUpdateThread() {
+		stringstream versionFileStream;
+		try {
+			HTTP::Get("http://internetradio.clemensboos.net/release/version",
+				&versionFileStream);
+		} catch (INETRException & e) {
+			e.mbox(window, &CurrentLanguage, "Update Error");
+		}
+
+		map<string, string> fileHashes;
+		string dir = ".";
+		while (versionFileStream.good()) {
+			string line;
+			versionFileStream >> line;
+			if (line.empty())
+				continue;
+			if (line[0] == '[') {
+				dir = line.substr(1, line.length() - 2);
+			} else {
+				string hash = line;
+				string filename;
+				if (versionFileStream.good()) {
+					versionFileStream >> filename;
+					if (hash != "" && filename != "") {
+						fileHashes.insert(pair<string, string>(dir + string("\\") +
+							filename.substr(1), hash));
+					}
+				}
+			}
+		}
+
+		for (map<string, string>::iterator it = fileHashes.begin(); it !=
+			fileHashes.end(); ++it) {
+
+			ifstream iStream(it->first);
+			if (iStream) {
+				string md5hash = "";
+				try {
+					md5hash = CryptUtil::FileMD5Hash(it->first);
+				} catch (INETRException &e) {
+					e.mbox(window, &CurrentLanguage, "Update Error");
+				}
+				if (md5hash != "" && md5hash == it->second)
+					continue;
+			}
+
+			filesToUpdate.push_back(it->first);
+		}
+
+		if (!filesToUpdate.empty()) {
+			while (!initialized) {}
+			
+			expandBottomPanel();
+		}
+	}
+
+	DWORD WINAPI MainWindow::staticCheckUpdateThread(__in LPVOID parameter) {
+		MainWindow *parent = (MainWindow*)parameter;
+		if (parent)
+			parent->checkUpdateThread();
+
+		return 0;
 	}
 
 	void MainWindow::loadConfig() {
@@ -617,47 +753,67 @@ namespace inetr {
 	}
 
 	void MainWindow::slideTimer_Tick() {
-		int oSlideOffset = slideProgress;
+		int oSlideOffset = leftPanelSlideProgress;
 
-		switch (slideStatus) {
+		switch (leftPanelSlideStatus) {
 		case Expanding:
-			slideProgress += INETR_MWND_SLIDE_STEP;
-			if (slideProgress >= INETR_MWND_SLIDE_MAX) {
-				slideProgress = INETR_MWND_SLIDE_MAX;
-				slideStatus = Expanded;
-				KillTimer(window, INETR_MWND_TIMER_SLIDE);
+			leftPanelSlideProgress += INETR_MWND_SLIDE_STEP;
+			if (leftPanelSlideProgress >= INETR_MWND_SLIDE_LEFT_MAX) {
+				leftPanelSlideProgress = INETR_MWND_SLIDE_LEFT_MAX;
+				leftPanelSlideStatus = Expanded;
 			}
 			break;
 		case Retracting:
-			slideProgress -= INETR_MWND_SLIDE_STEP;
-			if (slideProgress <= 0) {
-				slideProgress = 0;
-				slideStatus = Retracted;
-				KillTimer(window, INETR_MWND_TIMER_SLIDE);
+			leftPanelSlideProgress -= INETR_MWND_SLIDE_STEP;
+			if (leftPanelSlideProgress <= 0) {
+				leftPanelSlideProgress = 0;
+				leftPanelSlideStatus = Retracted;
+			}
+		}
+		switch (bottomPanelSlideStatus) {
+		case Expanding:
+			bottomPanelSlideProgress += INETR_MWND_SLIDE_STEP;
+			if (bottomPanelSlideProgress >= INETR_MWND_SLIDE_BOTTOM_MAX) {
+				bottomPanelSlideProgress = INETR_MWND_SLIDE_BOTTOM_MAX;
+				bottomPanelSlideStatus = Expanded;
+			}
+			break;
+		case Retracting:
+			bottomPanelSlideProgress -= INETR_MWND_SLIDE_STEP;
+			if (bottomPanelSlideProgress <= 0) {
+				bottomPanelSlideProgress = 0;
+				bottomPanelSlideStatus = Retracted;
+				ShowWindow(updateButton, SW_HIDE);
+				ShowWindow(dontUpdateButton, SW_HIDE);
 			}
 		}
 		
+		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
+			Retracting && bottomPanelSlideStatus != Expanding &&
+			bottomPanelSlideStatus != Retracting)
+			KillTimer(window, INETR_MWND_TIMER_SLIDE);
+
 		RECT wndPos;
 		GetWindowRect(window, &wndPos);
-		int slideOffsetDiff = slideProgress - oSlideOffset;
+		int slideOffsetDiff = leftPanelSlideProgress - oSlideOffset;
 
 		MoveWindow(window, wndPos.left - slideOffsetDiff,
-			wndPos.top, INETR_MWND_WIDTH + slideProgress,
-			INETR_MWND_HEIGHT, TRUE);
+			wndPos.top, INETR_MWND_WIDTH + leftPanelSlideProgress,
+			INETR_MWND_HEIGHT + bottomPanelSlideProgress, TRUE);
 
 		SetWindowPos(stationListBox, NULL,
-			INETR_MWND_STATIONLIST_POSX + slideProgress,
+			INETR_MWND_STATIONLIST_POSX + leftPanelSlideProgress,
 			INETR_MWND_STATIONLIST_POSY, 0, 0, SWP_NOSIZE);
 
 		SetWindowPos(stationImage, NULL,
-			INETR_MWND_STATIONIMAGE_POSX + slideProgress,
+			INETR_MWND_STATIONIMAGE_POSX + leftPanelSlideProgress,
 			INETR_MWND_STATIONIMAGE_POSY, 0, 0, SWP_NOSIZE);
 
 		SetWindowPos(statusLabel, NULL,
-			INETR_MWND_STATUSLABEL_POSX + slideProgress,
+			INETR_MWND_STATUSLABEL_POSX + leftPanelSlideProgress,
 			INETR_MWND_STATUSLABEL_POSY, 0, 0, SWP_NOSIZE);
 
-		int moreStationListBoxWidth = slideProgress - 10;
+		int moreStationListBoxWidth = leftPanelSlideProgress - 10;
 		if (moreStationListBoxWidth <= 0) {
 			ShowWindow(moreStationListBox, SW_HIDE);
 			ShowWindow(languageComboBox, SW_HIDE);
@@ -671,6 +827,13 @@ namespace inetr {
 				INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, SWP_NOMOVE);
 			ShowWindow(languageComboBox, SW_SHOW);
 		}
+		SetWindowPos(updateButton, NULL, INETR_MWND_UPDATEBUTTONS_POSX +
+			leftPanelSlideProgress, INETR_MWND_UPDATEBUTTONS_POSY, 0, 0,
+			SWP_NOSIZE);
+		SetWindowPos(dontUpdateButton, NULL, INETR_MWND_UPDATEBUTTONS_POSX +
+			INETR_MWND_UPDATEBUTTONS_WIDTH + INETR_MWND_UPDATEBUTTONS_DISTANCE +
+			leftPanelSlideProgress, INETR_MWND_UPDATEBUTTONS_POSY, 0, 0,
+			SWP_NOSIZE);
 	}
 
 	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
@@ -682,7 +845,7 @@ namespace inetr {
 	}
 
 	void MainWindow::stationsListBox_SelChange() {
-		if (slideStatus != Retracted)
+		if (leftPanelSlideStatus != Retracted)
 			return;
 
 		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
@@ -708,7 +871,7 @@ namespace inetr {
 	}
 
 	void MainWindow::stationsListBox_DblClick() {
-		if (slideStatus != Expanded)
+		if (leftPanelSlideStatus != Expanded)
 			return;
 
 		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
@@ -734,7 +897,7 @@ namespace inetr {
 	}
 
 	void MainWindow::moreStationsListBox_DblClick() {
-		if (slideStatus != Expanded)
+		if (leftPanelSlideStatus != Expanded)
 			return;
 
 		int index = SendMessage(moreStationListBox, LB_GETCURSEL, (WPARAM)0,
@@ -759,7 +922,7 @@ namespace inetr {
 	}
 
 	void MainWindow::languageComboBox_SelChange() {
-		if (slideStatus != Expanded)
+		if (leftPanelSlideStatus != Expanded)
 			return;
 
 		int index = SendMessage(languageComboBox, CB_GETCURSEL, 0, 0);
@@ -782,9 +945,96 @@ namespace inetr {
 
 				CurrentLanguage = *it;
 
-				SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+				updateControlLanguageStrings();
 			}
 		}
+	}
+
+	void MainWindow::updateButton_Click() {
+		radioStop();
+
+		EnableWindow(stationListBox, FALSE);
+		EnableWindow(stationImage, FALSE);
+		EnableWindow(statusLabel, FALSE);
+		EnableWindow(moreStationListBox, FALSE);
+		EnableWindow(languageComboBox, FALSE);
+		EnableWindow(updateInfoLabel, FALSE);
+		EnableWindow(updateButton, FALSE);
+		EnableWindow(dontUpdateButton, FALSE);
+		EnableWindow(window, FALSE);
+
+		if (leftPanelSlideStatus != Retracted) {
+			leftPanelSlideStatus = Retracting;
+			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
+				NULL);
+		}
+		retractBottomPanel();
+
+		RECT clientRect;
+		GetClientRect(window, &clientRect);
+
+		HWND updateLabel = CreateWindow("STATIC",
+			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | WS_VISIBLE |
+			SS_CENTER, (clientRect.right - clientRect.left) / 2 - 50,
+			(clientRect.bottom - clientRect.top - bottomPanelSlideProgress)
+			/ 2 - 10, 100, 20, window, (HMENU)901, instance, (LPARAM)0);
+		SendMessage(updateLabel, WM_SETFONT,
+			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
+
+		downloadUpdates();
+	}
+
+	void MainWindow::dontUpdateButton_Click() {
+		retractBottomPanel();
+	}
+
+	void MainWindow::downloadUpdates() {
+		CreateThread(NULL, 0, staticDownloadUpdatesThread, (LPVOID)this, 0,
+			NULL);
+	}
+
+	void MainWindow::downloadUpdatesThread() {
+		for (list<string>::iterator it = filesToUpdate.begin();
+			it != filesToUpdate.end(); ++it) {
+
+			string fileName = *it;
+			StringUtil::SearchAndReplace(fileName, "\\", "/");
+			if (fileName[0] == '.')
+				fileName.erase(0, 1);
+			if (fileName[0] == '/')
+				fileName.erase(0, 1);
+
+			string url = string("http://internetradio.clemensboos.net/release/")
+				+ fileName;
+
+			string oldFileName = fileName + string(".old");
+
+			MoveFile(fileName.c_str(), oldFileName.c_str());
+
+			stringstream downloadFileStream;
+			HTTP::Get(url, &downloadFileStream);
+
+			ofstream fileStream;
+			fileStream.open(fileName, ios::out | ios::binary);
+
+			fileStream << downloadFileStream.rdbuf();
+
+			fileStream.close();
+
+			DeleteFile(oldFileName.c_str());
+		}
+
+		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
+	}
+
+	DWORD WINAPI MainWindow::staticDownloadUpdatesThread(__in LPVOID
+		parameter) {
+
+		MainWindow *parent = (MainWindow*)parameter;
+		if (parent)
+			parent->downloadUpdatesThread();
+
+		return 0;
 	}
 
 	void MainWindow::radioOpenURL(string url) {
@@ -924,22 +1174,50 @@ namespace inetr {
 		}
 	}
 	
-	void MainWindow::expandWindow() {
-		if (slideStatus != Retracted)
+	void MainWindow::expandLeftPanel() {
+		if (leftPanelSlideStatus != Retracted)
 			return;
 
-		slideStatus = Expanding;
-		SetTimer(window, INETR_MWND_TIMER_SLIDE,
-			INETR_MWND_SLIDE_SPEED, NULL);
+		leftPanelSlideStatus = Expanding;
+		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
+			Retracting)
+			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
+				NULL);
 	}
 
-	void MainWindow::retractWindow() {
-		if (slideStatus != Expanded)
+	void MainWindow::retractLeftPanel() {
+		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		slideStatus = Retracting;
-		SetTimer(window, INETR_MWND_TIMER_SLIDE,
-			INETR_MWND_SLIDE_SPEED, NULL);
+		leftPanelSlideStatus = Retracting;
+		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
+			Retracting)
+			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
+				NULL);
+	}
+
+	void MainWindow::expandBottomPanel() {
+		if (bottomPanelSlideStatus != Retracted)
+			return;
+
+		bottomPanelSlideStatus = Expanding;
+		ShowWindow(updateButton, SW_SHOW);
+		ShowWindow(dontUpdateButton, SW_SHOW);
+		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
+			Retracting)
+			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
+				NULL);
+	}
+
+	void MainWindow::retractBottomPanel() {
+		if (bottomPanelSlideStatus != Expanded)
+			return;
+
+		bottomPanelSlideStatus = Retracting;
+		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
+			Retracting)
+			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
+			NULL);
 	}
 
 	LRESULT CALLBACK MainWindow::staticWndProc(HWND hwnd, UINT uMsg, WPARAM
@@ -1000,6 +1278,20 @@ namespace inetr {
 					break;
 				}
 				break;
+			case INETR_MWND_UPDATEBUTTON_ID:
+				switch (HIWORD(wParam)) {
+				case BN_CLICKED:
+					updateButton_Click();
+					break;
+				}
+				break;
+			case INETR_MWND_DONTUPDATEBUTTON_ID:
+				switch (HIWORD(wParam)) {
+				case BN_CLICKED:
+					dontUpdateButton_Click();
+					break;
+				}
+				break;
 			}
 			break;
 		case WM_CREATE:
@@ -1014,11 +1306,11 @@ namespace inetr {
 			return (INT_PTR)GetStockObject(WHITE_BRUSH);
 			break;
 		case WM_LBUTTONDBLCLK:
-			if (slideStatus == Retracted) {
+			if (leftPanelSlideStatus == Retracted) {
 				radioStop();
-				expandWindow();
-			} else if (slideStatus == Expanded) {
-				retractWindow();
+				expandLeftPanel();
+			} else if (leftPanelSlideStatus == Expanded) {
+				retractLeftPanel();
 			}
 			break;
 		case WM_CLOSE:

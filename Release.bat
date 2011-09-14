@@ -16,7 +16,11 @@ xcopy data\img %out_build_dir%\img
 cd %out_build_dir%
 echo [.] > version
 for %%a in (*.*) do (
-    if not %%a==version ..\..\bin\md5sums -u %%a >> version
+    if not %%a==version (
+        if not %%a==InternetRadio.pdb (
+            ..\..\bin\md5sums -u %%a >> version
+        )
+    )
 )
 for /d %%a in (*) do (
     echo [%%a] >> version

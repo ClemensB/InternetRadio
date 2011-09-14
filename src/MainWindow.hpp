@@ -22,6 +22,8 @@ namespace inetr {
 		int Main(std::string commandLine, HINSTANCE instance,
 			int showCmd);
 
+		HWND GetWindow();
+
 		Language CurrentLanguage;
 	private:
 		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel,
@@ -34,6 +36,10 @@ namespace inetr {
 
 		static DWORD WINAPI staticOpenURLThread(__in LPVOID parameter);
 
+		static DWORD WINAPI staticCheckUpdateThread(__in LPVOID parameter);
+
+		static DWORD WINAPI staticDownloadUpdatesThread(__in LPVOID parameter);
+
 		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
 
@@ -45,6 +51,14 @@ namespace inetr {
 		void initializeWindow(HWND hwnd);
 		void uninitializeWindow(HWND hwnd);
 
+		void updateControlLanguageStrings();
+
+		void checkUpdate();
+		void checkUpdateThread();
+
+		void downloadUpdates();
+		void downloadUpdatesThread();
+
 		void loadConfig();
 		void loadUserConfig();
 		void saveUserConfig();
@@ -53,8 +67,10 @@ namespace inetr {
 		void populateMoreStationsListbox();
 		void populateLanguageComboBox();
 
-		void expandWindow();
-		void retractWindow();
+		void expandLeftPanel();
+		void retractLeftPanel();
+		void expandBottomPanel();
+		void retractBottomPanel();
 
 		void bufferTimer_Tick();
 		void metaTime_Tick();
@@ -63,6 +79,8 @@ namespace inetr {
 		void stationsListBox_DblClick();
 		void moreStationsListBox_DblClick();
 		void languageComboBox_SelChange();
+		void updateButton_Click();
+		void dontUpdateButton_Click();
 
 		void radioOpenURL(std::string url);
 		void radioOpenURLThread(std::string url);
@@ -78,6 +96,7 @@ namespace inetr {
 			std::vector<MetadataProcessor*> &processors,
 			std::map<std::string, std::string> &additionalParameters);
 
+		bool initialized;
 
 		HINSTANCE instance;
 		HWND window;
@@ -86,9 +105,16 @@ namespace inetr {
 		HWND stationImage;
 		HWND moreStationListBox;
 		HWND languageComboBox;
+		HWND updateInfoLabel;
+		HWND updateButton;
+		HWND dontUpdateButton;
 
-		WindowSlideStatus slideStatus;
-		int slideProgress;
+		WindowSlideStatus leftPanelSlideStatus;
+		int leftPanelSlideProgress;
+		WindowSlideStatus bottomPanelSlideStatus;
+		int bottomPanelSlideProgress;
+
+		std::list<std::string> filesToUpdate;
 
 		std::list<Language> languages;
 		Language *defaultLanguage;

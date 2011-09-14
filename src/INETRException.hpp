@@ -19,7 +19,8 @@ namespace inetr {
 		virtual const char* what() const throw();
 		virtual const char* what(Language &language) const throw();
 
-		virtual void mbox(HWND hwnd = NULL, Language *language = NULL) throw();
+		virtual void mbox(HWND hwnd = NULL, Language *language = NULL,
+			std::string title = std::string()) throw();
 	};
 }
 

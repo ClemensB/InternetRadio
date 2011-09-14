@@ -17,11 +17,11 @@ namespace inetr {
 	}
 
 	void INETRException::mbox(HWND hwnd /* = NULL */, Language *language
-		/* = NULL */) {
+		/* = NULL */, string title /* = string() */) {
 
 		const char* msg = (language != NULL) ? what(*language) : what();
-		MessageBox(hwnd, msg, (language != NULL) ?
-			language->get(message).c_str() : "Error",
+		MessageBox(hwnd, msg, title == "" ?  ((language != NULL) ?
+			language->get(message).c_str() : "Error") : title.c_str(),
 			MB_OK | MB_ICONERROR);
 	}
 }
