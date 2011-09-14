@@ -29,3 +29,4 @@ for /d %%a in (*) do (
     )
 )
 cd ..\..
+"%INNOSETUP%\ISCC.exe" /dMyAppVersion="%gittag%" Setup.iss
