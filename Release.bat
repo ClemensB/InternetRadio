@@ -1,9 +1,5 @@
-git branch --no-color | sed -e "/^[^*]/d" -e "s/* \(.*\)/\1/" > git_branch
-set /p gitbranch= < git_branch
-del git_branch
 for /f "delims=" %%a in ('git describe') do set gittag=%%a
-for /f "delims=" %%a in ('git rev-parse HEAD') do set gitrev=%%a
-set ver=%gittag%_%gitbranch%_%gitrev%
+set ver=%gittag%
 set timestamp=%date%_%time%
 symstore add /r /f Release\*.* /s C:\Symbols /t "InternetRadio" /v "%ver%" /c "%timestamp%"
 set out_dir=out
@@ -17,3 +13,19 @@ xcopy dependencies\bass\bass.dll %out_build_dir%
 xcopy data\config.json %out_build_dir%
 mkdir %out_build_dir%\img
 xcopy data\img %out_build_dir%\img
+cd %out_build_dir%
+echo [.] > version
+for %%a in (*.*) do (
+    if not %%a==version (
+        if not %%a==InternetRadio.pdb (
+            ..\..\bin\md5sums -u %%a >> version
+        )
+    )
+)
+for /d %%a in (*) do (
+    echo [%%a] >> version
+    for %%b in (%%a\*.*) do (
+        ..\..\bin\md5sums -u %%b >> version
+    )
+)
+cd ..\..

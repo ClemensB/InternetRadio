@@ -205,6 +205,9 @@
     <ClInclude Include="src\MetaMetadataProvider.hpp">
       <Filter>Header Files\Metadata Providers/Processors</Filter>
     </ClInclude>
+    <ClInclude Include="src\CryptUtil.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -260,6 +263,9 @@
     </ClCompile>
     <ClCompile Include="src\RegExArtistTitleMetadataProcessor.cpp">
       <Filter>Source Files\Metadata Providers/Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CryptUtil.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
