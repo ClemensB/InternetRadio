@@ -43,6 +43,10 @@
 #define INETR_MWND_STATIONIMAGE_POSX 120
 #define INETR_MWND_STATIONIMAGE_POSY 10
 
+#define INETR_MWND_NOSTATIONINFOLABEL_ID 801
+#define INETR_MWND_NOSTATIONINFOLABEL_WIDTH 200
+#define INETR_MWND_NOSTATIONINFOLABEL_HEIGHT 30
+
 #define INETR_MWND_MORESTATIONLIST_ID 401
 #define INETR_MWND_MORESTATIONLIST_POSX 10
 #define INETR_MWND_MORESTATIONLIST_POSY 10
@@ -199,6 +203,31 @@ namespace inetr {
 		if (stationImage == NULL)
 			throw INETRException("ctlCreFailed", true);
 
+		RECT wndClientRect;
+		GetClientRect(hwnd, &wndClientRect);
+		RECT rectRightArea;
+		rectRightArea.left = INETR_MWND_STATIONIMAGE_POSX;
+		rectRightArea.right = wndClientRect.right - 10;
+		rectRightArea.top = wndClientRect.top + 10;
+		rectRightArea.bottom = wndClientRect.bottom - 10;
+
+		noStationsInfoLabel = CreateWindow("STATIC", "",
+			WS_CHILD | SS_CENTER,
+			rectRightArea.left + (rectRightArea.right - rectRightArea.left) / 2
+			- INETR_MWND_NOSTATIONINFOLABEL_WIDTH / 2,
+			rectRightArea.top + (rectRightArea.bottom - rectRightArea.top) / 2
+			- INETR_MWND_NOSTATIONINFOLABEL_HEIGHT / 2,
+			INETR_MWND_NOSTATIONINFOLABEL_WIDTH,
+			INETR_MWND_NOSTATIONINFOLABEL_HEIGHT, hwnd,
+			(HMENU)INETR_MWND_NOSTATIONINFOLABEL_ID,
+			instance, NULL);
+
+		if (noStationsInfoLabel == NULL)
+			throw INETRException("ctlCreFailed", true);
+
+		SendMessage(noStationsInfoLabel, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
+
 		moreStationListBox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
 			WS_TABSTOP, INETR_MWND_MORESTATIONLIST_POSX,
@@ -299,8 +328,8 @@ namespace inetr {
 	}
 
 	void MainWindow::initializeWindow(HWND hwnd) {
-		populateStationsListbox();
-		populateMoreStationsListbox();
+		populateFavoriteStationsListbox();
+		populateAllStationsListbox();
 		populateLanguageComboBox();
 
 		updateControlLanguageStrings();
@@ -319,6 +348,8 @@ namespace inetr {
 
 	void MainWindow::updateControlLanguageStrings() {
 		SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+		SetWindowText(noStationsInfoLabel,
+			CurrentLanguage["noStationsInfo"].c_str());
 		SetWindowText(updateInfoLabel, CurrentLanguage["updateAvail"].c_str());
 		SetWindowText(updateButton, CurrentLanguage["updateBtn"].c_str());
 		SetWindowText(dontUpdateButton, CurrentLanguage["dUpdateBtn"].c_str());
@@ -683,7 +714,7 @@ namespace inetr {
 		configFile.close();
 	}
 	
-	void MainWindow::populateStationsListbox() {
+	void MainWindow::populateFavoriteStationsListbox() {
 		SendMessage(stationListBox, LB_RESETCONTENT, 0, 0);
 
 		for (list<Station*>::iterator it = favoriteStations.begin();
@@ -692,9 +723,14 @@ namespace inetr {
 			SendMessage(stationListBox, LB_ADDSTRING, (WPARAM)0,
 				(LPARAM)(*it)->Name.c_str());
 		}
+
+		if (favoriteStations.empty())
+			ShowWindow(noStationsInfoLabel, SW_SHOW);
+		else
+			ShowWindow(noStationsInfoLabel, SW_HIDE);
 	}
 
-	void MainWindow::populateMoreStationsListbox() {
+	void MainWindow::populateAllStationsListbox() {
 		for (list<Station>::iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
@@ -813,6 +849,22 @@ namespace inetr {
 			INETR_MWND_STATUSLABEL_POSX + leftPanelSlideProgress,
 			INETR_MWND_STATUSLABEL_POSY, 0, 0, SWP_NOSIZE);
 
+		RECT wndClientRect;
+		GetClientRect(window, &wndClientRect);
+		RECT rectRightArea;
+		rectRightArea.left = INETR_MWND_STATIONIMAGE_POSX +
+			leftPanelSlideProgress;
+		rectRightArea.right = wndClientRect.right - 10;
+		rectRightArea.top = wndClientRect.top + 10;
+		rectRightArea.bottom = wndClientRect.bottom - 10 -
+			bottomPanelSlideProgress;
+
+		SetWindowPos(noStationsInfoLabel, NULL, rectRightArea.left +
+			(rectRightArea.right - rectRightArea.left) / 2 -
+			INETR_MWND_NOSTATIONINFOLABEL_WIDTH / 2, rectRightArea.top +
+			(rectRightArea.bottom - rectRightArea.top) / 2 -
+			INETR_MWND_NOSTATIONINFOLABEL_HEIGHT / 2, 0, 0, SWP_NOSIZE);
+
 		int moreStationListBoxWidth = leftPanelSlideProgress - 10;
 		if (moreStationListBoxWidth <= 0) {
 			ShowWindow(moreStationListBox, SW_HIDE);
@@ -893,7 +945,7 @@ namespace inetr {
 			}
 		}
 
-		populateStationsListbox();
+		populateFavoriteStationsListbox();
 	}
 
 	void MainWindow::moreStationsListBox_DblClick() {
@@ -918,7 +970,7 @@ namespace inetr {
 				favoriteStations.push_back(&*it);
 		}
 
-		populateStationsListbox();
+		populateFavoriteStationsListbox();
 	}
 
 	void MainWindow::languageComboBox_SelChange() {
