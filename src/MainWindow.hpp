@@ -63,8 +63,8 @@ namespace inetr {
 		void loadUserConfig();
 		void saveUserConfig();
 
-		void populateStationsListbox();
-		void populateMoreStationsListbox();
+		void populateFavoriteStationsListbox();
+		void populateAllStationsListbox();
 		void populateLanguageComboBox();
 
 		void expandLeftPanel();
@@ -103,6 +103,7 @@ namespace inetr {
 		HWND stationListBox;
 		HWND statusLabel;
 		HWND stationImage;
+		HWND noStationsInfoLabel;
 		HWND moreStationListBox;
 		HWND languageComboBox;
 		HWND updateInfoLabel;

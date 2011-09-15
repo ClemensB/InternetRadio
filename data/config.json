@@ -24,7 +24,8 @@
 				"updateAvail" : "There is an update available",
 				"updateBtn" : "Update",
 				"dUpdateBtn" : "Don't update",
-				"updatingLbl" : "Updating..."
+				"updatingLbl" : "Updating...",
+				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations"
 			}
 		},
 		{
@@ -51,7 +52,8 @@
 				"updateAvail" : "Es ist ein Update verfuegbar",
 				"updateBtn" : "Updaten",
 				"dUpdateBtn" : "Nicht updaten",
-				"updatingLbl" : "Updaten..."
+				"updatingLbl" : "Updaten...",
+				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen"
 			}
 		}
 	],
