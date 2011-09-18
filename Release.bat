@@ -1,4 +1,4 @@
-for /f "delims=" %%a in ('git describe') do set gittag=%%a
+for /f "delims=" %%a in ('git describe --tags') do set gittag=%%a
 set ver=%gittag%
 set timestamp=%date%_%time%
 symstore add /r /f Release\*.* /s C:\Symbols /t "InternetRadio" /v "%ver%" /c "%timestamp%"
@@ -29,3 +29,4 @@ for /d %%a in (*) do (
     )
 )
 cd ..\..
+"%INNOSETUP%\ISCC.exe" /dMyAppVersion="%gittag%" Setup.iss
