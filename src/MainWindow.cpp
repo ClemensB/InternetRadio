@@ -23,55 +23,23 @@
 #include "RegExArtistTitleMetadataProcessor.hpp"
 #include "HTMLEntityFixMetadataProcessor.hpp"
 
+#define RWIDTH(rect) (rect.right - rect.left)
+#define RHEIGHT(rect) (rect.bottom - rect.top)
+
 #define INETR_MWND_CLASSNAME "InternetRadio"
 #define INETR_MWND_WIDTH 350
 #define INETR_MWND_HEIGHT 292
 
-#define INETR_MWND_STATIONLIST_ID 101
-#define INETR_MWND_STATIONLIST_POSX 10
-#define INETR_MWND_STATIONLIST_POSY 10
-#define INETR_MWND_STATIONLIST_WIDTH 100
-#define INETR_MWND_STATIONLIST_HEIGHT 250
-
-#define INETR_MWND_STATUSLABEL_ID 201
-#define INETR_MWND_STATUSLABEL_POSX 120
-#define INETR_MWND_STATUSLABEL_POSY 215
-#define INETR_MWND_STATUSLABEL_WIDTH 200
-#define INETR_MWND_STATUSLABEL_HEIGHT 30
-
-#define INETR_MWND_STATIONIMAGE_ID 301
-#define INETR_MWND_STATIONIMAGE_POSX 120
-#define INETR_MWND_STATIONIMAGE_POSY 10
-
-#define INETR_MWND_NOSTATIONINFOLABEL_ID 801
-#define INETR_MWND_NOSTATIONINFOLABEL_WIDTH 200
-#define INETR_MWND_NOSTATIONINFOLABEL_HEIGHT 30
-
-#define INETR_MWND_MORESTATIONLIST_ID 401
-#define INETR_MWND_MORESTATIONLIST_POSX 10
-#define INETR_MWND_MORESTATIONLIST_POSY 10
-#define INETR_MWND_MORESTATIONLIST_WIDTH 100
-#define INETR_MWND_MORESTATIONLIST_HEIGHT 220
-
-#define INETR_MWND_LANGUAGECOMBOBOX_ID 501
-#define INETR_MWND_LANGUAGECOMBOBOX_POSX 10
-#define INETR_MWND_LANGUAGECOMBOBOX_POSY 230
-#define INETR_MWND_LANGUAGECOMBOBOX_WIDTH 100
-#define INETR_MWND_LANGUAGECOMBOBOX_HEIGHT 60
-
-#define INETR_MWND_UPDATEINFOLABEL_ID 601
-#define INETR_MWND_UPDATEINFOLABEL_POSX 10
-#define INETR_MWND_UPDATEINFOLABEL_POSY 259
-#define INETR_MWND_UPDATEINFOLABEL_WIDTH 200
-#define INETR_MWND_UPDATEINFOLABEL_HEIGHT 15
-
-#define INETR_MWND_UPDATEBUTTON_ID 701
-#define INETR_MWND_DONTUPDATEBUTTON_ID 801
-#define INETR_MWND_UPDATEBUTTONS_POSX 170
-#define INETR_MWND_UPDATEBUTTONS_POSY 254
-#define INETR_MWND_UPDATEBUTTONS_DISTANCE 5
-#define INETR_MWND_UPDATEBUTTONS_WIDTH 80
-#define INETR_MWND_UPDATEBUTTONS_HEIGHT 22
+#define INETR_MWND_STATIONSLBOX_ID 101
+#define INETR_MWND_STATUSLBL_ID 102
+#define INETR_MWND_STATIONIMG_ID 103
+#define INETR_MWND_ALLSTATIONSLBOX_ID 104
+#define INETR_MWND_LANGUAGECBOX_ID 105
+#define INETR_MWND_NOSTATIONINFOLBL_ID 106
+#define INETR_MWND_UPDATEINFOLBL_ID 107
+#define INETR_MWND_UPDATEBTN_ID 108
+#define INETR_MWND_DONTUPDATEBTN_ID 109
+#define INETR_MWND_UPDATINGLBL_ID 110
 
 #define INETR_MWND_SLIDE_LEFT_MAX 110
 #define INETR_MWND_SLIDE_BOTTOM_MAX 20
@@ -166,127 +134,128 @@ namespace inetr {
 	}
 
 	void MainWindow::createControls(HWND hwnd) {
-		stationListBox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
+		calculateControlPositions(hwnd);
+		
+		stationsLbox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | WS_VISIBLE | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
-			WS_TABSTOP, INETR_MWND_STATIONLIST_POSX,
-			INETR_MWND_STATIONLIST_POSY,
-			INETR_MWND_STATIONLIST_WIDTH,
-			INETR_MWND_STATIONLIST_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_STATIONLIST_ID,
+			WS_TABSTOP,
+			controlPositions["stationsLbox"].left,
+			controlPositions["stationsLbox"].top,
+			RWIDTH(controlPositions["stationsLbox"]),
+			RHEIGHT(controlPositions["stationsLbox"]),
+			hwnd, (HMENU)INETR_MWND_STATIONSLBOX_ID,
 			instance, NULL);
 
-		if (stationListBox == NULL)
+		if (stationsLbox == NULL)
 			throw INETRException("ctlCreFailed", true);
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		SendMessage(stationListBox, WM_SETFONT, (WPARAM)defaultFont,
+		SendMessage(stationsLbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 
-		statusLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
-			INETR_MWND_STATUSLABEL_POSX,
-			INETR_MWND_STATUSLABEL_POSY,
-			INETR_MWND_STATUSLABEL_WIDTH,
-			INETR_MWND_STATUSLABEL_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_STATUSLABEL_ID, instance, NULL);
+		statusLbl = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
+			controlPositions["statusLbl"].left,
+			controlPositions["statusLbl"].top,
+			RWIDTH(controlPositions["statusLbl"]),
+			RHEIGHT(controlPositions["statusLbl"]),
+			hwnd, (HMENU)INETR_MWND_STATUSLBL_ID, instance, NULL);
 
-		if (statusLabel == NULL)
+		if (statusLbl == NULL)
 			throw INETRException("ctlCreFailed", true);
 
-		SendMessage(statusLabel, WM_SETFONT, (WPARAM)defaultFont,
+		SendMessage(statusLbl, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 
-		stationImage = CreateWindow("STATIC", "", WS_CHILD |
-			SS_BITMAP, INETR_MWND_STATIONIMAGE_POSX,
-			INETR_MWND_STATIONIMAGE_POSY, 0, 0, hwnd,
-			(HMENU)INETR_MWND_STATIONIMAGE_ID, instance, NULL);
+		stationImg = CreateWindow("STATIC", "", WS_CHILD |
+			SS_BITMAP,
+			controlPositions["stationImg"].left,
+			controlPositions["stationImg"].top,
+			RWIDTH(controlPositions["stationImg"]),
+			RHEIGHT(controlPositions["stationImg"]),
+			hwnd,
+			(HMENU)INETR_MWND_STATIONIMG_ID, instance, NULL);
 
-		if (stationImage == NULL)
+		if (stationImg == NULL)
 			throw INETRException("ctlCreFailed", true);
 
-		RECT wndClientRect;
-		GetClientRect(hwnd, &wndClientRect);
-		RECT rectRightArea;
-		rectRightArea.left = INETR_MWND_STATIONIMAGE_POSX;
-		rectRightArea.right = wndClientRect.right - 10;
-		rectRightArea.top = wndClientRect.top + 10;
-		rectRightArea.bottom = wndClientRect.bottom - 10;
-
-		noStationsInfoLabel = CreateWindow("STATIC", "",
-			WS_CHILD | SS_CENTER,
-			rectRightArea.left + (rectRightArea.right - rectRightArea.left) / 2
-			- INETR_MWND_NOSTATIONINFOLABEL_WIDTH / 2,
-			rectRightArea.top + (rectRightArea.bottom - rectRightArea.top) / 2
-			- INETR_MWND_NOSTATIONINFOLABEL_HEIGHT / 2,
-			INETR_MWND_NOSTATIONINFOLABEL_WIDTH,
-			INETR_MWND_NOSTATIONINFOLABEL_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_NOSTATIONINFOLABEL_ID,
+		allStationsLbox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
+			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL | WS_TABSTOP,
+			controlPositions["allStationsLbox"].left,
+			controlPositions["allStationsLbox"].top,
+			RWIDTH(controlPositions["allStationsLbox"]),
+			RHEIGHT(controlPositions["allStationsLbox"]),
+			hwnd,
+			(HMENU)INETR_MWND_ALLSTATIONSLBOX_ID,
 			instance, NULL);
 
-		if (noStationsInfoLabel == NULL)
+		if (allStationsLbox == NULL)
 			throw INETRException("ctlCreFailed", true);
 
-		SendMessage(noStationsInfoLabel, WM_SETFONT, (WPARAM)defaultFont,
+		SendMessage(allStationsLbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 
-		moreStationListBox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
-			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
-			WS_TABSTOP, INETR_MWND_MORESTATIONLIST_POSX,
-			INETR_MWND_MORESTATIONLIST_POSY,
-			INETR_MWND_MORESTATIONLIST_WIDTH,
-			INETR_MWND_MORESTATIONLIST_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_MORESTATIONLIST_ID,
-			instance, NULL);
-
-		if (moreStationListBox == NULL)
-			throw INETRException("ctlCreFailed", true);
-
-		SendMessage(moreStationListBox, WM_SETFONT, (WPARAM)defaultFont,
-			(LPARAM)0);
-
-		languageComboBox = CreateWindowEx(WS_EX_CLIENTEDGE, "COMBOBOX", "",
+		languageCbox = CreateWindowEx(WS_EX_CLIENTEDGE, "COMBOBOX", "",
 			WS_CHILD | CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_OVERLAPPED,
-			INETR_MWND_LANGUAGECOMBOBOX_POSX,
-			INETR_MWND_LANGUAGECOMBOBOX_POSY,
-			INETR_MWND_LANGUAGECOMBOBOX_WIDTH,
-			INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_LANGUAGECOMBOBOX_ID,
+			controlPositions["languageCbox"].left,
+			controlPositions["languageCbox"].top,
+			RWIDTH(controlPositions["languageCbox"]),
+			RHEIGHT(controlPositions["languageCbox"]),
+			hwnd, (HMENU)INETR_MWND_LANGUAGECBOX_ID,
 			instance, NULL);
 
-		if (languageComboBox == NULL)
-			throw INETRException("ctlCreFailed", true);
-		
-		SendMessage(languageComboBox, WM_SETFONT, (WPARAM)defaultFont,
-			(LPARAM)0);
-
-		updateInfoLabel = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
-			INETR_MWND_UPDATEINFOLABEL_POSX,
-			INETR_MWND_UPDATEINFOLABEL_POSY,
-			INETR_MWND_UPDATEINFOLABEL_WIDTH,
-			INETR_MWND_UPDATEINFOLABEL_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_UPDATEINFOLABEL_ID, instance, NULL);
-
-		if (updateInfoLabel == NULL)
+		if (languageCbox == NULL)
 			throw INETRException("ctlCreFailed", true);
 
-		SendMessage(updateInfoLabel, WM_SETFONT, (WPARAM)defaultFont,
+		SendMessage(languageCbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 
-		updateButton = CreateWindow("BUTTON", "", WS_CHILD |
-			BS_DEFPUSHBUTTON, INETR_MWND_UPDATEBUTTONS_POSX,
-			INETR_MWND_UPDATEBUTTONS_POSY, INETR_MWND_UPDATEBUTTONS_WIDTH,
-			INETR_MWND_UPDATEBUTTONS_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_UPDATEBUTTON_ID, instance, NULL);
+		noStationsInfoLbl = CreateWindow("STATIC", "",
+			WS_CHILD | SS_CENTER,
+			controlPositions["noStationsInfoLbl"].left,
+			controlPositions["noStationsInfoLbl"].top,
+			RWIDTH(controlPositions["noStationsInfoLbl"]),
+			RHEIGHT(controlPositions["noStationsInfoLbl"]),
+			hwnd, (HMENU)INETR_MWND_NOSTATIONINFOLBL_ID,
+			instance, NULL);
 
-		SendMessage(updateButton, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
+		if (noStationsInfoLbl == NULL)
+			throw INETRException("ctlCreFailed", true);
 
-		dontUpdateButton = CreateWindow("BUTTON", "", WS_CHILD |
-			BS_DEFPUSHBUTTON, INETR_MWND_UPDATEBUTTONS_POSX +
-			INETR_MWND_UPDATEBUTTONS_WIDTH + INETR_MWND_UPDATEBUTTONS_DISTANCE,
-			INETR_MWND_UPDATEBUTTONS_POSY, INETR_MWND_UPDATEBUTTONS_WIDTH,
-			INETR_MWND_UPDATEBUTTONS_HEIGHT, hwnd,
-			(HMENU)INETR_MWND_DONTUPDATEBUTTON_ID, instance, NULL);
+		SendMessage(noStationsInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
 
-		SendMessage(dontUpdateButton, WM_SETFONT, (WPARAM)defaultFont,
+		updateInfoLbl = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
+			controlPositions["updateInfoLbl"].left,
+			controlPositions["updateInfoLbl"].top,
+			RWIDTH(controlPositions["updateInfoLbl"]),
+			RHEIGHT(controlPositions["updateInfoLbl"]),
+			hwnd, (HMENU)INETR_MWND_UPDATEINFOLBL_ID, instance, NULL);
+
+		if (updateInfoLbl == NULL)
+			throw INETRException("ctlCreFailed", true);
+
+		SendMessage(updateInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
+
+		updateBtn = CreateWindow("BUTTON", "", WS_CHILD |
+			BS_DEFPUSHBUTTON,
+			controlPositions["updateBtn"].left,
+			controlPositions["updateBtn"].top,
+			RWIDTH(controlPositions["updateBtn"]),
+			RHEIGHT(controlPositions["updateBtn"]),
+			hwnd, (HMENU)INETR_MWND_UPDATEBTN_ID, instance, NULL);
+
+		SendMessage(updateBtn, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
+
+		dontUpdateBtn = CreateWindow("BUTTON", "", WS_CHILD |
+			BS_DEFPUSHBUTTON,
+			controlPositions["dontUpdateBtn"].left,
+			controlPositions["dontUpdateBtn"].top,
+			RWIDTH(controlPositions["dontUpdateBtn"]),
+			RHEIGHT(controlPositions["dontUpdateBtn"]),
+			hwnd, (HMENU)INETR_MWND_DONTUPDATEBTN_ID, instance, NULL);
+
+		SendMessage(dontUpdateBtn, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
 	}
 
@@ -346,13 +315,109 @@ namespace inetr {
 		BASS_Free();
 	}
 
+	void MainWindow::calculateControlPositions(HWND hwnd) {
+		const int sLboxWidth = 100;
+		const int sImgDim = 200;
+		const int lngCboxHeight = 20;
+		const int noStaInfoLblHeight = 40;
+		const int updateInfoLblWidth = 200;
+		const int updateInfoLblHeight = 15;
+		const int updateBtnWidth = 80;
+		const int updateBtnHeight = 22;
+
+		RECT clientArea;
+		GetClientRect(hwnd, &clientArea);
+
+		RECT stationLboxRect;
+		stationLboxRect.left = 10 + leftPanelSlideProgress;
+		stationLboxRect.right = stationLboxRect.left + sLboxWidth;
+		stationLboxRect.top = 10;
+		stationLboxRect.bottom = clientArea.bottom -
+			bottomPanelSlideProgress;
+
+		RECT stationImgRect;
+		stationImgRect.left = stationLboxRect.right + ((clientArea.right -
+			stationLboxRect.right - sImgDim) / 2);
+		stationImgRect.right = stationImgRect.left + sImgDim;
+		stationImgRect.top = 10;
+		stationImgRect.bottom = stationImgRect.top + sImgDim;
+
+		RECT statusLblRect;
+		statusLblRect.left = stationImgRect.left;
+		statusLblRect.right = clientArea.right - 10;
+		statusLblRect.top = stationImgRect.bottom + 10;
+		statusLblRect.bottom = clientArea.bottom - 10 -
+			bottomPanelSlideProgress;
+
+		RECT languageCboxRect;
+		languageCboxRect.left = 10;
+		languageCboxRect.right = languageCboxRect.left +
+			(leftPanelSlideProgress - 10);
+		languageCboxRect.bottom = clientArea.bottom - 10 -
+			bottomPanelSlideProgress;
+		languageCboxRect.top = languageCboxRect.bottom - lngCboxHeight;
+
+		RECT allStationsLboxRect;
+		allStationsLboxRect.left = 10;
+		allStationsLboxRect.right = allStationsLboxRect.left +
+			(leftPanelSlideProgress - 10);
+		allStationsLboxRect.top = 10;
+		allStationsLboxRect.bottom = languageCboxRect.top - 5;
+
+		RECT noStationsinfoLblRect;
+		noStationsinfoLblRect.left = stationLboxRect.right + 10;
+		noStationsinfoLblRect.right = clientArea.right - 10;
+		noStationsinfoLblRect.top = 10 + ((clientArea.bottom -
+			bottomPanelSlideProgress) / 2) - (noStaInfoLblHeight / 2);
+		noStationsinfoLblRect.bottom = 10 + ((clientArea.bottom -
+			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
+
+		RECT updateInfoLblRect;
+		updateInfoLblRect.left = 10;
+		updateInfoLblRect.right = updateInfoLblRect.left + updateInfoLblWidth;
+		updateInfoLblRect.top = clientArea.bottom - bottomPanelSlideProgress
+			- 1;
+		updateInfoLblRect.bottom = updateInfoLblRect.top + updateInfoLblHeight;
+
+		RECT dontUpdateBtnRect;
+		dontUpdateBtnRect.right = clientArea.right - 5;
+		dontUpdateBtnRect.left = dontUpdateBtnRect.right - updateBtnWidth;
+		dontUpdateBtnRect.bottom = clientArea.bottom - bottomPanelSlideProgress
+			+ INETR_MWND_SLIDE_BOTTOM_MAX - 4;
+		dontUpdateBtnRect.top = dontUpdateBtnRect.bottom - updateBtnHeight;
+
+		RECT updateBtnRect = dontUpdateBtnRect;
+		updateBtnRect.right = dontUpdateBtnRect.left - 5;
+		updateBtnRect.left = updateBtnRect.right - updateBtnWidth;
+		
+		controlPositions.clear();
+		controlPositions.insert(pair<string, RECT>("stationsLbox",
+			stationLboxRect));
+		controlPositions.insert(pair<string, RECT>("statusLbl",
+			statusLblRect));
+		controlPositions.insert(pair<string, RECT>("stationImg",
+			stationImgRect));
+		controlPositions.insert(pair<string, RECT>("allStationsLbox",
+			allStationsLboxRect));
+		controlPositions.insert(pair<string, RECT>("languageCbox",
+			languageCboxRect));
+		controlPositions.insert(pair<string, RECT>("noStationsInfoLbl",
+			noStationsinfoLblRect));
+		controlPositions.insert(pair<string, RECT>("updateInfoLbl",
+			updateInfoLblRect));
+		controlPositions.insert(pair<string, RECT>("updateBtn",
+			updateBtnRect));
+		controlPositions.insert(pair<string, RECT>("dontUpdateBtn",
+			dontUpdateBtnRect));
+	}
+
 	void MainWindow::updateControlLanguageStrings() {
 		SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
-		SetWindowText(noStationsInfoLabel,
+		SetWindowText(noStationsInfoLbl,
 			CurrentLanguage["noStationsInfo"].c_str());
-		SetWindowText(updateInfoLabel, CurrentLanguage["updateAvail"].c_str());
-		SetWindowText(updateButton, CurrentLanguage["updateBtn"].c_str());
-		SetWindowText(dontUpdateButton, CurrentLanguage["dUpdateBtn"].c_str());
+		SetWindowText(updateInfoLbl, CurrentLanguage["updateAvail"].c_str());
+		SetWindowText(updateBtn, CurrentLanguage["updateBtn"].c_str());
+		SetWindowText(dontUpdateBtn, CurrentLanguage["dUpdateBtn"].c_str());
 	}
 
 	void MainWindow::checkUpdate() {
@@ -715,26 +780,26 @@ namespace inetr {
 	}
 	
 	void MainWindow::populateFavoriteStationsListbox() {
-		SendMessage(stationListBox, LB_RESETCONTENT, 0, 0);
+		SendMessage(stationsLbox, LB_RESETCONTENT, 0, 0);
 
 		for (list<Station*>::iterator it = favoriteStations.begin();
 			it != favoriteStations.end(); ++it) {
 
-			SendMessage(stationListBox, LB_ADDSTRING, (WPARAM)0,
+			SendMessage(stationsLbox, LB_ADDSTRING, (WPARAM)0,
 				(LPARAM)(*it)->Name.c_str());
 		}
 
 		if (favoriteStations.empty())
-			ShowWindow(noStationsInfoLabel, SW_SHOW);
+			ShowWindow(noStationsInfoLbl, SW_SHOW);
 		else
-			ShowWindow(noStationsInfoLabel, SW_HIDE);
+			ShowWindow(noStationsInfoLbl, SW_HIDE);
 	}
 
 	void MainWindow::populateAllStationsListbox() {
 		for (list<Station>::iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
-				SendMessage(moreStationListBox, LB_ADDSTRING, (WPARAM)0,
+				SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
 					(LPARAM)it->Name.c_str());
 		}
 	}
@@ -743,11 +808,11 @@ namespace inetr {
 		for (list<Language>::iterator it = languages.begin();
 			it != languages.end(); ++it) {
 			
-			int i = SendMessage(languageComboBox, CB_ADDSTRING, (WPARAM)0,
+			int i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,
 				(LPARAM)it->Name.c_str());
 
 			if (CurrentLanguage.Name == it->Name)
-				SendMessage(languageComboBox, CB_SETCURSEL, (WPARAM)i,
+				SendMessage(languageCbox, CB_SETCURSEL, (WPARAM)i,
 				(LPARAM)0);
 		}
 	}
@@ -762,7 +827,7 @@ namespace inetr {
 
 				KillTimer(window, INETR_MWND_TIMER_BUFFER);
 
-				SetWindowText(statusLabel,
+				SetWindowText(statusLbl,
 					CurrentLanguage["connected"].c_str());
 
 				updateMeta();
@@ -780,7 +845,7 @@ namespace inetr {
 			stringstream sstreamStatusText;
 			sstreamStatusText << CurrentLanguage["buffering"] << "... " <<
 				progress << "%";
-			SetWindowText(statusLabel, sstreamStatusText.str().c_str());
+			SetWindowText(statusLbl, sstreamStatusText.str().c_str());
 		}
 	}
 
@@ -819,8 +884,8 @@ namespace inetr {
 			if (bottomPanelSlideProgress <= 0) {
 				bottomPanelSlideProgress = 0;
 				bottomPanelSlideStatus = Retracted;
-				ShowWindow(updateButton, SW_HIDE);
-				ShowWindow(dontUpdateButton, SW_HIDE);
+				ShowWindow(updateBtn, SW_HIDE);
+				ShowWindow(dontUpdateBtn, SW_HIDE);
 			}
 		}
 		
@@ -828,6 +893,8 @@ namespace inetr {
 			Retracting && bottomPanelSlideStatus != Expanding &&
 			bottomPanelSlideStatus != Retracting)
 			KillTimer(window, INETR_MWND_TIMER_SLIDE);
+
+		calculateControlPositions(window);
 
 		RECT wndPos;
 		GetWindowRect(window, &wndPos);
@@ -837,55 +904,42 @@ namespace inetr {
 			wndPos.top, INETR_MWND_WIDTH + leftPanelSlideProgress,
 			INETR_MWND_HEIGHT + bottomPanelSlideProgress, TRUE);
 
-		SetWindowPos(stationListBox, NULL,
-			INETR_MWND_STATIONLIST_POSX + leftPanelSlideProgress,
-			INETR_MWND_STATIONLIST_POSY, 0, 0, SWP_NOSIZE);
+		SetWindowPos(stationsLbox, NULL, controlPositions["stationsLbox"].left,
+			controlPositions["stationsLbox"].top, 0, 0, SWP_NOSIZE);
 
-		SetWindowPos(stationImage, NULL,
-			INETR_MWND_STATIONIMAGE_POSX + leftPanelSlideProgress,
-			INETR_MWND_STATIONIMAGE_POSY, 0, 0, SWP_NOSIZE);
+		SetWindowPos(statusLbl, NULL, controlPositions["statusLbl"].left,
+			controlPositions["statusLbl"].top, 0, 0, SWP_NOSIZE);
 
-		SetWindowPos(statusLabel, NULL,
-			INETR_MWND_STATUSLABEL_POSX + leftPanelSlideProgress,
-			INETR_MWND_STATUSLABEL_POSY, 0, 0, SWP_NOSIZE);
+		SetWindowPos(stationImg, NULL, controlPositions["stationImg"].left,
+			controlPositions["stationImg"].top, 0, 0, SWP_NOSIZE);
 
-		RECT wndClientRect;
-		GetClientRect(window, &wndClientRect);
-		RECT rectRightArea;
-		rectRightArea.left = INETR_MWND_STATIONIMAGE_POSX +
-			leftPanelSlideProgress;
-		rectRightArea.right = wndClientRect.right - 10;
-		rectRightArea.top = wndClientRect.top + 10;
-		rectRightArea.bottom = wndClientRect.bottom - 10 -
-			bottomPanelSlideProgress;
+		SetWindowPos(noStationsInfoLbl, NULL,
+			controlPositions["noStationsInfoLbl"].left,
+			controlPositions["noStationsInfoLbl"].top, 0, 0, SWP_NOSIZE);
 
-		SetWindowPos(noStationsInfoLabel, NULL, rectRightArea.left +
-			(rectRightArea.right - rectRightArea.left) / 2 -
-			INETR_MWND_NOSTATIONINFOLABEL_WIDTH / 2, rectRightArea.top +
-			(rectRightArea.bottom - rectRightArea.top) / 2 -
-			INETR_MWND_NOSTATIONINFOLABEL_HEIGHT / 2, 0, 0, SWP_NOSIZE);
+		SetWindowPos(updateBtn, NULL, controlPositions["updateBtn"].left,
+			controlPositions["updateBtn"].top, 0, 0, SWP_NOSIZE);
 
-		int moreStationListBoxWidth = leftPanelSlideProgress - 10;
-		if (moreStationListBoxWidth <= 0) {
-			ShowWindow(moreStationListBox, SW_HIDE);
-			ShowWindow(languageComboBox, SW_HIDE);
+		SetWindowPos(dontUpdateBtn, NULL,
+			controlPositions["dontUpdateBtn"].left,
+			controlPositions["dontUpdateBtn"].top, 0, 0, SWP_NOSIZE);
+
+		if (RWIDTH(controlPositions["allStationsLbox"]) <= 0) {
+			ShowWindow(allStationsLbox, SW_HIDE);
+			ShowWindow(languageCbox, SW_HIDE);
 		} else {
-			SetWindowPos(moreStationListBox, NULL,
-				0, 0, moreStationListBoxWidth,
-				INETR_MWND_MORESTATIONLIST_HEIGHT, SWP_NOMOVE);
-			ShowWindow(moreStationListBox, SW_SHOW);
-			SetWindowPos(languageComboBox, NULL,
-				0, 0, moreStationListBoxWidth,
-				INETR_MWND_LANGUAGECOMBOBOX_HEIGHT, SWP_NOMOVE);
-			ShowWindow(languageComboBox, SW_SHOW);
+			ShowWindow(allStationsLbox, SW_SHOW);
+			ShowWindow(languageCbox, SW_SHOW);
+
+			SetWindowPos(allStationsLbox, NULL, 0, 0,
+				RWIDTH(controlPositions["allStationsLbox"]),
+				RHEIGHT(controlPositions["allStationsLbox"]),
+				SWP_NOMOVE);
+			SetWindowPos(languageCbox, NULL, 0, 0,
+				RWIDTH(controlPositions["languageCbox"]),
+				RHEIGHT(controlPositions["languageCbox"]),
+				SWP_NOMOVE);
 		}
-		SetWindowPos(updateButton, NULL, INETR_MWND_UPDATEBUTTONS_POSX +
-			leftPanelSlideProgress, INETR_MWND_UPDATEBUTTONS_POSY, 0, 0,
-			SWP_NOSIZE);
-		SetWindowPos(dontUpdateButton, NULL, INETR_MWND_UPDATEBUTTONS_POSX +
-			INETR_MWND_UPDATEBUTTONS_WIDTH + INETR_MWND_UPDATEBUTTONS_DISTANCE +
-			leftPanelSlideProgress, INETR_MWND_UPDATEBUTTONS_POSY, 0, 0,
-			SWP_NOSIZE);
 	}
 
 	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
@@ -900,12 +954,12 @@ namespace inetr {
 		if (leftPanelSlideStatus != Retracted)
 			return;
 
-		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
+		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationListBox, LB_GETTEXTLEN,
+		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
-		SendMessage(stationListBox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
+		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
 
@@ -914,8 +968,8 @@ namespace inetr {
 			
 			if (text == it->Name && &*it != currentStation) {
 				currentStation = &*it;
-				ShowWindow(stationImage, SW_SHOW);
-				SendMessage(stationImage, STM_SETIMAGE, IMAGE_BITMAP,
+				ShowWindow(stationImg, SW_SHOW);
+				SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
 					(LPARAM)currentStation->Image);
 				radioOpenURL(it->URL);
 			}
@@ -926,12 +980,12 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(stationListBox, LB_GETCURSEL, (WPARAM)0,
+		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationListBox, LB_GETTEXTLEN,
+		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
-		SendMessage(stationListBox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
+		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
 
@@ -952,12 +1006,12 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(moreStationListBox, LB_GETCURSEL, (WPARAM)0,
+		int index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(moreStationListBox, LB_GETTEXTLEN,
+		int textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
 		char* cText = new char[textLength + 1];
-		SendMessage(moreStationListBox, LB_GETTEXT, (WPARAM)index,
+		SendMessage(allStationsLbox, LB_GETTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -977,11 +1031,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(languageComboBox, CB_GETCURSEL, 0, 0);
-		int textLength = SendMessage(languageComboBox, CB_GETLBTEXTLEN,
+		int index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
+		int textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
 			(WPARAM)index, 0);
 		char* cText = new char[textLength + 1];
-		SendMessage(languageComboBox, CB_GETLBTEXT, (WPARAM)index,
+		SendMessage(languageCbox, CB_GETLBTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -1005,14 +1059,14 @@ namespace inetr {
 	void MainWindow::updateButton_Click() {
 		radioStop();
 
-		EnableWindow(stationListBox, FALSE);
-		EnableWindow(stationImage, FALSE);
-		EnableWindow(statusLabel, FALSE);
-		EnableWindow(moreStationListBox, FALSE);
-		EnableWindow(languageComboBox, FALSE);
-		EnableWindow(updateInfoLabel, FALSE);
-		EnableWindow(updateButton, FALSE);
-		EnableWindow(dontUpdateButton, FALSE);
+		EnableWindow(stationsLbox, FALSE);
+		EnableWindow(stationImg, FALSE);
+		EnableWindow(statusLbl, FALSE);
+		EnableWindow(allStationsLbox, FALSE);
+		EnableWindow(languageCbox, FALSE);
+		EnableWindow(updateInfoLbl, FALSE);
+		EnableWindow(updateBtn, FALSE);
+		EnableWindow(dontUpdateBtn, FALSE);
 		EnableWindow(window, FALSE);
 
 		if (leftPanelSlideStatus != Retracted) {
@@ -1029,7 +1083,8 @@ namespace inetr {
 			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | WS_VISIBLE |
 			SS_CENTER, (clientRect.right - clientRect.left) / 2 - 50,
 			(clientRect.bottom - clientRect.top - bottomPanelSlideProgress)
-			/ 2 - 10, 100, 20, window, (HMENU)901, instance, (LPARAM)0);
+			/ 2 - 10, 100, 20, window, (HMENU)INETR_MWND_UPDATINGLBL_ID,
+			instance, (LPARAM)0);
 		SendMessage(updateLabel, WM_SETFONT,
 			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
 
@@ -1126,7 +1181,7 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(statusLabel, (CurrentLanguage["connecting"] +
+		SetWindowText(statusLbl, (CurrentLanguage["connecting"] +
 			string("...")).c_str());
 
 		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
@@ -1141,7 +1196,7 @@ namespace inetr {
 		if (currentStream != NULL)
 			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
 		else
-			SetWindowText(statusLabel,
+			SetWindowText(statusLbl,
 				CurrentLanguage["connectionError"].c_str());
 	}
 
@@ -1151,8 +1206,8 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		ShowWindow(stationImage, SW_HIDE);
-		SetWindowText(statusLabel, "");
+		ShowWindow(stationImg, SW_HIDE);
+		SetWindowText(statusLbl, "");
 
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
@@ -1193,7 +1248,7 @@ namespace inetr {
 
 			StringUtil::SearchAndReplace(meta, string("&"), string("&&"));
 
-			SetWindowText(statusLabel, meta.c_str());
+			SetWindowText(statusLbl, meta.c_str());
 		}
 	}
 
@@ -1253,8 +1308,8 @@ namespace inetr {
 			return;
 
 		bottomPanelSlideStatus = Expanding;
-		ShowWindow(updateButton, SW_SHOW);
-		ShowWindow(dontUpdateButton, SW_SHOW);
+		ShowWindow(updateBtn, SW_SHOW);
+		ShowWindow(dontUpdateBtn, SW_SHOW);
 		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
 			Retracting)
 			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
@@ -1306,7 +1361,7 @@ namespace inetr {
 			break;
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
-			case INETR_MWND_STATIONLIST_ID:
+			case INETR_MWND_STATIONSLBOX_ID:
 				switch (HIWORD(wParam)) {
 				case LBN_SELCHANGE:
 					stationsListBox_SelChange();
@@ -1316,28 +1371,28 @@ namespace inetr {
 					break;
 				}
 				break;
-			case INETR_MWND_MORESTATIONLIST_ID:
+			case INETR_MWND_ALLSTATIONSLBOX_ID:
 				switch (HIWORD(wParam)) {
 				case LBN_DBLCLK:
 					moreStationsListBox_DblClick();
 					break;
 				}
 				break;
-			case INETR_MWND_LANGUAGECOMBOBOX_ID:
+			case INETR_MWND_LANGUAGECBOX_ID:
 				switch (HIWORD(wParam)) {
 				case CBN_SELCHANGE:
 					languageComboBox_SelChange();
 					break;
 				}
 				break;
-			case INETR_MWND_UPDATEBUTTON_ID:
+			case INETR_MWND_UPDATEBTN_ID:
 				switch (HIWORD(wParam)) {
 				case BN_CLICKED:
 					updateButton_Click();
 					break;
 				}
 				break;
-			case INETR_MWND_DONTUPDATEBUTTON_ID:
+			case INETR_MWND_DONTUPDATEBTN_ID:
 				switch (HIWORD(wParam)) {
 				case BN_CLICKED:
 					dontUpdateButton_Click();

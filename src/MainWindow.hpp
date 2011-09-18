@@ -51,6 +51,8 @@ namespace inetr {
 		void initializeWindow(HWND hwnd);
 		void uninitializeWindow(HWND hwnd);
 
+		void calculateControlPositions(HWND hwnd);
+
 		void updateControlLanguageStrings();
 
 		void checkUpdate();
@@ -100,15 +102,17 @@ namespace inetr {
 
 		HINSTANCE instance;
 		HWND window;
-		HWND stationListBox;
-		HWND statusLabel;
-		HWND stationImage;
-		HWND noStationsInfoLabel;
-		HWND moreStationListBox;
-		HWND languageComboBox;
-		HWND updateInfoLabel;
-		HWND updateButton;
-		HWND dontUpdateButton;
+		HWND stationsLbox;
+		HWND statusLbl;
+		HWND stationImg;
+		HWND noStationsInfoLbl;
+		HWND allStationsLbox;
+		HWND languageCbox;
+		HWND updateInfoLbl;
+		HWND updateBtn;
+		HWND dontUpdateBtn;
+
+		std::map<std::string, RECT> controlPositions;
 
 		WindowSlideStatus leftPanelSlideStatus;
 		int leftPanelSlideProgress;
