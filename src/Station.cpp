@@ -10,20 +10,20 @@ namespace inetr {
 		vector<MetadataProcessor*> metadataProcessors,
 		map<string, string> metadataProcessor_additionalParameters) {
 
-			this->Name = name;
-			this->URL = url;
-			this->MyMetadataProvider = metadataProvider;
-			this->MetadataProcessors = metadataProcessors;
-			this->imagePath = imagePath;
+		this->Name = name;
+		this->URL = url;
+		this->MyMetadataProvider = metadataProvider;
+		this->MetadataProcessors = metadataProcessors;
+		this->imagePath = imagePath;
 
-			this->AdditionalParameters =
-				metadataProcessor_additionalParameters;
+		this->AdditionalParameters =
+			metadataProcessor_additionalParameters;
 
-			loadImage();
+		loadImage();
 
-			if (Image == NULL)
-				MessageBox(NULL, (string("Couldn't load image\n") +
-				imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
+		if (Image == NULL)
+			MessageBox(NULL, (string("Couldn't load image\n") +
+			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
 	Station::Station(const Station &original) {
