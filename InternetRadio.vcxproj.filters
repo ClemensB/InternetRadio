@@ -71,61 +71,61 @@
     <None Include="data\config.json">
       <Filter>Other Files</Filter>
     </None>
-    <None Include="data\img\ndr_2.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\einslive.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
     <None Include="data\img\ffn.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\hardbase.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\sputnik.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\raktiv.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\bigfm.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\98_0rtl.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndrinfo.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\dlf.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\dlr_kultur.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr5.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr2.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr3.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr4.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndr1nds.bmp">
-      <Filter>Other Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\klassikradio.bmp">
       <Filter>Other Files\Station Images</Filter>
     </None>
     <None Include="Release.bat">
       <Filter>Other Files</Filter>
     </None>
     <None Include="data\img\n-joy.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\ndr_2.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\ndr_info.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\ndr_1_nds.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\1live.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr_2.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr_3.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr_4.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\wdr_5.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\klassik_radio.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\deutschlandfunk.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\deutschlandradio_kultur.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\mdr_sputnik.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\radio_aktiv.gif">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\hardbase_fm.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\bigfm.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
+    <None Include="data\img\89_0_rtl.png">
       <Filter>Other Files\Station Images</Filter>
     </None>
   </ItemGroup>
