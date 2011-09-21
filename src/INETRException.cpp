@@ -3,25 +3,24 @@
 using namespace std;
 
 namespace inetr {
-	INETRException::INETRException(string message, bool localized /* = false */) {
+	INETRException::INETRException(string message) {
 		this->message = message;
-		this->localized = localized;
 	}
 
 	const char* INETRException::what() const throw() {
 		return message.c_str();
 	}
 
-	const char* INETRException::what(Language &language) const throw() {
-		return localized ? language.get(message).c_str() : message.c_str();
+	string INETRException::what(Language &language) throw() {
+		return language.LocalizeStringTokens(message);
 	}
 
 	void INETRException::mbox(HWND hwnd /* = NULL */, Language *language
-		/* = NULL */, string title /* = string() */) {
+		/* = NULL */) {
 
-		const char* msg = (language != NULL) ? what(*language) : what();
-		MessageBox(hwnd, msg, title == "" ?  ((language != NULL) ?
-			language->get(message).c_str() : "Error") : title.c_str(),
-			MB_OK | MB_ICONERROR);
+		string msg = (language == NULL) ? what() : what(*language);
+		MessageBox(hwnd, msg.c_str(), (language != NULL) ?
+			language->LocalizeString("error").c_str() : "Error", MB_OK |
+			MB_ICONERROR);
 	}
 }

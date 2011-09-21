@@ -2,6 +2,7 @@
 #define INETR_EXCEPTION
 
 #include <string>
+#include <vector>
 #include <exception>
 
 #include <Windows.h>
@@ -12,15 +13,13 @@ namespace inetr {
 	class INETRException : public std::exception {
 	private:
 		std::string message;
-		bool localized;
 	public:
-		INETRException(std::string message, bool localized = false);
+		INETRException(std::string message);
 
 		virtual const char* what() const throw();
-		virtual const char* what(Language &language) const throw();
+		virtual std::string what(Language &language) throw();
 
-		virtual void mbox(HWND hwnd = NULL, Language *language = NULL,
-			std::string title = std::string()) throw();
+		virtual void mbox(HWND hwnd = NULL, Language *language = NULL) throw();
 	};
 }
 

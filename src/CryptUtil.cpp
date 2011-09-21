@@ -50,12 +50,12 @@ namespace inetr {
 
 	string CryptUtil::FileMD5Hash(string path) {
 		if (!CryptStartup())
-			throw INETRException("cryptStartErr", true);
+			throw INETRException("[cryptStartErr]");
 
 		ifstream fInput;
 		fInput.open(path, ios::in | ios::binary);
 		if (!fInput.good())
-			throw INETRException("openFileErr", true);
+			throw INETRException("[openFileErr]");
 
 		MD5Context md5Hash;
 		memset(&md5Hash, 0, sizeof(MD5Context));

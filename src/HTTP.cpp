@@ -11,13 +11,13 @@ using namespace std;
 namespace inetr {
 	void HTTP::Get(string url, ostream *stream) {
 		if (url == "")
-			throw string("emptyURL");
+			throw INETRException("[emptyURL]");
 
 		WSADATA wsaData;
 		if (int result = WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 			stringstream ssresult;
 			ssresult << result;
-			throw INETRException("wsStartErr", true);
+			throw INETRException("[wsStartErr]\n[error] #" + ssresult.str());
 		}
 
 
@@ -48,7 +48,7 @@ namespace inetr {
 		hints.ai_protocol = IPPROTO_TCP;
 
 		if (getaddrinfo(hostname.c_str(), "http", &hints, &serverInfo) != 0)
-			throw INETRException("hostResErr", true);
+			throw INETRException("[hostResErr]:\n" + hostname);
 
 		for (ptr = serverInfo; ptr != NULL; ptr = ptr->ai_next) {
 			if ((sock = socket(ptr->ai_family, ptr->ai_socktype,
@@ -64,7 +64,7 @@ namespace inetr {
 		freeaddrinfo(serverInfo);
 
 		if (ptr == NULL)
-			throw INETRException("connFailedErr", true);
+			throw INETRException("[connFailedErr]");
 
 		string request = "GET "
 			+ filePath
@@ -108,7 +108,9 @@ namespace inetr {
 				}
 			}
 			
-			throw INETRException("unhHTTPStatus", true);
+			stringstream sscode;
+			sscode << code;
+			throw INETRException("[unhHTTPStatus]:\n" + sscode.str());
 		}
 
 		bool chunked = false;
@@ -141,7 +143,7 @@ namespace inetr {
 		if (size != -1) {
 			while (recvSize < size) {
 				if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) <= 0)
-					throw INETRException("recvErr", true);
+					throw INETRException("[recvErr]");
 
 				recvSize += bytesRecv;
 				stream->write(buf, bytesRecv);
@@ -150,7 +152,7 @@ namespace inetr {
 			if (!chunked) {
 				while (bytesRecv != 0) {
 					if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) < 0)
-						throw INETRException("recvErr", true);
+						throw INETRException("[recvErr]");
 
 					stream->write(buf, bytesRecv);
 				}
@@ -170,7 +172,7 @@ namespace inetr {
 
 						if ((bytesRecv = recv(sock, buf, bytesToRecv >
 							sizeof(buf) ? sizeof(buf) : bytesToRecv, 0)) <= 0)
-							throw INETRException("recvErr", true);
+							throw INETRException("[recvErr]");
 
 						recvSize += bytesRecv;
 						stream->write(buf, bytesRecv);

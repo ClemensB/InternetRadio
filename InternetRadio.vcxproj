@@ -54,7 +54,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -70,7 +70,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -79,24 +79,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="data\config.json" />
-    <None Include="data\img\98_0rtl.bmp" />
-    <None Include="data\img\bigfm.bmp" />
-    <None Include="data\img\dlf.bmp" />
-    <None Include="data\img\dlr_kultur.bmp" />
-    <None Include="data\img\einslive.bmp" />
+    <None Include="data\img\1live.png" />
+    <None Include="data\img\89_0_rtl.png" />
+    <None Include="data\img\bigfm.png" />
+    <None Include="data\img\deutschlandfunk.png" />
+    <None Include="data\img\deutschlandradio_kultur.png" />
     <None Include="data\img\ffn.bmp" />
-    <None Include="data\img\hardbase.bmp" />
-    <None Include="data\img\klassikradio.bmp" />
-    <None Include="data\img\n-joy.bmp" />
-    <None Include="data\img\ndr1nds.bmp" />
-    <None Include="data\img\ndrinfo.bmp" />
-    <None Include="data\img\ndr_2.bmp" />
-    <None Include="data\img\raktiv.bmp" />
-    <None Include="data\img\sputnik.bmp" />
-    <None Include="data\img\wdr2.bmp" />
-    <None Include="data\img\wdr3.bmp" />
-    <None Include="data\img\wdr4.bmp" />
-    <None Include="data\img\wdr5.bmp" />
+    <None Include="data\img\hardbase_fm.png" />
+    <None Include="data\img\klassik_radio.png" />
+    <None Include="data\img\mdr_sputnik.png" />
+    <None Include="data\img\n-joy.png" />
+    <None Include="data\img\ndr_1_nds.png" />
+    <None Include="data\img\ndr_2.png" />
+    <None Include="data\img\ndr_info.png" />
+    <None Include="data\img\radio_aktiv.gif" />
+    <None Include="data\img\wdr_2.png" />
+    <None Include="data\img\wdr_3.png" />
+    <None Include="data\img\wdr_4.png" />
+    <None Include="data\img\wdr_5.png" />
     <None Include="dependencies\bass\bass.dll" />
     <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
     <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />
@@ -118,6 +118,7 @@
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="src\CryptUtil.hpp" />
     <ClInclude Include="src\HTTPMetadataProvider.hpp" />
+    <ClInclude Include="src\ImageUtil.hpp" />
     <ClInclude Include="src\INETRException.hpp" />
     <ClInclude Include="src\HTMLEntityFixMetadataProcessor.hpp" />
     <ClInclude Include="src\HTTP.hpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp" />
     <ClCompile Include="src\CryptUtil.cpp" />
     <ClCompile Include="src\HTTPMetadataProvider.cpp" />
+    <ClCompile Include="src\ImageUtil.cpp" />
     <ClCompile Include="src\INETRException.cpp" />
     <ClCompile Include="src\HTMLEntityFixMetadataProcessor.cpp" />
     <ClCompile Include="src\HTTP.cpp" />

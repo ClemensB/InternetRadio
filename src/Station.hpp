@@ -35,7 +35,11 @@ namespace inetr {
 		std::map<std::string, std::string>
 			AdditionalParameters;
 	private:
+		static const int imgWH = 200;
+
 		std::string imagePath;
+
+		void loadImage();
 	};
 }
 

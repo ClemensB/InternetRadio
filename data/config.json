@@ -7,7 +7,7 @@
 				"error" : "Error",
 				"wndRegFailed" : "Window registration failed",
 				"wndCreFailed" : "Window creation failed",
-				"ctlCreFailed" : "Couldn't create controls",
+				"ctlCreFailed" : "Couldn't create control",
 				"connecting" : "Connecting",
 				"buffering" : "Buffering",
 				"connected" : "Connected",
@@ -18,14 +18,17 @@
 				"recvErr" : "Error while receiving data",
 				"unhHTTPStatus" : "Unhandled HTTP status code",
 				"emptyURL" : "Empty URL",
-				"unkHTMLEnt" : "Unknown HTML Entity: ",
+				"unkHTMLEnt" : "Unknown HTML Entity",
 				"cryptoStartErr" : "Couldn't start crypto library",
 				"openFileErr" : "Unable to open file",
 				"updateAvail" : "There is an update available",
 				"updateBtn" : "Update",
 				"dUpdateBtn" : "Don't update",
 				"updatingLbl" : "Updating...",
-				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations"
+				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations",
+				"imgLoadFailed" : "Couldn't load image",
+				"imgDecFailed" : "Couldn't decode image",
+				"unsupportedImg" : "Unsupported image type"
 			}
 		},
 		{
@@ -35,7 +38,7 @@
 				"error" : "Fehler",
 				"wndRegFailed" : "Fensterregistrierung fehlgeschlagen",
 				"wndCreFailed" : "Fenstererstellung fehlgeschlagen",
-				"ctlCreFailed" : "Konnte Steuerelemente nicht erstellen",
+				"ctlCreFailed" : "Konnte Steuerelement nicht erstellen",
 				"connecting" : "Verbinden",
 				"buffering" : "Puffern",
 				"connected" : "Verbunden",
@@ -46,14 +49,17 @@
 				"recvErr" : "Fehler beim Empfangen von Daten",
 				"unhHTTPStatus" : "Unbehandelter HTTP Statuscode",
 				"emptyURL" : "Leere URL angegeben",
-				"unkHTMLEnt" : "Unbekanntes HTML Entity: ",
+				"unkHTMLEnt" : "Unbekanntes HTML Entity",
 				"cryptoStartErr" : "Konnte Cryptobibliothek nicht starten",
 				"openFileErr" : "Konnte Datei nicht oeffnen",
 				"updateAvail" : "Es ist ein Update verfuegbar",
 				"updateBtn" : "Updaten",
 				"dUpdateBtn" : "Nicht updaten",
 				"updatingLbl" : "Updaten...",
-				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen"
+				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen",
+				"imgLoadFailed" : "Konnte Bild nicht laden",
+				"imgDecFailed" : "Konnte Bild nicht dekodieren",
+				"unsupportedImg" : "Nicht unterstuetzes Bildformat"
 			}
 		}
 	],
@@ -62,7 +68,7 @@
 		{
 			"name" : "NDR 1 Niedersachsen",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1niedersachsen_hi_mp3",
-			"image": "ndr1nds.bmp",
+			"image": "ndr_1_nds.png",
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/ndr1niedersachsen/onaircenter109-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
@@ -71,7 +77,7 @@
 		{
 			"name" : "NDR 2",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
-			"image" : "ndr_2.bmp",
+			"image" : "ndr_2.png",
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
@@ -80,7 +86,7 @@
 		{
 			"name" : "N-Joy",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3",
-			"image" : "n-joy.bmp",
+			"image" : "n-joy.png",
 			"meta" : "http",
 			"httpURL" : "http://www.n-joy.de/onaircenter121-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
@@ -89,28 +95,28 @@
 		{
 			"name" : "NDR Info",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrinfo_hi_mp3",
-			"image" : "ndrinfo.bmp",
+			"image" : "ndr_info.png",
 			"meta" : "http",
 			"httpURL" : "http://www.ndr.de/info/onaircenter113-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "<h2>([^<>]+)</h2>\\n<p class=\"timing\">"
 		},
 		{
-			"name" : "1Live",
+			"name" : "1LIVE",
 			"url" : "http://gffstream.ic.llnwd.net/stream/gffstream_stream_wdr_einslive_b",
-			"image" : "einslive.bmp",
+			"image" : "1live.png",
 			"meta" : "meta"
 		},
 		{
 			"name" : "WDR 2",
 			"url" : "http://wdr-2.akacast.akamaistream.net/7/48/119436/v1/gnl.akacast.akamaistream.net/wdr-2",
-			"image" : "wdr2.bmp",
+			"image" : "wdr_2.png",
 			"meta" : "meta"
 		},
 		{
 			"name" : "WDR 3",
 			"url" : "http://wdr-3-320.akacast.akamaistream.net/7/827/119437/v1/gnl.akacast.akamaistream.net/wdr-3-320",
-			"image" : "wdr3.bmp",
+			"image" : "wdr_3.png",
 			"meta" : "http",
 			"httpURL" : "http://www.wdr3.de",
 			"metaProc" : "regex,htmlEntityFix",
@@ -119,7 +125,7 @@
 		{
 			"name" : "WDR 4",
 			"url" : "http://wdr-4.akacast.akamaistream.net/7/42/119438/v1/gnl.akacast.akamaistream.net/wdr-4",
-			"image" : "wdr4.bmp",
+			"image" : "wdr_4.png",
 			"meta" : "http",
 			"httpURL" : "http://www.wdr.de/radio/wdr4/playlist/index.html",
 			"metaProc" : "regex,htmlEntityFix",
@@ -128,7 +134,7 @@
 		{
 			"name" : "WDR 5",
 			"url" : "http://wdr-5.akacast.akamaistream.net/7/41/119439/v1/gnl.akacast.akamaistream.net/wdr-5",
-			"image" : "wdr5.bmp",
+			"image" : "wdr_5.png",
 			"meta" : "meta"
 		},
 		{
@@ -140,25 +146,25 @@
 		{
 			"name" : "Deutschlandfunk",
 			"url" : "http://dradio.ic.llnwd.net/stream/dradio_dlf_m_a",
-			"image" : "dlf.bmp",
+			"image" : "deutschlandfunk.png",
 			"meta" : "meta"
 		},
 		{
 			"name" : "Deutschlandradio Kultur",
 			"url" : "http://dradio.ic.llnwd.net/stream/dradio_dkultur_m_a",
-			"image" : "dlr_kultur.bmp",
+			"image" : "deutschlandradio_kultur.png",
 			"meta" : "meta"
 		},
 		{
 			"name" : "Klassik Radio",
 			"url" : "http://edge.live.mp3.mdn.newmedia.nacamar.net/klassikradio128/livestream.mp3",
-			"image" : "klassikradio.bmp",
+			"image" : "klassik_radio.png",
 			"meta" : "meta"
 		},
 		{
-			"name" : "Sputnik",
+			"name" : "MDR SPUTNIK",
 			"url" : "http://c22033-l.i.core.cdn.streamfarm.net/22005mdrsputnik/live/3087mdr_sputnik/live_de_128.mp3",
-			"image" : "sputnik.bmp",
+			"image" : "mdr_sputnik.png",
 			"meta" : "http",
 			"httpURL" : "http://www.sputnik.de/programm/streaming/der-sputnik-livestream",
 			"metaProc" : "regexAT,htmlEntityFix",
@@ -168,12 +174,12 @@
 		{
 			"name" : "Radio Aktiv",
 			"url" : "http://92.51.133.241:8000/",
-			"image" : "raktiv.bmp"
+			"image" : "radio_aktiv.gif"
 		},
 		{
 			"name" : "bigFM",
 			"url" : "http://217.151.152.245/bigfm-mp3-96",
-			"image" : "bigfm.bmp",
+			"image" : "bigfm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.bigfm.de/content/html/shared/playlist/index.html",
 			"metaProc" : "regexAT,htmlEntityFix",
@@ -183,12 +189,12 @@
 		{
 			"name" : "89.0 RTL",
 			"url" : "http://62.75.176.45/rtl-high",
-			"image" : "98_0rtl.bmp"
+			"image" : "89_0_rtl.png"
 		},
 		{
 			"name" : "Hardbase.FM",
 			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
-			"image" : "hardbase.bmp",
+			"image" : "hardbase_fm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",
 			"metaProc" : "regex,htmlEntityFix",
