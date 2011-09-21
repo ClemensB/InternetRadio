@@ -25,7 +25,10 @@
 				"updateBtn" : "Update",
 				"dUpdateBtn" : "Don't update",
 				"updatingLbl" : "Updating...",
-				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations"
+				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations",
+				"imgLoadFailed" : "Couldn't load image",
+				"imgDecFailed" : "Couldn't decode image",
+				"unsupportedImg" : "Unsupported image type"
 			}
 		},
 		{
@@ -53,7 +56,10 @@
 				"updateBtn" : "Updaten",
 				"dUpdateBtn" : "Nicht updaten",
 				"updatingLbl" : "Updaten...",
-				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen"
+				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen",
+				"imgLoadFailed" : "Konnte Bild nicht laden",
+				"imgDecFailed" : "Konnte Bild nicht dekodieren",
+				"unsupportedImg" : "Nicht unterstuetzes Bildformat"
 			}
 		}
 	],
@@ -80,7 +86,7 @@
 		{
 			"name" : "N-Joy",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3",
-			"image" : "n-joy.bmp",
+			"image" : "n-joy.png",
 			"meta" : "http",
 			"httpURL" : "http://www.n-joy.de/onaircenter121-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
