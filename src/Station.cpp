@@ -8,7 +8,7 @@ namespace inetr {
 	Station::Station(string name, string url, string imagePath,
 		MetadataProvider* metadataProvider,
 		vector<MetadataProcessor*> metadataProcessors,
-		map<string, string> metadataProcessor_additionalParameters) {
+		map<string, string> metadataAdditionalParameters) {
 
 		this->Name = name;
 		this->URL = url;
@@ -17,7 +17,7 @@ namespace inetr {
 		this->imagePath = imagePath;
 
 		this->AdditionalParameters =
-			metadataProcessor_additionalParameters;
+			metadataAdditionalParameters;
 
 		loadImage();
 
