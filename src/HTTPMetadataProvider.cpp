@@ -12,12 +12,8 @@ namespace inetr {
 		&additionalParameterValues) {
 		
 		stringstream httpstream;
-		try {
-			HTTP::Get(additionalParameterValues[string("httpURL")],
-				&httpstream);
-		} catch (const string &e) {
-			throw INETRException(e, false);
-		}
+		HTTP::Get(additionalParameterValues[string("httpURL")],
+			&httpstream);
 
 		return httpstream.str();
 	}

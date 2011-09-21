@@ -73,7 +73,7 @@ namespace inetr {
 						else
 							n = sscanf_s(&buf[1], "%u", &id);
 						if (n != 1)
-							throw INETRException("error", true);
+							throw INETRException("[error]");
 
 						*ptrNew = id;
 					} else {
@@ -84,7 +84,7 @@ namespace inetr {
 					}
 
 					if (*ptrNew == 0)
-						throw INETRException("unkHTMLEnt", true);
+						throw INETRException("[unkHTMLEnt]: " + string(buf));
 				} else {
 					ptrMeta = ptrMetaOld;
 					*ptrNew = *ptrMeta;

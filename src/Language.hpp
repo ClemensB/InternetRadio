@@ -14,7 +14,9 @@ namespace inetr {
 		std::string Name;
 		std::string operator[](std::string *str);
 		std::string operator[](char *str);
-		std::string get(std::string str);
+
+		std::string LocalizeString(std::string str);
+		std::string LocalizeStringTokens(std::string str);
 	private:
 		std::map<std::string, std::string> strings;
 	};

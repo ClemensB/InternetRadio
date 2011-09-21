@@ -120,7 +120,7 @@ namespace inetr {
 		wndClass.lpszClassName		= INETR_MWND_CLASSNAME;
 
 		if (!RegisterClassEx(&wndClass))
-			throw INETRException("wndRegFailed", true);
+			throw INETRException("[wndRegFailed]");
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
 			INETR_MWND_CLASSNAME, CurrentLanguage["windowTitle"].c_str(),
@@ -130,7 +130,7 @@ namespace inetr {
 			NULL, NULL, instance, (LPVOID)this);
 
 		if (window == NULL)
-			throw INETRException("wndCreFailed", true);
+			throw INETRException("[wndCreFailed]");
 	}
 
 	void MainWindow::createControls(HWND hwnd) {
@@ -147,7 +147,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (stationsLbox == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: stationsLbox");
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationsLbox, WM_SETFONT, (WPARAM)defaultFont,
@@ -161,7 +161,7 @@ namespace inetr {
 			hwnd, (HMENU)INETR_MWND_STATUSLBL_ID, instance, NULL);
 
 		if (statusLbl == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: statusLbl");
 
 		SendMessage(statusLbl, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -176,7 +176,7 @@ namespace inetr {
 			(HMENU)INETR_MWND_STATIONIMG_ID, instance, NULL);
 
 		if (stationImg == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: stationImg");
 
 		allStationsLbox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | LBS_STANDARD | LBS_SORT | WS_VSCROLL | WS_TABSTOP,
@@ -189,7 +189,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (allStationsLbox == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: allStationsLbox");
 
 		SendMessage(allStationsLbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -204,7 +204,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (languageCbox == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: languageCbox");
 
 		SendMessage(languageCbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -219,7 +219,7 @@ namespace inetr {
 			instance, NULL);
 
 		if (noStationsInfoLbl == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: noStationsInfoLbl");
 
 		SendMessage(noStationsInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -232,7 +232,7 @@ namespace inetr {
 			hwnd, (HMENU)INETR_MWND_UPDATEINFOLBL_ID, instance, NULL);
 
 		if (updateInfoLbl == NULL)
-			throw INETRException("ctlCreFailed", true);
+			throw INETRException("[ctlCreFailed]: updateInfoLbl");
 
 		SendMessage(updateInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -245,6 +245,9 @@ namespace inetr {
 			RHEIGHT(controlPositions["updateBtn"]),
 			hwnd, (HMENU)INETR_MWND_UPDATEBTN_ID, instance, NULL);
 
+		if (updateBtn == NULL)
+			throw INETRException("[ctlCreFailed]: updateBtn");
+
 		SendMessage(updateBtn, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
 
 		dontUpdateBtn = CreateWindow("BUTTON", "", WS_CHILD |
@@ -254,6 +257,9 @@ namespace inetr {
 			RWIDTH(controlPositions["dontUpdateBtn"]),
 			RHEIGHT(controlPositions["dontUpdateBtn"]),
 			hwnd, (HMENU)INETR_MWND_DONTUPDATEBTN_ID, instance, NULL);
+
+		if (dontUpdateBtn == NULL)
+			throw INETRException("[ctlCreFailed]: dontUpdateBtn");
 
 		SendMessage(dontUpdateBtn, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
@@ -429,8 +435,8 @@ namespace inetr {
 		try {
 			HTTP::Get("http://internetradio.clemensboos.net/release/version",
 				&versionFileStream);
-		} catch (INETRException & e) {
-			e.mbox(window, &CurrentLanguage, "Update Error");
+		} catch (INETRException &e) {
+			e.mbox(window, &CurrentLanguage);
 		}
 
 		map<string, string> fileHashes;
@@ -464,7 +470,7 @@ namespace inetr {
 				try {
 					md5hash = CryptUtil::FileMD5Hash(it->first);
 				} catch (INETRException &e) {
-					e.mbox(window, &CurrentLanguage, "Update Error");
+					e.mbox(window, &CurrentLanguage);
 				}
 				if (md5hash != "" && md5hash == it->second)
 					continue;
