@@ -128,6 +128,9 @@
     <None Include="data\img\89_0_rtl.png">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="data\img\ndr_kultur.png">
+      <Filter>Other Files\Station Images</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">

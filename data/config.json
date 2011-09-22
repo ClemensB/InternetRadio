@@ -102,6 +102,15 @@
 			"regex" : "<h2>([^<>]+)</h2>\\n<p class=\"timing\">"
 		},
 		{
+			"name" : "NDR Kultur",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrkultur_hi_mp3",
+			"image" : "ndr_kultur.png",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/ndrkultur/onaircenter115-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
+		},
+		{
 			"name" : "1LIVE",
 			"url" : "http://gffstream.ic.llnwd.net/stream/gffstream_stream_wdr_einslive_b",
 			"image" : "1live.png",
