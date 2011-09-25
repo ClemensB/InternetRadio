@@ -43,6 +43,9 @@ namespace inetr {
 
 		static DWORD WINAPI staticDownloadUpdatesThread(__in LPVOID parameter);
 
+		static LRESULT CALLBACK staticListBoxReplacementWndProc(HWND hwnd,
+			UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
 
@@ -80,12 +83,14 @@ namespace inetr {
 		void bufferTimer_Tick();
 		void metaTime_Tick();
 		void slideTimer_Tick();
+		void hideVolBarTimer_Tick();
 		void stationsListBox_SelChange();
 		void stationsListBox_DblClick();
 		void moreStationsListBox_DblClick();
 		void languageComboBox_SelChange();
 		void updateButton_Click();
 		void dontUpdateButton_Click();
+		void mouseScroll(short delta);
 
 		void radioOpenURL(std::string url);
 		void radioOpenURLThread(std::string url);
@@ -107,6 +112,9 @@ namespace inetr {
 			std::vector<MetadataProcessor*> &processors,
 			std::map<std::string, std::string> &additionalParameters);
 
+		static WNDPROC staticListBoxOriginalWndProc;
+		static std::map<HWND, MainWindow*> staticParentLookupTable;
+
 		bool initialized;
 
 		HINSTANCE instance;
@@ -120,6 +128,7 @@ namespace inetr {
 		HWND updateInfoLbl;
 		HWND updateBtn;
 		HWND dontUpdateBtn;
+		HWND volumePbar;
 
 		std::map<std::string, RECT> controlPositions;
 
