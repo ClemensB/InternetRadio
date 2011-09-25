@@ -28,7 +28,8 @@
 				"noStationsInfo" : "You have no radio stations in your list, double click to see all stations",
 				"imgLoadFailed" : "Couldn't load image",
 				"imgDecFailed" : "Couldn't decode image",
-				"unsupportedImg" : "Unsupported image type"
+				"unsupportedImg" : "Unsupported image type",
+				"muted" : "Muted"
 			}
 		},
 		{
@@ -59,7 +60,8 @@
 				"noStationsInfo" : "Du hast keine Radiosender in deiner Liste, doppelklicke um alle Sender anzuzeigen",
 				"imgLoadFailed" : "Konnte Bild nicht laden",
 				"imgDecFailed" : "Konnte Bild nicht dekodieren",
-				"unsupportedImg" : "Nicht unterstuetzes Bildformat"
+				"unsupportedImg" : "Nicht unterstuetzes Bildformat",
+				"muted" : "Stumm"
 			}
 		}
 	],
@@ -100,6 +102,15 @@
 			"httpURL" : "http://www.ndr.de/info/onaircenter113-onaircenterpopup.html",
 			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "<h2>([^<>]+)</h2>\\n<p class=\"timing\">"
+		},
+		{
+			"name" : "NDR Kultur",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrkultur_hi_mp3",
+			"image" : "ndr_kultur.png",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/ndrkultur/onaircenter115-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
 		},
 		{
 			"name" : "1LIVE",
@@ -193,7 +204,7 @@
 		},
 		{
 			"name" : "Hardbase.FM",
-			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
+			"url" : "http://listen.hardbase.fm/tunein-dsl-asx",
 			"image" : "hardbase_fm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",

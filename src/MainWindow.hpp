@@ -15,6 +15,9 @@
 namespace inetr {
 	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
 
+	enum RadioStatus { Connecting, Buffering, Connected, Idle, ConnectionError
+	};
+
 	class MainWindow {
 	public:
 		MainWindow();
@@ -39,6 +42,9 @@ namespace inetr {
 		static DWORD WINAPI staticCheckUpdateThread(__in LPVOID parameter);
 
 		static DWORD WINAPI staticDownloadUpdatesThread(__in LPVOID parameter);
+
+		static LRESULT CALLBACK staticListBoxReplacementWndProc(HWND hwnd,
+			UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
@@ -77,19 +83,27 @@ namespace inetr {
 		void bufferTimer_Tick();
 		void metaTime_Tick();
 		void slideTimer_Tick();
+		void hideVolBarTimer_Tick();
 		void stationsListBox_SelChange();
 		void stationsListBox_DblClick();
 		void moreStationsListBox_DblClick();
 		void languageComboBox_SelChange();
 		void updateButton_Click();
 		void dontUpdateButton_Click();
+		void mouseScroll(short delta);
 
 		void radioOpenURL(std::string url);
 		void radioOpenURLThread(std::string url);
 		void radioStop();
 
+		float radioGetVolume() const;
+		void radioSetVolume(float volume);
+		void radioSetMuted(bool muted);
+
 		void updateMeta();
 		void updateMetaThread();
+
+		void updateStatusLabel();
 
 		std::string fetchMeta(MetadataProvider* metadataProvider,
 			HSTREAM stream, std::map<std::string, std::string>
@@ -97,6 +111,9 @@ namespace inetr {
 		void processMeta(std::string &meta,
 			std::vector<MetadataProcessor*> &processors,
 			std::map<std::string, std::string> &additionalParameters);
+
+		static WNDPROC staticListBoxOriginalWndProc;
+		static std::map<HWND, MainWindow*> staticParentLookupTable;
 
 		bool initialized;
 
@@ -111,6 +128,7 @@ namespace inetr {
 		HWND updateInfoLbl;
 		HWND updateBtn;
 		HWND dontUpdateBtn;
+		HWND volumePbar;
 
 		std::map<std::string, RECT> controlPositions;
 
@@ -130,9 +148,16 @@ namespace inetr {
 		std::list<Station> stations;
 		std::list<Station*> favoriteStations;
 
+		RadioStatus radioStatus;
+		std::string radioStatus_currentMetadata;
+		QWORD radioStatus_bufferingProgress;
+
 		Station* currentStation;
 		std::string currentStreamURL;
 		HSTREAM currentStream;
+
+		float radioVolume;
+		bool radioMuted;
 	};
 }
 

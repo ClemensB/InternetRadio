@@ -8,6 +8,8 @@
 #include <map>
 #include <regex>
 
+#include <CommCtrl.h>
+
 #include <json/json.h>
 
 #include "HTTP.hpp"
@@ -40,6 +42,7 @@
 #define INETR_MWND_UPDATEBTN_ID 108
 #define INETR_MWND_DONTUPDATEBTN_ID 109
 #define INETR_MWND_UPDATINGLBL_ID 110
+#define INETR_MWND_VOLUMEPBAR_ID 111
 
 #define INETR_MWND_SLIDE_LEFT_MAX 110
 #define INETR_MWND_SLIDE_BOTTOM_MAX 20
@@ -49,12 +52,16 @@
 #define INETR_MWND_TIMER_BUFFER 0
 #define INETR_MWND_TIMER_META 1
 #define INETR_MWND_TIMER_SLIDE 2
+#define INETR_MWND_TIMER_HIDEVOLBAR 3
 
 using namespace std;
 using namespace std::tr1;
 using namespace Json;
 
 namespace inetr {
+	WNDPROC MainWindow::staticListBoxOriginalWndProc;
+	map<HWND, MainWindow*> MainWindow::staticParentLookupTable;
+
 	MainWindow::MainWindow() {
 		initialized = false;
 
@@ -67,6 +74,11 @@ namespace inetr {
 		leftPanelSlideProgress = 0;
 		bottomPanelSlideStatus = Retracted;
 		bottomPanelSlideProgress = 0;
+
+		radioStatus = Idle;
+
+		radioVolume = 1.0f;
+		radioMuted = false;
 	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
@@ -152,6 +164,11 @@ namespace inetr {
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 		SendMessage(stationsLbox, WM_SETFONT, (WPARAM)defaultFont,
 			(LPARAM)0);
+
+		staticParentLookupTable.insert(pair<HWND, MainWindow*>(stationsLbox,
+			this));
+		staticListBoxOriginalWndProc = (WNDPROC)SetWindowLongPtr(stationsLbox,
+			GWLP_WNDPROC, (LONG_PTR)staticListBoxReplacementWndProc);
 
 		statusLbl = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
 			controlPositions["statusLbl"].left,
@@ -262,6 +279,20 @@ namespace inetr {
 			throw INETRException("[ctlCreFailed]: dontUpdateBtn");
 
 		SendMessage(dontUpdateBtn, WM_SETFONT, (WPARAM)defaultFont,
+			(LPARAM)0);
+
+		volumePbar = CreateWindow(PROGRESS_CLASS, "", WS_CHILD |
+			PBS_SMOOTH | PBS_SMOOTHREVERSE,
+			controlPositions["volumePbar"].left,
+			controlPositions["volumePbar"].top,
+			RWIDTH(controlPositions["volumePbar"]),
+			RHEIGHT(controlPositions["volumePbar"]),
+			hwnd, (HMENU)INETR_MWND_VOLUMEPBAR_ID, instance, NULL);
+
+		if (volumePbar == NULL)
+			throw INETRException("[ctlCreFailed]: volumePbar");
+
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(radioVolume * 100.0f),
 			(LPARAM)0);
 	}
 
@@ -396,6 +427,12 @@ namespace inetr {
 		updateBtnRect.right = dontUpdateBtnRect.left - 5;
 		updateBtnRect.left = updateBtnRect.right - updateBtnWidth;
 		
+		RECT volumePbarRect;
+		volumePbarRect.left = 1;
+		volumePbarRect.right = clientArea.right - 1;
+		volumePbarRect.top = 1;
+		volumePbarRect.bottom = stationLboxRect.top - 1;
+
 		controlPositions.clear();
 		controlPositions.insert(pair<string, RECT>("stationsLbox",
 			stationLboxRect));
@@ -415,6 +452,8 @@ namespace inetr {
 			updateBtnRect));
 		controlPositions.insert(pair<string, RECT>("dontUpdateBtn",
 			dontUpdateBtnRect));
+		controlPositions.insert(pair<string, RECT>("volumePbar",
+			volumePbarRect));
 	}
 
 	void MainWindow::updateControlLanguageStrings() {
@@ -454,8 +493,8 @@ namespace inetr {
 				if (versionFileStream.good()) {
 					versionFileStream >> filename;
 					if (hash != "" && filename != "") {
-						fileHashes.insert(pair<string, string>(dir + string("\\") +
-							filename.substr(1), hash));
+						fileHashes.insert(pair<string, string>(dir +
+							string("\\") + filename.substr(1), hash));
 					}
 				}
 			}
@@ -750,6 +789,10 @@ namespace inetr {
 				favoriteStations.push_back(favoriteStation);
 			}
 
+			Value volumeValue = rootValue.get("volume", NULL);
+			if (volumeValue == NULL || !volumeValue.isDouble())
+				throw INETRException("Error while parsing config file");
+			radioVolume = (float)volumeValue.asDouble();
 		} else {
 			CurrentLanguage = *defaultLanguage;
 		}
@@ -769,6 +812,8 @@ namespace inetr {
 
 			rootValue["favoriteStations"].append(Value((*it)->Name));
 		}
+
+		rootValue["volume"] = Value(radioVolume);
 
 		StyledWriter jsonWriter;
 
@@ -833,8 +878,8 @@ namespace inetr {
 
 				KillTimer(window, INETR_MWND_TIMER_BUFFER);
 
-				SetWindowText(statusLbl,
-					CurrentLanguage["connected"].c_str());
+				radioStatus = Connected;
+				updateStatusLabel();
 
 				updateMeta();
 
@@ -843,15 +888,16 @@ namespace inetr {
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
 					&staticMetaSync, (void*)this);
 
+				BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+					radioGetVolume());
 				BASS_ChannelPlay(currentStream, FALSE);
 
 				SetTimer(window, INETR_MWND_TIMER_META, 5000,
 					NULL);
 		} else {
-			stringstream sstreamStatusText;
-			sstreamStatusText << CurrentLanguage["buffering"] << "... " <<
-				progress << "%";
-			SetWindowText(statusLbl, sstreamStatusText.str().c_str());
+			radioStatus = Buffering;
+			radioStatus_bufferingProgress = progress;
+			updateStatusLabel();
 		}
 	}
 
@@ -948,8 +994,14 @@ namespace inetr {
 		}
 	}
 
-	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
-		void *user) {
+	void MainWindow::hideVolBarTimer_Tick() {
+		KillTimer(window, INETR_MWND_TIMER_HIDEVOLBAR);
+
+		ShowWindow(volumePbar, SW_HIDE);
+	}
+
+	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel,
+		DWORD data, void *user) {
 
 		MainWindow* parent = (MainWindow*)user;
 		if (parent)
@@ -1101,6 +1153,20 @@ namespace inetr {
 		retractBottomPanel();
 	}
 
+	void MainWindow::mouseScroll(short delta) {
+		float rDelta = (float)delta / (float)WHEEL_DELTA;
+		float nVolume = radioVolume + (rDelta * 0.1f);
+		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
+			nVolume);
+		radioSetVolume(nVolume);
+
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(nVolume * 100.0f),
+			(LPARAM)0);
+
+		ShowWindow(volumePbar, SW_SHOW);
+		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
+	}
+
 	void MainWindow::downloadUpdates() {
 		CreateThread(NULL, 0, staticDownloadUpdatesThread, (LPVOID)this, 0,
 			NULL);
@@ -1179,6 +1245,8 @@ namespace inetr {
 	}
 
 	void MainWindow::radioOpenURLThread(string url) {
+		radioStatus_currentMetadata = "";
+
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
@@ -1187,8 +1255,8 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(statusLbl, (CurrentLanguage["connecting"] +
-			string("...")).c_str());
+		radioStatus = Connecting;
+		updateStatusLabel();
 
 		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
 
@@ -1198,12 +1266,13 @@ namespace inetr {
 		}
 
 		currentStream = tempStream;
-
-		if (currentStream != NULL)
+		
+		if (currentStream != NULL) {
 			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
-		else
-			SetWindowText(statusLbl,
-				CurrentLanguage["connectionError"].c_str());
+		} else {
+			radioStatus = ConnectionError;
+			updateStatusLabel();
+		}
 	}
 
 	void MainWindow::radioStop() {
@@ -1213,12 +1282,34 @@ namespace inetr {
 		}
 
 		ShowWindow(stationImg, SW_HIDE);
-		SetWindowText(statusLbl, "");
+		radioStatus = Idle;
+		updateStatusLabel();
 
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
 		currentStation = NULL;
+	}
+
+	float MainWindow::radioGetVolume() const {
+		return radioMuted ? 0.0f : radioVolume;
+	}
+
+	void MainWindow::radioSetVolume(float volume) {
+		radioVolume = volume;
+		radioMuted = false;
+		if (currentStream)
+			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+			radioGetVolume());
+	}
+
+	void MainWindow::radioSetMuted(bool muted) {
+		radioMuted = muted;
+		if (currentStream)
+			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+			radioGetVolume());
+
+		updateStatusLabel();
 	}
 
 	void MainWindow::updateMeta() {
@@ -1252,10 +1343,50 @@ namespace inetr {
 			processMeta(meta, currentStation->MetadataProcessors,
 				currentStation->AdditionalParameters);
 
-			StringUtil::SearchAndReplace(meta, string("&"), string("&&"));
-
-			SetWindowText(statusLbl, meta.c_str());
+			radioStatus_currentMetadata = meta;
+			updateStatusLabel();
 		}
+	}
+
+	void MainWindow::updateStatusLabel() {
+		string statusText = "";
+
+		switch (radioStatus) {
+		case Connecting:
+			statusText = "[connecting]...";
+			break;
+		case Buffering:
+			{
+				stringstream sstext;
+				sstext << "[buffering]... ";
+				sstext << radioStatus_bufferingProgress;
+				sstext << "%";
+				statusText = sstext.str();
+			}
+			break;
+		case Connected:
+			if (radioStatus_currentMetadata == "")
+				statusText = "[connected]";
+			else 
+				statusText = radioStatus_currentMetadata;
+			break;
+		case Idle:
+			statusText = "";
+			break;
+		case ConnectionError:
+			statusText = "[connectionError]";
+			break;
+		}
+
+		if (radioMuted && statusText != "")
+			statusText += " ([muted])";
+		else if (radioMuted)
+			statusText = "[muted]";
+
+		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
+
+		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
+		SetWindowText(statusLbl, statusText.c_str());
 	}
 
 	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
@@ -1363,6 +1494,9 @@ namespace inetr {
 				case INETR_MWND_TIMER_SLIDE:
 					slideTimer_Tick();
 					break;
+				case INETR_MWND_TIMER_HIDEVOLBAR:
+					hideVolBarTimer_Tick();
+					break;
 			}
 			break;
 		case WM_COMMAND:
@@ -1426,6 +1560,12 @@ namespace inetr {
 				retractLeftPanel();
 			}
 			break;
+		case WM_MBUTTONUP:
+			radioSetMuted(!radioMuted);
+			break;
+		case WM_MOUSEWHEEL:
+			mouseScroll(GET_WHEEL_DELTA_WPARAM(wParam));
+			break;
 		case WM_CLOSE:
 			uninitializeWindow(hwnd);
 			DestroyWindow(hwnd);
@@ -1436,5 +1576,19 @@ namespace inetr {
 		}
 
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+
+	LRESULT CALLBACK MainWindow::staticListBoxReplacementWndProc(HWND hwnd,
+		UINT uMsg, WPARAM wParam, LPARAM lParam) {
+
+		switch (uMsg) {
+		case WM_MOUSEWHEEL:
+			staticParentLookupTable[hwnd]->mouseScroll(
+				GET_WHEEL_DELTA_WPARAM(wParam));
+			break;
+		}
+
+		return CallWindowProc(staticListBoxOriginalWndProc, hwnd, uMsg, wParam,
+			lParam);
 	}
 }
