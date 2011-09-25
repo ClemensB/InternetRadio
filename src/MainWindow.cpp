@@ -459,8 +459,8 @@ namespace inetr {
 				if (versionFileStream.good()) {
 					versionFileStream >> filename;
 					if (hash != "" && filename != "") {
-						fileHashes.insert(pair<string, string>(dir + string("\\") +
-							filename.substr(1), hash));
+						fileHashes.insert(pair<string, string>(dir +
+							string("\\") + filename.substr(1), hash));
 					}
 				}
 			}
@@ -954,8 +954,8 @@ namespace inetr {
 		}
 	}
 
-	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel, DWORD data,
-		void *user) {
+	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel,
+		DWORD data, void *user) {
 
 		MainWindow* parent = (MainWindow*)user;
 		if (parent)
