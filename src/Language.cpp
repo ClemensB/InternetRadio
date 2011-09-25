@@ -35,10 +35,10 @@ namespace inetr {
 
 	string Language::LocalizeStringTokens(string str) {
 		string newStr;
-		size_t lastPos = -1;
+		int lastPos = -1;
 		size_t pos = str.find_first_of('[');
 		while (pos != string::npos) {
-			newStr += str.substr(lastPos + 1, ((lastPos + 1) - pos));
+			newStr += str.substr(lastPos + 1, (pos - (lastPos + 1)));
 
 			lastPos = str.find_first_of(']', pos);
 			if (lastPos == string::npos) {
@@ -51,7 +51,7 @@ namespace inetr {
 
 			pos = str.find_first_of('[', lastPos);
 		}
-		if (lastPos < str.length())
+		if (lastPos < (int)str.length())
 			newStr += str.substr(lastPos + 1);
 		return newStr;
 	}
