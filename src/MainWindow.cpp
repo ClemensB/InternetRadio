@@ -429,7 +429,7 @@ namespace inetr {
 		
 		RECT volumePbarRect;
 		volumePbarRect.left = 1;
-		volumePbarRect.right = clientArea.right - 1;
+		volumePbarRect.right = clientArea.right - 2;
 		volumePbarRect.top = 1;
 		volumePbarRect.bottom = stationLboxRect.top - 1;
 
@@ -975,6 +975,10 @@ namespace inetr {
 		SetWindowPos(dontUpdateBtn, NULL,
 			controlPositions["dontUpdateBtn"].left,
 			controlPositions["dontUpdateBtn"].top, 0, 0, SWP_NOSIZE);
+
+		SetWindowPos(volumePbar, NULL, 0, 0,
+			RWIDTH(controlPositions["volumePbar"]),
+			RHEIGHT(controlPositions["volumePbar"]), SWP_NOMOVE);
 
 		if (RWIDTH(controlPositions["allStationsLbox"]) <= 0) {
 			ShowWindow(allStationsLbox, SW_HIDE);
