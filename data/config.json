@@ -202,7 +202,7 @@
 		},
 		{
 			"name" : "Hardbase.FM",
-			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
+			"url" : "http://listen.hardbase.fm/tunein-dsl-asx",
 			"image" : "hardbase_fm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",
