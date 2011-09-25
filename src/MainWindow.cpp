@@ -67,6 +67,11 @@ namespace inetr {
 		leftPanelSlideProgress = 0;
 		bottomPanelSlideStatus = Retracted;
 		bottomPanelSlideProgress = 0;
+
+		radioStatus = Idle;
+
+		radioVolume = 1.0f;
+		radioMuted = false;
 	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
@@ -833,8 +838,8 @@ namespace inetr {
 
 				KillTimer(window, INETR_MWND_TIMER_BUFFER);
 
-				SetWindowText(statusLbl,
-					CurrentLanguage["connected"].c_str());
+				radioStatus = Connected;
+				updateStatusLabel();
 
 				updateMeta();
 
@@ -843,15 +848,16 @@ namespace inetr {
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
 					&staticMetaSync, (void*)this);
 
+				BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+					radioGetVolume());
 				BASS_ChannelPlay(currentStream, FALSE);
 
 				SetTimer(window, INETR_MWND_TIMER_META, 5000,
 					NULL);
 		} else {
-			stringstream sstreamStatusText;
-			sstreamStatusText << CurrentLanguage["buffering"] << "... " <<
-				progress << "%";
-			SetWindowText(statusLbl, sstreamStatusText.str().c_str());
+			radioStatus = Buffering;
+			radioStatus_bufferingProgress = progress;
+			updateStatusLabel();
 		}
 	}
 
@@ -1179,6 +1185,8 @@ namespace inetr {
 	}
 
 	void MainWindow::radioOpenURLThread(string url) {
+		radioStatus_currentMetadata = "";
+
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
@@ -1187,8 +1195,8 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		SetWindowText(statusLbl, (CurrentLanguage["connecting"] +
-			string("...")).c_str());
+		radioStatus = Connecting;
+		updateStatusLabel();
 
 		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
 
@@ -1198,12 +1206,13 @@ namespace inetr {
 		}
 
 		currentStream = tempStream;
-
-		if (currentStream != NULL)
+		
+		if (currentStream != NULL) {
 			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
-		else
-			SetWindowText(statusLbl,
-				CurrentLanguage["connectionError"].c_str());
+		} else {
+			radioStatus = ConnectionError;
+			updateStatusLabel();
+		}
 	}
 
 	void MainWindow::radioStop() {
@@ -1213,12 +1222,34 @@ namespace inetr {
 		}
 
 		ShowWindow(stationImg, SW_HIDE);
-		SetWindowText(statusLbl, "");
+		radioStatus = Idle;
+		updateStatusLabel();
 
 		KillTimer(window, INETR_MWND_TIMER_BUFFER);
 		KillTimer(window, INETR_MWND_TIMER_META);
 
 		currentStation = NULL;
+	}
+
+	float MainWindow::radioGetVolume() const {
+		return radioMuted ? 0.0f : radioVolume;
+	}
+
+	void MainWindow::radioSetVolume(float volume) {
+		radioVolume = volume;
+		radioMuted = false;
+		if (currentStream)
+			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+			radioGetVolume());
+	}
+
+	void MainWindow::radioSetMuted(bool muted) {
+		radioMuted = muted;
+		if (currentStream)
+			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
+			radioGetVolume());
+
+		updateStatusLabel();
 	}
 
 	void MainWindow::updateMeta() {
@@ -1252,10 +1283,50 @@ namespace inetr {
 			processMeta(meta, currentStation->MetadataProcessors,
 				currentStation->AdditionalParameters);
 
-			StringUtil::SearchAndReplace(meta, string("&"), string("&&"));
-
-			SetWindowText(statusLbl, meta.c_str());
+			radioStatus_currentMetadata = meta;
+			updateStatusLabel();
 		}
+	}
+
+	void MainWindow::updateStatusLabel() {
+		string statusText = "";
+
+		switch (radioStatus) {
+		case Connecting:
+			statusText = "[connecting]...";
+			break;
+		case Buffering:
+			{
+				stringstream sstext;
+				sstext << "[buffering]... ";
+				sstext << radioStatus_bufferingProgress;
+				sstext << "%";
+				statusText = sstext.str();
+			}
+			break;
+		case Connected:
+			if (radioStatus_currentMetadata == "")
+				statusText = "[connected]";
+			else 
+				statusText = radioStatus_currentMetadata;
+			break;
+		case Idle:
+			statusText = "";
+			break;
+		case ConnectionError:
+			statusText = "[connectionError]";
+			break;
+		}
+
+		if (radioMuted && statusText != "")
+			statusText += " ([muted])";
+		else if (radioMuted)
+			statusText = "[muted]";
+
+		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
+
+		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
+		SetWindowText(statusLbl, statusText.c_str());
 	}
 
 	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
@@ -1425,6 +1496,9 @@ namespace inetr {
 			} else if (leftPanelSlideStatus == Expanded) {
 				retractLeftPanel();
 			}
+			break;
+		case WM_MBUTTONUP:
+			radioSetMuted(!radioMuted);
 			break;
 		case WM_CLOSE:
 			uninitializeWindow(hwnd);

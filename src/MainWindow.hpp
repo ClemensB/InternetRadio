@@ -15,6 +15,9 @@
 namespace inetr {
 	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
 
+	enum RadioStatus { Connecting, Buffering, Connected, Idle, ConnectionError
+	};
+
 	class MainWindow {
 	public:
 		MainWindow();
@@ -88,8 +91,14 @@ namespace inetr {
 		void radioOpenURLThread(std::string url);
 		void radioStop();
 
+		float radioGetVolume() const;
+		void radioSetVolume(float volume);
+		void radioSetMuted(bool muted);
+
 		void updateMeta();
 		void updateMetaThread();
+
+		void updateStatusLabel();
 
 		std::string fetchMeta(MetadataProvider* metadataProvider,
 			HSTREAM stream, std::map<std::string, std::string>
@@ -130,9 +139,16 @@ namespace inetr {
 		std::list<Station> stations;
 		std::list<Station*> favoriteStations;
 
+		RadioStatus radioStatus;
+		std::string radioStatus_currentMetadata;
+		QWORD radioStatus_bufferingProgress;
+
 		Station* currentStation;
 		std::string currentStreamURL;
 		HSTREAM currentStream;
+
+		float radioVolume;
+		bool radioMuted;
 	};
 }
 
