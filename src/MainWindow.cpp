@@ -362,7 +362,6 @@ namespace inetr {
 		const int sImgDim = 200;
 		const int lngCboxHeight = 20;
 		const int noStaInfoLblHeight = 40;
-		const int updateInfoLblWidth = 200;
 		const int updateInfoLblHeight = 15;
 		const int updateBtnWidth = 80;
 		const int updateBtnHeight = 22;
@@ -414,13 +413,6 @@ namespace inetr {
 		noStationsinfoLblRect.bottom = 10 + ((clientArea.bottom -
 			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
 
-		RECT updateInfoLblRect;
-		updateInfoLblRect.left = 10;
-		updateInfoLblRect.right = updateInfoLblRect.left + updateInfoLblWidth;
-		updateInfoLblRect.top = clientArea.bottom - bottomPanelSlideProgress
-			- 1;
-		updateInfoLblRect.bottom = updateInfoLblRect.top + updateInfoLblHeight;
-
 		RECT dontUpdateBtnRect;
 		dontUpdateBtnRect.right = clientArea.right - 5;
 		dontUpdateBtnRect.left = dontUpdateBtnRect.right - updateBtnWidth;
@@ -432,6 +424,13 @@ namespace inetr {
 		updateBtnRect.right = dontUpdateBtnRect.left - 5;
 		updateBtnRect.left = updateBtnRect.right - updateBtnWidth;
 		
+		RECT updateInfoLblRect;
+		updateInfoLblRect.left = 10;
+		updateInfoLblRect.right = updateBtnRect.left - 5;
+		updateInfoLblRect.top = clientArea.bottom - bottomPanelSlideProgress
+			- 1;
+		updateInfoLblRect.bottom = updateInfoLblRect.top + updateInfoLblHeight;
+
 		RECT volumePbarRect;
 		volumePbarRect.left = 1;
 		volumePbarRect.right = clientArea.right - 2;
