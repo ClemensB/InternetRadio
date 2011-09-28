@@ -50,6 +50,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>DEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -123,6 +124,7 @@
     <ClInclude Include="src\INETRException.hpp" />
     <ClInclude Include="src\HTMLEntityFixMetadataProcessor.hpp" />
     <ClInclude Include="src\HTTP.hpp" />
+    <ClInclude Include="src\INETRLogger.hpp" />
     <ClInclude Include="src\Language.hpp" />
     <ClInclude Include="src\MainWindow.hpp" />
     <ClInclude Include="src\MetadataProcessor.hpp" />
@@ -144,6 +146,7 @@
     <ClCompile Include="src\INETRException.cpp" />
     <ClCompile Include="src\HTMLEntityFixMetadataProcessor.cpp" />
     <ClCompile Include="src\HTTP.cpp" />
+    <ClCompile Include="src\INETRLogger.cpp" />
     <ClCompile Include="src\Language.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
