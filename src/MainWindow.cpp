@@ -84,6 +84,11 @@ namespace inetr {
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
 
+		INITCOMMONCONTROLSEX iCCE;
+		iCCE.dwSize = sizeof(INITCOMMONCONTROLSEX);
+		iCCE.dwICC = ICC_PROGRESS_CLASS;
+		InitCommonControlsEx(&iCCE);
+
 		checkUpdate();
 
 		initialize();
