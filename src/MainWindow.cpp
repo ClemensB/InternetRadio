@@ -1312,10 +1312,12 @@ namespace inetr {
 
 	void MainWindow::radioSetVolume(float volume) {
 		radioVolume = volume;
-		radioMuted = false;
+
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
+
+		radioSetMuted(false);
 	}
 
 	void MainWindow::radioSetMuted(bool muted) {
