@@ -1174,12 +1174,6 @@ namespace inetr {
 		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
 			nVolume);
 		radioSetVolume(nVolume);
-
-		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(nVolume * 100.0f),
-			(LPARAM)0);
-
-		ShowWindow(volumePbar, SW_SHOW);
-		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 	}
 
 	void MainWindow::downloadUpdates() {
@@ -1311,13 +1305,18 @@ namespace inetr {
 	}
 
 	void MainWindow::radioSetVolume(float volume) {
-		radioVolume = volume;
+		radioSetMuted(false);
 
+		radioVolume = volume;
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
 
-		radioSetMuted(false);
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(volume * 100.0f),
+			(LPARAM)0);
+
+		ShowWindow(volumePbar, SW_SHOW);
+		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 	}
 
 	void MainWindow::radioSetMuted(bool muted) {
@@ -1325,6 +1324,15 @@ namespace inetr {
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
+
+		SendMessage(volumePbar, PBM_SETSTATE, muted ? PBST_ERROR : PBST_NORMAL,
+			(LPARAM)0);
+
+		ShowWindow(volumePbar, SW_SHOW);
+		if (muted)
+			KillTimer(window, INETR_MWND_TIMER_HIDEVOLBAR);
+		else
+			SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 
 		updateStatusLabel();
 	}
