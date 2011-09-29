@@ -1607,6 +1607,10 @@ namespace inetr {
 		UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 		switch (uMsg) {
+		case WM_MBUTTONUP:
+			staticParentLookupTable[hwnd]->radioSetMuted(
+				!staticParentLookupTable[hwnd]->radioMuted);
+			break;
 		case WM_MOUSEWHEEL:
 			staticParentLookupTable[hwnd]->mouseScroll(
 				GET_WHEEL_DELTA_WPARAM(wParam));
