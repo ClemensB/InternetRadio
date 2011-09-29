@@ -1403,11 +1403,6 @@ namespace inetr {
 			break;
 		}
 
-		if (radioMuted && statusText != "")
-			statusText += " ([muted])";
-		else if (radioMuted)
-			statusText = "[muted]";
-
 		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
 
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
