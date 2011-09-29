@@ -2,7 +2,6 @@
 
 #include <Shlwapi.h>
 #include <wincodec.h>
-#include <atlbase.h>
 
 #include "INETRException.hpp"
 
