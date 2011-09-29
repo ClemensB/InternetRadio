@@ -767,6 +767,9 @@ namespace inetr {
 			}
 
 			if (CurrentLanguage.Name == "Undefined")
+				CurrentLanguage = *defaultLanguage;
+
+			if (CurrentLanguage.Name == "Undefined")
 				throw INETRException(string("Error while parsing user config") +
 				string(" file\nUnsupported language: ") + languageStr);
 
