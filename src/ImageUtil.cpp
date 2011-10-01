@@ -2,7 +2,6 @@
 
 #include <Shlwapi.h>
 #include <wincodec.h>
-#include <atlbase.h>
 
 #include "INETRException.hpp"
 
@@ -10,12 +9,6 @@ using namespace std;
 
 namespace inetr {
 	HBITMAP ImageUtil::LoadImage(string path) {
-		static bool comInitialized = false;
-		if (!comInitialized) {
-			CoInitialize(NULL);
-			comInitialized = true;
-		}
-
 		size_t pathFileExtDot = path.find_last_of('.');
 		if (pathFileExtDot == string::npos || pathFileExtDot + 1 >=
 			path.length())

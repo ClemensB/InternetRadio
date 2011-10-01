@@ -9,6 +9,7 @@
 #include <regex>
 
 #include <CommCtrl.h>
+#include <Uxtheme.h>
 
 #include <json/json.h>
 
@@ -16,6 +17,7 @@
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
 #include "CryptUtil.hpp"
+#include "OSUtil.hpp"
 
 #include "MetaMetadataProvider.hpp"
 #include "OGGMetadataProvider.hpp"
@@ -65,6 +67,8 @@ namespace inetr {
 	MainWindow::MainWindow() {
 		initialized = false;
 
+		isColorblindModeEnabled = false;
+
 		defaultLanguage = NULL;
 
 		currentStation = NULL;
@@ -84,12 +88,28 @@ namespace inetr {
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
 
+		bool performUpdateCheck = true;
+
+		vector<string> cmdLineArgs = StringUtil::Explode(commandLine, " ");
+		for(vector<string>::iterator it = cmdLineArgs.begin(); it !=
+			cmdLineArgs.end(); ++it) {
+
+			if (*it == "-noupdate") {
+				performUpdateCheck = false;
+			} else if (*it == "-cb") {
+				isColorblindModeEnabled = true;
+			}
+		}
+
+		CoInitialize(NULL);
+
 		INITCOMMONCONTROLSEX iCCE;
 		iCCE.dwSize = sizeof(INITCOMMONCONTROLSEX);
 		iCCE.dwICC = ICC_PROGRESS_CLASS;
 		InitCommonControlsEx(&iCCE);
 
-		checkUpdate();
+		if (performUpdateCheck)
+			checkUpdate();
 
 		initialize();
 
@@ -111,6 +131,8 @@ namespace inetr {
 		}
 
 		uninitialize();
+
+		CoUninitialize();
 
 		return msg.wParam;
 	}
@@ -405,12 +427,12 @@ namespace inetr {
 		allStationsLboxRect.top = 10;
 		allStationsLboxRect.bottom = languageCboxRect.top - 5;
 
-		RECT noStationsinfoLblRect;
-		noStationsinfoLblRect.left = stationLboxRect.right + 10;
-		noStationsinfoLblRect.right = clientArea.right - 10;
-		noStationsinfoLblRect.top = 10 + ((clientArea.bottom -
+		RECT noStationsInfoLblRect;
+		noStationsInfoLblRect.left = stationLboxRect.right + 10;
+		noStationsInfoLblRect.right = clientArea.right - 10;
+		noStationsInfoLblRect.top = 10 + ((clientArea.bottom -
 			bottomPanelSlideProgress) / 2) - (noStaInfoLblHeight / 2);
-		noStationsinfoLblRect.bottom = 10 + ((clientArea.bottom -
+		noStationsInfoLblRect.bottom = 10 + ((clientArea.bottom -
 			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
 
 		RECT dontUpdateBtnRect;
@@ -449,7 +471,7 @@ namespace inetr {
 		controlPositions.insert(pair<string, RECT>("languageCbox",
 			languageCboxRect));
 		controlPositions.insert(pair<string, RECT>("noStationsInfoLbl",
-			noStationsinfoLblRect));
+			noStationsInfoLblRect));
 		controlPositions.insert(pair<string, RECT>("updateInfoLbl",
 			updateInfoLblRect));
 		controlPositions.insert(pair<string, RECT>("updateBtn",
@@ -761,6 +783,9 @@ namespace inetr {
 					if (it->Name == languageStr)
 						CurrentLanguage = *it;
 			}
+
+			if (CurrentLanguage.Name == "Undefined")
+				CurrentLanguage = *defaultLanguage;
 
 			if (CurrentLanguage.Name == "Undefined")
 				throw INETRException(string("Error while parsing user config") +
@@ -1167,12 +1192,6 @@ namespace inetr {
 		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
 			nVolume);
 		radioSetVolume(nVolume);
-
-		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(nVolume * 100.0f),
-			(LPARAM)0);
-
-		ShowWindow(volumePbar, SW_SHOW);
-		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 	}
 
 	void MainWindow::downloadUpdates() {
@@ -1304,11 +1323,18 @@ namespace inetr {
 	}
 
 	void MainWindow::radioSetVolume(float volume) {
+		radioSetMuted(false);
+
 		radioVolume = volume;
-		radioMuted = false;
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
+
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(volume * 100.0f),
+			(LPARAM)0);
+
+		ShowWindow(volumePbar, SW_SHOW);
+		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 	}
 
 	void MainWindow::radioSetMuted(bool muted) {
@@ -1316,6 +1342,21 @@ namespace inetr {
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
+
+		if (OSUtil::IsVistaOrLater()) {
+			SendMessage(volumePbar, PBM_SETSTATE, muted ?
+				(isColorblindModeEnabled ? PBST_PAUSED : PBST_ERROR) :
+				PBST_NORMAL, (LPARAM)0);
+		} else if (IsAppThemed() == FALSE) {
+			SendMessage(volumePbar, PBM_SETBARCOLOR,
+				(WPARAM)0, (LPARAM)(muted ? RGB(255, 0, 0) : CLR_DEFAULT));
+		}
+
+		ShowWindow(volumePbar, SW_SHOW);
+		if (muted)
+			KillTimer(window, INETR_MWND_TIMER_HIDEVOLBAR);
+		else
+			SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
 
 		updateStatusLabel();
 	}
@@ -1386,10 +1427,12 @@ namespace inetr {
 			break;
 		}
 
-		if (radioMuted && statusText != "")
-			statusText += " ([muted])";
-		else if (radioMuted)
-			statusText = "[muted]";
+		if (!OSUtil::IsVistaOrLater() && IsAppThemed()) {
+			if (radioMuted && statusText != "")
+				statusText += " ([muted])";
+			else if (radioMuted)
+				statusText = "[muted]";
+		}
 
 		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
 
@@ -1590,6 +1633,10 @@ namespace inetr {
 		UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 		switch (uMsg) {
+		case WM_MBUTTONUP:
+			staticParentLookupTable[hwnd]->radioSetMuted(
+				!staticParentLookupTable[hwnd]->radioMuted);
+			break;
 		case WM_MOUSEWHEEL:
 			staticParentLookupTable[hwnd]->mouseScroll(
 				GET_WHEEL_DELTA_WPARAM(wParam));
