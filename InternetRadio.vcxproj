@@ -55,7 +55,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -71,7 +71,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -131,6 +131,7 @@
     <ClInclude Include="src\MetadataProvider.hpp" />
     <ClInclude Include="src\MetaMetadataProvider.hpp" />
     <ClInclude Include="src\OGGMetadataProvider.hpp" />
+    <ClInclude Include="src\OSUtil.hpp" />
     <ClInclude Include="src\RegExArtistTitleMetadataProcessor.hpp" />
     <ClInclude Include="src\RegExMetadataProcessor.hpp" />
     <ClInclude Include="src\Station.hpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\MetadataProvider.cpp" />
     <ClCompile Include="src\MetaMetadataProvider.cpp" />
     <ClCompile Include="src\OGGMetadataProvider.cpp" />
+    <ClCompile Include="src\OSUtil.cpp" />
     <ClCompile Include="src\RegExArtistTitleMetadataProcessor.cpp" />
     <ClCompile Include="src\RegExMetadataProcessor.cpp" />
     <ClCompile Include="src\Station.cpp" />

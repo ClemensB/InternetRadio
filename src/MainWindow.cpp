@@ -9,6 +9,7 @@
 #include <regex>
 
 #include <CommCtrl.h>
+#include <Uxtheme.h>
 
 #include <json/json.h>
 
@@ -16,6 +17,7 @@
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
 #include "CryptUtil.hpp"
+#include "OSUtil.hpp"
 
 #include "MetaMetadataProvider.hpp"
 #include "OGGMetadataProvider.hpp"
@@ -1325,8 +1327,13 @@ namespace inetr {
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());
 
-		SendMessage(volumePbar, PBM_SETSTATE, muted ? PBST_ERROR : PBST_NORMAL,
-			(LPARAM)0);
+		if (OSUtil::IsVistaOrLater()) {
+			SendMessage(volumePbar, PBM_SETSTATE, muted ? PBST_ERROR :
+				PBST_NORMAL, (LPARAM)0);
+		} else if (IsAppThemed() == FALSE) {
+			SendMessage(volumePbar, PBM_SETBARCOLOR,
+				(WPARAM)0, (LPARAM)(muted ? RGB(255, 0, 0) : CLR_DEFAULT));
+		}
 
 		ShowWindow(volumePbar, SW_SHOW);
 		if (muted)
@@ -1401,6 +1408,13 @@ namespace inetr {
 		case ConnectionError:
 			statusText = "[connectionError]";
 			break;
+		}
+
+		if (!OSUtil::IsVistaOrLater() && IsAppThemed()) {
+			if (radioMuted && statusText != "")
+				statusText += " ([muted])";
+			else if (radioMuted)
+				statusText = "[muted]";
 		}
 
 		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
