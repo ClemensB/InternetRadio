@@ -67,6 +67,8 @@ namespace inetr {
 	MainWindow::MainWindow() {
 		initialized = false;
 
+		isColorblindModeEnabled = false;
+
 		defaultLanguage = NULL;
 
 		currentStation = NULL;
@@ -86,6 +88,19 @@ namespace inetr {
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
 
+		bool performUpdateCheck = true;
+
+		vector<string> cmdLineArgs = StringUtil::Explode(commandLine, " ");
+		for(vector<string>::iterator it = cmdLineArgs.begin(); it !=
+			cmdLineArgs.end(); ++it) {
+
+			if (*it == "-noupdate") {
+				performUpdateCheck = false;
+			} else if (*it == "-cb") {
+				isColorblindModeEnabled = true;
+			}
+		}
+
 		CoInitialize(NULL);
 
 		INITCOMMONCONTROLSEX iCCE;
@@ -93,7 +108,8 @@ namespace inetr {
 		iCCE.dwICC = ICC_PROGRESS_CLASS;
 		InitCommonControlsEx(&iCCE);
 
-		checkUpdate();
+		if (performUpdateCheck)
+			checkUpdate();
 
 		initialize();
 
@@ -1328,7 +1344,8 @@ namespace inetr {
 			radioGetVolume());
 
 		if (OSUtil::IsVistaOrLater()) {
-			SendMessage(volumePbar, PBM_SETSTATE, muted ? PBST_ERROR :
+			SendMessage(volumePbar, PBM_SETSTATE, muted ?
+				(isColorblindModeEnabled ? PBST_PAUSED : PBST_ERROR) :
 				PBST_NORMAL, (LPARAM)0);
 		} else if (IsAppThemed() == FALSE) {
 			SendMessage(volumePbar, PBM_SETBARCOLOR,

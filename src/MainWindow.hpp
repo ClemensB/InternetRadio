@@ -117,6 +117,8 @@ namespace inetr {
 
 		bool initialized;
 
+		bool isColorblindModeEnabled;
+
 		HINSTANCE instance;
 		HWND window;
 		HWND stationsLbox;
