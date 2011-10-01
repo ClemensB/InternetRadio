@@ -409,12 +409,12 @@ namespace inetr {
 		allStationsLboxRect.top = 10;
 		allStationsLboxRect.bottom = languageCboxRect.top - 5;
 
-		RECT noStationsinfoLblRect;
-		noStationsinfoLblRect.left = stationLboxRect.right + 10;
-		noStationsinfoLblRect.right = clientArea.right - 10;
-		noStationsinfoLblRect.top = 10 + ((clientArea.bottom -
+		RECT noStationsInfoLblRect;
+		noStationsInfoLblRect.left = stationLboxRect.right + 10;
+		noStationsInfoLblRect.right = clientArea.right - 10;
+		noStationsInfoLblRect.top = 10 + ((clientArea.bottom -
 			bottomPanelSlideProgress) / 2) - (noStaInfoLblHeight / 2);
-		noStationsinfoLblRect.bottom = 10 + ((clientArea.bottom -
+		noStationsInfoLblRect.bottom = 10 + ((clientArea.bottom -
 			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
 
 		RECT dontUpdateBtnRect;
@@ -453,7 +453,7 @@ namespace inetr {
 		controlPositions.insert(pair<string, RECT>("languageCbox",
 			languageCboxRect));
 		controlPositions.insert(pair<string, RECT>("noStationsInfoLbl",
-			noStationsinfoLblRect));
+			noStationsInfoLblRect));
 		controlPositions.insert(pair<string, RECT>("updateInfoLbl",
 			updateInfoLblRect));
 		controlPositions.insert(pair<string, RECT>("updateBtn",
