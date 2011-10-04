@@ -8,6 +8,7 @@
 #include <map>
 #include <regex>
 
+#include <process.h>
 #include <CommCtrl.h>
 #include <Uxtheme.h>
 
@@ -492,7 +493,7 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdate() {
-		CreateThread(NULL, 0, staticCheckUpdateThread, (LPVOID)this, 0, NULL);
+		_beginthread(staticCheckUpdateThread, 0, (void*)this);
 	}
 
 	void MainWindow::checkUpdateThread() {
@@ -551,12 +552,10 @@ namespace inetr {
 		}
 	}
 
-	DWORD WINAPI MainWindow::staticCheckUpdateThread(__in LPVOID parameter) {
-		MainWindow *parent = (MainWindow*)parameter;
+	void __cdecl MainWindow::staticCheckUpdateThread(void *param) {
+		MainWindow *parent = (MainWindow*)param;
 		if (parent)
 			parent->checkUpdateThread();
-
-		return 0;
 	}
 
 	void MainWindow::loadConfig() {
@@ -1193,8 +1192,7 @@ namespace inetr {
 	}
 
 	void MainWindow::downloadUpdates() {
-		CreateThread(NULL, 0, staticDownloadUpdatesThread, (LPVOID)this, 0,
-			NULL);
+		_beginthread(staticDownloadUpdatesThread, 0, (void*)this);
 	}
 
 	void MainWindow::downloadUpdatesThread() {
@@ -1231,18 +1229,15 @@ namespace inetr {
 		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
 	}
 
-	DWORD WINAPI MainWindow::staticDownloadUpdatesThread(__in LPVOID
-		parameter) {
+	void __cdecl MainWindow::staticDownloadUpdatesThread(void *param){
 
-		MainWindow *parent = (MainWindow*)parameter;
+		MainWindow *parent = (MainWindow*)param;
 		if (parent)
 			parent->downloadUpdatesThread();
-
-		return 0;
 	}
 
 	void MainWindow::radioOpenURL(string url) {
-		LPVOID *args = new LPVOID[2];
+		void* *args = new void*[2];
 
 		string *str = new string(url);
 		*args = this;
@@ -1250,11 +1245,11 @@ namespace inetr {
 
 		currentStreamURL = url;
 
-		CreateThread(NULL, 0, staticOpenURLThread, (LPVOID)args, 0, NULL);
+		_beginthread(staticOpenURLThread, 0, (void*)args);
 	}
 
-	DWORD WINAPI MainWindow::staticOpenURLThread(__in LPVOID parameter) {
-		LPVOID *args = (LPVOID*)parameter;
+	void __cdecl MainWindow::staticOpenURLThread(void *param) {
+		LPVOID *args = (LPVOID*)param;
 
 		MainWindow *parent = (MainWindow*)*args;
 		string *strPtr = (string*)*(args + 1);
@@ -1265,8 +1260,6 @@ namespace inetr {
 		delete[] args;
 
 		parent->radioOpenURLThread(str);
-
-		return 0;
 	}
 
 	void MainWindow::radioOpenURLThread(string url) {
@@ -1360,15 +1353,13 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMeta() {
-		CreateThread(NULL, 0, &staticUpdateMetaThread, (LPVOID)this, 0, NULL);
+		_beginthread(staticUpdateMetaThread, 0, (void*)this);
 	}
 
-	DWORD WINAPI MainWindow::staticUpdateMetaThread(__in LPVOID parameter) {
-		MainWindow *parent = (MainWindow*)parameter;
+	void __cdecl MainWindow::staticUpdateMetaThread(void *param){
+		MainWindow *parent = (MainWindow*)param;
 		if (parent)
 			parent->updateMetaThread();
-
-		return 0;
 	}
 
 	void MainWindow::updateMetaThread() {

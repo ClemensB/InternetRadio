@@ -35,13 +35,13 @@ namespace inetr {
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
 
-		static DWORD WINAPI staticUpdateMetaThread(__in LPVOID parameter);
+		static void __cdecl staticUpdateMetaThread(void *param);
 
-		static DWORD WINAPI staticOpenURLThread(__in LPVOID parameter);
+		static void __cdecl staticOpenURLThread(void *param);
 
-		static DWORD WINAPI staticCheckUpdateThread(__in LPVOID parameter);
+		static void __cdecl staticCheckUpdateThread(void *param);
 
-		static DWORD WINAPI staticDownloadUpdatesThread(__in LPVOID parameter);
+		static void __cdecl staticDownloadUpdatesThread(void *param);
 
 		static LRESULT CALLBACK staticListBoxReplacementWndProc(HWND hwnd,
 			UINT uMsg, WPARAM wParam, LPARAM lParam);
