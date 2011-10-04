@@ -1140,8 +1140,6 @@ namespace inetr {
 			if (text == it->Name) {
 				CurrentLanguage = *it;
 
-				CurrentLanguage = *it;
-
 				updateControlLanguageStrings();
 			}
 		}
