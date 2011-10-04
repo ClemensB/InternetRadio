@@ -43,12 +43,26 @@ namespace inetr {
 			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
+	Station::Station(Station &&original) {
+		this->Name = original.Name;
+		this->URL = original.URL;
+		this->MetadataProcessors = original.MetadataProcessors;
+		this->imagePath = original.imagePath;
+
+		this->AdditionalParameters =
+			original.AdditionalParameters;
+
+		this->Image = original.Image;
+
+		original.Image = NULL;
+	}
+
 	Station::~Station() {
 		if (Image != NULL)
 			DeleteObject(Image);
 	}
 
-	Station &Station::operator=(const Station& original) {
+	Station& Station::operator=(const Station &original) {
 		if (this != &original) {
 			this->Name = original.Name;
 			this->URL = original.URL;
@@ -64,6 +78,28 @@ namespace inetr {
 			if (Image == NULL)
 				MessageBox(NULL, (string("Couldn't load image\n") +
 				imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
+		}
+
+		return *this;
+	}
+
+	Station& Station::operator=(Station &&original) {
+		if (this != &original) {
+			if (Image != NULL)
+				DeleteObject((HGDIOBJ)Image);
+
+			this->Name = original.Name;
+			this->URL = original.URL;
+			this->MyMetadataProvider = original.MyMetadataProvider;
+			this->MetadataProcessors = original.MetadataProcessors;
+			this->imagePath = original.imagePath;
+
+			this->AdditionalParameters =
+				original.AdditionalParameters;
+
+			this->Image = original.Image;
+
+			original.Image = NULL;
 		}
 
 		return *this;
