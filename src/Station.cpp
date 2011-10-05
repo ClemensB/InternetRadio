@@ -64,6 +64,9 @@ namespace inetr {
 
 	Station& Station::operator=(const Station &original) {
 		if (this != &original) {
+			if (this->Image != NULL)
+				DeleteObject((HGDIOBJ)this->Image);
+
 			this->Name = original.Name;
 			this->URL = original.URL;
 			this->MyMetadataProvider = original.MyMetadataProvider;
@@ -85,8 +88,8 @@ namespace inetr {
 
 	Station& Station::operator=(Station &&original) {
 		if (this != &original) {
-			if (Image != NULL)
-				DeleteObject((HGDIOBJ)Image);
+			if (this->Image != NULL)
+				DeleteObject((HGDIOBJ)this->Image);
 
 			this->Name = original.Name;
 			this->URL = original.URL;
