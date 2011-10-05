@@ -573,22 +573,22 @@ namespace inetr {
 			throw INETRException(string("Couldn't parse config file\n") +
 				jsonReader.getFormatedErrorMessages());
 		
-		Value languageList = rootValue.get("languages", NULL);
-		if (languageList == NULL || !languageList.isArray())
+		Value languageList = rootValue.get("languages", Value());
+		if (!languageList.isArray())
 			throw INETRException("Error while parsing config file");
 
 		for (unsigned int i = 0; i < languageList.size(); ++i) {
 			Value languageObject = languageList[i];
-			if (languageObject == NULL || !languageObject.isObject())
+			if (!languageObject.isObject())
 				throw INETRException("Error while parsing config file");
 
-			Value nameValue = languageObject.get("name", NULL);
-			if (nameValue == NULL || !nameValue.isString())
+			Value nameValue = languageObject.get("name", Value());
+			if (!nameValue.isString())
 				throw INETRException("Error while parsing config file");
 			string name = nameValue.asString();
 
-			Value stringsObject = languageObject.get("strings", NULL);
-			if (stringsObject == NULL || !stringsObject.isObject())
+			Value stringsObject = languageObject.get("strings", Value());
+			if (!stringsObject.isObject())
 				throw INETRException("Error while parsing config file");
 
 			map<string, string> strings;
@@ -596,8 +596,8 @@ namespace inetr {
 			for (unsigned int j = 0; j < stringsObject.size(); ++j) {
 				string stringKey = stringsObject.getMemberNames().at(j);
 
-				Value stringValueValue = stringsObject.get(stringKey, NULL);
-				if (stringValueValue == NULL || !stringValueValue.isString())
+				Value stringValueValue = stringsObject.get(stringKey, Value());
+				if (!stringValueValue.isString())
 					throw INETRException("Error while parsing config file");
 				string stringValue = stringValueValue.asString();
 
@@ -607,8 +607,8 @@ namespace inetr {
 			languages.push_back(Language(name, strings));
 		}
 
-		Value defaultLanguageValue = rootValue.get("defaultLanguage", NULL);
-		if (defaultLanguageValue == NULL || !defaultLanguageValue.isString())
+		Value defaultLanguageValue = rootValue.get("defaultLanguage", Value());
+		if (!defaultLanguageValue.isString())
 			throw INETRException("Error while parsing config file");
 		string strDefaultLanguage = defaultLanguageValue.asString();
 
@@ -623,8 +623,8 @@ namespace inetr {
 			throw INETRException(string("Error while parsing config file\n") +
 				string("Unsupported language: ") + strDefaultLanguage);
 
-		Value stationList = rootValue.get("stations", NULL);
-		if (stationList == NULL || !stationList.isArray())
+		Value stationList = rootValue.get("stations", Value());
+		if (!stationList.isArray())
 			throw INETRException("Error while parsing config file");
 
 		for (unsigned int i = 0; i < stationList.size(); ++i) {
@@ -632,18 +632,18 @@ namespace inetr {
 			if (!stationObject.isObject())
 				throw INETRException("Error while parsing config file");
 
-			Value nameValue = stationObject.get("name", NULL);
-			if (nameValue == NULL || !nameValue.isString())
+			Value nameValue = stationObject.get("name", Value());
+			if (!nameValue.isString())
 				throw INETRException("Error while parsing config file");
 			string name = nameValue.asString();
 
-			Value urlValue = stationObject.get("url", NULL);
-			if (urlValue == NULL || !urlValue.isString())
+			Value urlValue = stationObject.get("url", Value());
+			if (!urlValue.isString())
 				throw INETRException("Error while parsing config file");
 			string url = urlValue.asString();
 
-			Value imageValue = stationObject.get("image", NULL);
-			if (imageValue == NULL || !imageValue.isString())
+			Value imageValue = stationObject.get("image", Value());
+			if (!imageValue.isString())
 				throw INETRException("Error while parsing config file");
 			string image = string("img/") + imageValue.asString();
 
@@ -675,9 +675,8 @@ namespace inetr {
 					it != additionalParametersStr->end(); ++it) {
 
 						Value parameterValue = stationObject.get(it->first,
-							NULL);
-						if (parameterValue == NULL ||
-							!parameterValue.isString()) {
+							Value());
+						if (!parameterValue.isString()) {
 							if (!it->second)
 								throw INETRException(string("Missing or ") +
 									string("invalid meta provider parameter: ")
@@ -728,9 +727,8 @@ namespace inetr {
 						it != additionalParametersStr->end(); ++it) {
 					
 						Value parameterValue = stationObject.get(it->first,
-							NULL);
-						if (parameterValue == NULL ||
-							!parameterValue.isString()) {
+							Value());
+						if (!parameterValue.isString()) {
 							if (!it->second)
 								throw INETRException(string("Missing or inv") +
 									string("alid meta processor parameter: ") +
@@ -771,8 +769,8 @@ namespace inetr {
 				throw INETRException(string("Couldn't parse user config file") +
 				string("\n") + jsonReader.getFormatedErrorMessages());
 
-			Value languageValue = rootValue.get("language", NULL);
-			if (languageValue == NULL || !languageValue.isString())
+			Value languageValue = rootValue.get("language", Value());
+			if (!languageValue.isString())
 				throw INETRException("Error while parsing config file");
 			string languageStr = languageValue.asString();
 
@@ -791,9 +789,8 @@ namespace inetr {
 				string(" file\nUnsupported language: ") + languageStr);
 
 			Value favoriteStationsValue = rootValue.get("favoriteStations",
-				NULL);
-			if (favoriteStationsValue == NULL ||
-				!favoriteStationsValue.isArray())
+				Value());
+			if (!favoriteStationsValue.isArray())
 				throw INETRException("Error while parsing config file");
 
 			for (unsigned int i = 0; i < favoriteStationsValue.size(); ++i) {
@@ -817,8 +814,8 @@ namespace inetr {
 				favoriteStations.push_back(favoriteStation);
 			}
 
-			Value volumeValue = rootValue.get("volume", NULL);
-			if (volumeValue == NULL || !volumeValue.isDouble())
+			Value volumeValue = rootValue.get("volume", Value());
+			if (!volumeValue.isDouble())
 				throw INETRException("Error while parsing config file");
 			radioVolume = (float)volumeValue.asDouble();
 		} else {
