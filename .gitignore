@@ -3,6 +3,7 @@
 *.sdf
 *.opensdf
 *.aps
+*.i
 /ipch
 /Debug
 /Release
