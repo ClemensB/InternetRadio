@@ -2,6 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InternetRadio", "InternetRadio.vcxproj", "{6FA61D66-74CC-4399-87A7-2F3318796933}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54} = {D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JSONCpp", "dependencies\jsoncpp\JSONCpp.vcxproj", "{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +18,10 @@ Global
 		{6FA61D66-74CC-4399-87A7-2F3318796933}.Debug|Win32.Build.0 = Debug|Win32
 		{6FA61D66-74CC-4399-87A7-2F3318796933}.Release|Win32.ActiveCfg = Release|Win32
 		{6FA61D66-74CC-4399-87A7-2F3318796933}.Release|Win32.Build.0 = Release|Win32
+		{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}.Debug|Win32.Build.0 = Debug|Win32
+		{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}.Release|Win32.ActiveCfg = Release|Win32
+		{D71C5B85-C87C-4ED2-9DB8-E0D0C6771B54}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

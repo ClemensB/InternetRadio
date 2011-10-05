@@ -39,13 +39,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -57,7 +57,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -73,7 +73,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>

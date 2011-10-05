@@ -1,0 +1,3 @@
+[submodule "dependencies/jsoncpp"]
+	path = dependencies/jsoncpp
+	url = git@github.com:ClemensB/JSONCpp.git
