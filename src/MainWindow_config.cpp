@@ -24,7 +24,7 @@ namespace inetr {
 		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
 		if (!successfullyParsed)
 			throw INETRException(string("Couldn't parse config file\n") +
-			jsonReader.getFormatedErrorMessages());
+			jsonReader.getFormattedErrorMessages());
 
 		Value languageList = rootValue.get("languages", Value());
 		if (!languageList.isArray())
@@ -220,7 +220,7 @@ namespace inetr {
 			bool successfullyParsed = jsonReader.parse(configFile, rootValue);
 			if (!successfullyParsed)
 				throw INETRException(string("Couldn't parse user config file") +
-				string("\n") + jsonReader.getFormatedErrorMessages());
+				string("\n") + jsonReader.getFormattedErrorMessages());
 
 			Value languageValue = rootValue.get("language", Value());
 			if (!languageValue.isString())
