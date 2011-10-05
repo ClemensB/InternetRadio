@@ -40,12 +40,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(ProjectDir)dependencies\bass;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)dependencies\bass;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(ProjectDir)dependencies\bass;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)dependencies\bass;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -102,23 +102,11 @@
     <None Include="data\img\wdr_4.png" />
     <None Include="data\img\wdr_5.png" />
     <None Include="dependencies\bass\bass.dll" />
-    <None Include="dependencies\jsoncpp\src\json_internalarray.inl" />
-    <None Include="dependencies\jsoncpp\src\json_internalmap.inl" />
-    <None Include="dependencies\jsoncpp\src\json_valueiterator.inl" />
     <None Include="Release.bat" />
     <None Include="resource\icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\autolink.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\config.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\features.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\forwards.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\json.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\reader.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\value.h" />
-    <ClInclude Include="dependencies\jsoncpp\include\json\writer.h" />
-    <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="src\CryptUtil.hpp" />
     <ClInclude Include="src\HTTPMetadataProvider.hpp" />
@@ -141,9 +129,6 @@
     <ClInclude Include="src\StringUtil.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dependencies\jsoncpp\src\json_reader.cpp" />
-    <ClCompile Include="dependencies\jsoncpp\src\json_value.cpp" />
-    <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp" />
     <ClCompile Include="src\CryptUtil.cpp" />
     <ClCompile Include="src\HTTPMetadataProvider.cpp" />
     <ClCompile Include="src\ImageUtil.cpp" />
