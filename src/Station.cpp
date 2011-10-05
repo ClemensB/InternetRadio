@@ -21,8 +21,8 @@ namespace inetr {
 
 		loadImage();
 
-		if (Image == NULL)
-			MessageBox(NULL, (string("Couldn't load image\n") +
+		if (this->Image == nullptr)
+			MessageBox(nullptr, (string("Couldn't load image\n") +
 			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
@@ -38,8 +38,8 @@ namespace inetr {
 
 		loadImage();
 
-		if (Image == NULL)
-			MessageBox(NULL, (string("Couldn't load image\n") +
+		if (this->Image == nullptr)
+			MessageBox(nullptr, (string("Couldn't load image\n") +
 			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
@@ -55,17 +55,17 @@ namespace inetr {
 
 		this->Image = original.Image;
 
-		original.Image = NULL;
+		original.Image = nullptr;
 	}
 
 	Station::~Station() {
-		if (Image != NULL)
-			DeleteObject(Image);
+		if (Image != nullptr)
+			DeleteObject((HGDIOBJ)Image);
 	}
 
 	Station& Station::operator=(const Station &original) {
 		if (this != &original) {
-			if (this->Image != NULL)
+			if (this->Image != nullptr)
 				DeleteObject((HGDIOBJ)this->Image);
 
 			this->Name = original.Name;
@@ -79,8 +79,8 @@ namespace inetr {
 
 			loadImage();
 
-			if (Image == NULL)
-				MessageBox(NULL, (string("Couldn't load image\n") +
+			if (this->Image == nullptr)
+				MessageBox(nullptr, (string("Couldn't load image\n") +
 				imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 		}
 
@@ -89,7 +89,7 @@ namespace inetr {
 
 	Station& Station::operator=(Station &&original) {
 		if (this != &original) {
-			if (this->Image != NULL)
+			if (this->Image != nullptr)
 				DeleteObject((HGDIOBJ)this->Image);
 
 			this->Name = original.Name;
@@ -103,7 +103,7 @@ namespace inetr {
 
 			this->Image = original.Image;
 
-			original.Image = NULL;
+			original.Image = nullptr;
 		}
 
 		return *this;
@@ -144,12 +144,12 @@ namespace inetr {
 		bmInfo.bmiHeader.biBitCount = 32;
 		bmInfo.bmiHeader.biCompression = BI_RGB;
 
-		HDC hDC = GetDC(0);
+		HDC hDC = GetDC(nullptr);
 		HDC tmpDC = CreateCompatibleDC(hDC);
 
 		BYTE *pBase;
 		HBITMAP tmpBmp = CreateDIBSection(hDC, &bmInfo, DIB_RGB_COLORS,
-			(void**)&pBase, NULL, 0);
+			(void**)&pBase, nullptr, 0);
 		HGDIOBJ tmpObj = SelectObject(tmpDC, tmpBmp);
 
 		HDC dcBmp = CreateCompatibleDC(tmpDC);

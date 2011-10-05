@@ -17,7 +17,7 @@ namespace inetr {
 			return false;
 
 		HINSTANCE dwmApi = LoadLibrary("Dwmapi.dll");
-		if (dwmApi == NULL)
+		if (dwmApi == nullptr)
 			return false;
 
 		typedef HRESULT
@@ -25,7 +25,7 @@ namespace inetr {
 		DWMICE dwmICE;
 
 		dwmICE = (DWMICE)GetProcAddress(dwmApi, "DwmIsCompositionEnabled");
-		if (dwmICE == NULL)
+		if (dwmICE == nullptr)
 			return false;
 
 		BOOL aeroEnabled = FALSE;

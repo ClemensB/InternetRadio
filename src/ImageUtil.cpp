@@ -15,7 +15,7 @@ namespace inetr {
 			throw INETRException("[imgLoadFailed]");
 		string ext = path.substr(pathFileExtDot + 1);
 
-		const GUID *decoderCLSID = NULL;
+		const GUID *decoderCLSID = nullptr;
 		if (ext == "png")
 			decoderCLSID = &CLSID_WICPngDecoder;
 		else if (ext == "bmp")
@@ -25,7 +25,7 @@ namespace inetr {
 		else if (ext == "jpg" || ext == "jpeg")
 			decoderCLSID = &CLSID_WICJpegDecoder;
 
-		if (decoderCLSID == NULL)
+		if (decoderCLSID == nullptr)
 			throw INETRException("[unsupportedImg]: " + ext);
 
 		IStream *pngFileStream;
@@ -33,8 +33,8 @@ namespace inetr {
 			)))
 			throw INETRException("[imgLoadFailed]:\n" + path);
 
-		IWICBitmapDecoder *bmpDecoder = NULL;
-		if (FAILED(CoCreateInstance(*decoderCLSID, NULL,
+		IWICBitmapDecoder *bmpDecoder = nullptr;
+		if (FAILED(CoCreateInstance(*decoderCLSID, nullptr,
 			CLSCTX_INPROC_SERVER, __uuidof(bmpDecoder),
 			reinterpret_cast<void**>(&bmpDecoder))))
 			throw INETRException("[imgDecFailed]");
@@ -54,13 +54,13 @@ namespace inetr {
 			throw INETRException("[imgDecFailed]");
 		}
 
-		IWICBitmapFrameDecode *bmpFrame = NULL;
+		IWICBitmapFrameDecode *bmpFrame = nullptr;
 		if (FAILED(bmpDecoder->GetFrame(0, &bmpFrame))) {
 			bmpDecoder->Release();
 			throw INETRException("[imgDecFailed]");
 		}
 
-		IWICBitmapSource *bmpSource = NULL;
+		IWICBitmapSource *bmpSource = nullptr;
 		WICConvertBitmapSource(GUID_WICPixelFormat32bppPBGRA, bmpFrame,
 			&bmpSource);
 
@@ -81,23 +81,23 @@ namespace inetr {
 		bmInfo.bmiHeader.biBitCount = 32;
 		bmInfo.bmiHeader.biCompression = BI_RGB;
 
-		HBITMAP hbmp = NULL;
+		HBITMAP hbmp = nullptr;
 
-		void *imageBits = NULL;
-		HDC screenDC = GetDC(NULL);
+		void *imageBits = nullptr;
+		HDC screenDC = GetDC(nullptr);
 		hbmp = CreateDIBSection(screenDC, &bmInfo, DIB_RGB_COLORS, &imageBits,
-			NULL, 0);
-		ReleaseDC(NULL, screenDC);
-		if (hbmp == NULL)
+			nullptr, 0);
+		ReleaseDC(nullptr, screenDC);
+		if (hbmp == nullptr)
 			throw INETRException("[imgDecFailed]");
 
 		const UINT bmpStride = width * 4;
 		const UINT bmpSize = bmpStride * height;
-		if (FAILED(bmpSource->CopyPixels(NULL, bmpStride, bmpSize,
+		if (FAILED(bmpSource->CopyPixels(nullptr, bmpStride, bmpSize,
 			static_cast<BYTE*>(imageBits)))) {
 
 			DeleteObject(hbmp);
-			hbmp = NULL;
+			hbmp = nullptr;
 			throw INETRException("[imgDecFailed]");
 		}
 

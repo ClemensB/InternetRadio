@@ -11,11 +11,11 @@ namespace inetr {
 	HCRYPTPROV CryptUtil::hCryptProv;
 
 	BOOL CryptUtil::CryptStartup() {
-		if (CryptAcquireContext(&hCryptProv, NULL, MS_ENHANCED_PROV,
+		if (CryptAcquireContext(&hCryptProv, nullptr, MS_ENHANCED_PROV,
 			PROV_RSA_FULL, CRYPT_VERIFYCONTEXT) == 0) {
 			
 			if (GetLastError() == NTE_EXISTS) {
-				if (CryptAcquireContext(&hCryptProv, NULL, MS_ENHANCED_PROV,
+				if (CryptAcquireContext(&hCryptProv, nullptr, MS_ENHANCED_PROV,
 					PROV_RSA_FULL, 0) == 0)
 					return FALSE;
 			} else return FALSE;
