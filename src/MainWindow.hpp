@@ -5,6 +5,7 @@
 #include <list>
 
 #include <Windows.h>
+
 #include <bass.h>
 
 #include "Station.hpp"
@@ -25,26 +26,25 @@ namespace inetr {
 		int Main(std::string commandLine, HINSTANCE instance,
 			int showCmd);
 
-		HWND GetWindow();
-
 		Language CurrentLanguage;
 	private:
-		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel,
-			DWORD data, void *user);
-
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
 
+		static LRESULT CALLBACK staticListBoxReplacementWndProc(HWND hwnd,
+			UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 		static void __cdecl staticUpdateMetaThread(void *param);
 
-		static void __cdecl staticOpenURLThread(void *param);
+		static void __cdecl staticRadioOpenURLThread(void *param);
 
 		static void __cdecl staticCheckUpdateThread(void *param);
 
 		static void __cdecl staticDownloadUpdatesThread(void *param);
 
-		static LRESULT CALLBACK staticListBoxReplacementWndProc(HWND hwnd,
-			UINT uMsg, WPARAM wParam, LPARAM lParam);
+		static void CALLBACK staticMetaSync(HSYNC handle, DWORD channel,
+			DWORD data, void *user);
+
 
 		LRESULT CALLBACK wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPARAM lParam);
@@ -52,24 +52,23 @@ namespace inetr {
 		void createWindow();
 		void createControls(HWND hwnd);
 
+		void checkUpdate();
+		void checkUpdateThread();
+		void downloadUpdates();
+		void downloadUpdatesThread();
+
 		void initialize();
 		void uninitialize();
 		void initializeWindow(HWND hwnd);
 		void uninitializeWindow(HWND hwnd);
 
-		void calculateControlPositions(HWND hwnd);
-
-		void updateControlLanguageStrings();
-
-		void checkUpdate();
-		void checkUpdateThread();
-
-		void downloadUpdates();
-		void downloadUpdatesThread();
-
 		void loadConfig();
 		void loadUserConfig();
 		void saveUserConfig();
+
+		void calculateControlPositions(HWND hwnd);
+		void updateControlLanguageStrings();
+		void updateStatusLabel();
 
 		void populateFavoriteStationsListbox();
 		void populateAllStationsListbox();
@@ -80,17 +79,21 @@ namespace inetr {
 		void expandBottomPanel();
 		void retractBottomPanel();
 
+
 		void bufferTimer_Tick();
 		void metaTime_Tick();
 		void slideTimer_Tick();
 		void hideVolBarTimer_Tick();
+
 		void stationsListBox_SelChange();
 		void stationsListBox_DblClick();
 		void moreStationsListBox_DblClick();
 		void languageComboBox_SelChange();
 		void updateButton_Click();
 		void dontUpdateButton_Click();
+
 		void mouseScroll(short delta);
+
 
 		void radioOpenURL(std::string url);
 		void radioOpenURLThread(std::string url);
@@ -103,8 +106,6 @@ namespace inetr {
 		void updateMeta();
 		void updateMetaThread();
 
-		void updateStatusLabel();
-
 		std::string fetchMeta(MetadataProvider* metadataProvider,
 			HSTREAM stream, std::map<std::string, std::string>
 			&additionalParameters);
@@ -112,8 +113,39 @@ namespace inetr {
 			std::vector<MetadataProcessor*> &processors,
 			std::map<std::string, std::string> &additionalParameters);
 
+
+
+		static const char* const windowClassName;
+
+		static const int windowWidth = 350;
+		static const int windowHeight = 292;
+		
+		static const int stationsLboxId = 101;
+		static const int statusLblId = 102;
+		static const int stationImgId = 103;
+		static const int allStationsLboxId = 104;
+		static const int languageCboxId = 105;
+		static const int noStationsInfoLblId = 106;
+		static const int updateInfoLblId = 107;
+		static const int updateBtnId = 108;
+		static const int dontUpdateBtnId = 109;
+		static const int updatingLblId = 110;
+		static const int volumePbarId = 111;
+
+		static const int bufferTimerId = 1;
+		static const int slideTimerId = 2;
+		static const int metaTimerId = 3;
+		static const int hideVolBarTimerId = 4;
+		
+		static const int slideMax_Left = 110;
+		static const int slideMax_Bottom = 20;
+		static const int slideSpeed = 1;
+		static const int slideStep = 2;
+		
+
 		static WNDPROC staticListBoxOriginalWndProc;
 		static std::map<HWND, MainWindow*> staticParentLookupTable;
+
 
 		bool initialized;
 

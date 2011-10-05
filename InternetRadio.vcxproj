@@ -132,6 +132,7 @@
     <ClInclude Include="src\MetadataProcessor.hpp" />
     <ClInclude Include="src\MetadataProvider.hpp" />
     <ClInclude Include="src\MetaMetadataProvider.hpp" />
+    <ClInclude Include="src\MUtil.hpp" />
     <ClInclude Include="src\OGGMetadataProvider.hpp" />
     <ClInclude Include="src\OSUtil.hpp" />
     <ClInclude Include="src\RegExArtistTitleMetadataProcessor.hpp" />
@@ -153,6 +154,10 @@
     <ClCompile Include="src\Language.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\MainWindow_config.cpp" />
+    <ClCompile Include="src\MainWindow_events.cpp" />
+    <ClCompile Include="src\MainWindow_radio.cpp" />
+    <ClCompile Include="src\MainWindow_static.cpp" />
     <ClCompile Include="src\MetadataProcessor.cpp" />
     <ClCompile Include="src\MetadataProvider.cpp" />
     <ClCompile Include="src\MetaMetadataProvider.cpp" />
