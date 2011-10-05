@@ -46,6 +46,7 @@ namespace inetr {
 	Station::Station(Station &&original) {
 		this->Name = original.Name;
 		this->URL = original.URL;
+		this->MyMetadataProvider = original.MyMetadataProvider;
 		this->MetadataProcessors = original.MetadataProcessors;
 		this->imagePath = original.imagePath;
 
