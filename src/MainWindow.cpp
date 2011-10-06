@@ -10,6 +10,7 @@
 #include <process.h>
 #include <CommCtrl.h>
 #include <Uxtheme.h>
+#include <ShObjIdl.h>
 
 #include "MUtil.hpp"
 #include "HTTP.hpp"
@@ -48,6 +49,8 @@ namespace inetr {
 
 		radioVolume = 1.0f;
 		radioMuted = false;
+
+		taskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
 	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
@@ -792,6 +795,13 @@ namespace inetr {
 					break;
 				}
 				break;
+			case thumbBarMuteBtnId:
+				switch (HIWORD(wParam)) {
+				case THBN_CLICKED:
+					radioSetMuted(!radioMuted);
+					break;
+				}
+				break;
 			}
 			break;
 		case WM_CREATE:
@@ -826,6 +836,43 @@ namespace inetr {
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
+		}
+
+		if (uMsg == taskbarBtnCreatedMsg) {
+			if (OSUtil::IsWin7OrLater()) {
+				ITaskbarList3 *taskbarList = nullptr;
+
+				if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+					CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+					reinterpret_cast<void**>(&taskbarList)))) {
+
+					taskbarList->SetThumbnailClip(hwnd,
+						&controlPositions["stationImg"]);
+
+					HICON icon = LoadIcon(instance,
+						MAKEINTRESOURCE(IDI_ICON_MUTE));
+
+					THUMBBUTTON thumbButtons[1];
+
+					thumbButtons[0].dwMask = THB_ICON | THB_TOOLTIP;
+					thumbButtons[0].iId = thumbBarMuteBtnId;
+					thumbButtons[0].hIcon = icon;
+					string muteButtonStr = CurrentLanguage["mute"];
+					wstring wMuteButtonStr(muteButtonStr.length(), L'');
+					copy(muteButtonStr.begin(), muteButtonStr.end(),
+						wMuteButtonStr.begin());
+					wcscpy_s(thumbButtons[0].szTip,
+						sizeof(thumbButtons[0].szTip) /
+						sizeof(thumbButtons[0].szTip[0]),
+						wMuteButtonStr.c_str());
+
+					taskbarList->ThumbBarAddButtons(hwnd, 1, thumbButtons);
+
+					DeleteObject((HGDIOBJ)icon);
+
+					taskbarList->Release();
+				}
+			}
 		}
 
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);

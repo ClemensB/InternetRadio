@@ -116,6 +116,12 @@
     <None Include="data\img\ndr_kultur.png">
       <Filter>Other Files\Station Images</Filter>
     </None>
+    <None Include="resource\sound.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resource\mute.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h">

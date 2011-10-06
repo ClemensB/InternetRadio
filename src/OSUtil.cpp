@@ -12,6 +12,16 @@ namespace inetr {
 		return (osVerI.dwMajorVersion >= 6);
 	}
 
+	bool OSUtil::IsWin7OrLater() {
+		OSVERSIONINFO osVerI;
+		ZeroMemory(&osVerI, sizeof(OSVERSIONINFO));
+		osVerI.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		GetVersionEx(&osVerI);
+
+		return ((osVerI.dwMajorVersion == 6 && osVerI.dwMinorVersion > 0) ||
+			osVerI.dwMajorVersion > 6);
+	}
+
 	bool OSUtil::IsAeroEnabled() {
 		if (!IsVistaOrLater())
 			return false;

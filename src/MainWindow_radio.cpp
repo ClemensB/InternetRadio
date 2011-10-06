@@ -3,8 +3,10 @@
 #include <process.h>
 #include <CommCtrl.h>
 #include <Uxtheme.h>
+#include <ShObjIdl.h>
 
 #include "OSUtil.hpp"
+#include "../resource/resource.h"
 
 using namespace std;
 
@@ -110,5 +112,33 @@ namespace inetr {
 			SetTimer(window, hideVolBarTimerId, 1000, nullptr);
 
 		updateStatusLabel();
+
+		if (OSUtil::IsWin7OrLater()) {
+			ITaskbarList3 *taskbarList;
+			if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+				CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+				reinterpret_cast<void**>(&taskbarList)))) {
+
+				HICON icon = LoadIcon(instance,
+					MAKEINTRESOURCE(muted ? IDI_ICON_SOUND : IDI_ICON_MUTE));
+
+				THUMBBUTTON thumbButtons[1];
+
+				thumbButtons[0].dwMask = THB_ICON;
+				thumbButtons[0].iId = thumbBarMuteBtnId;
+				thumbButtons[0].hIcon = icon;
+
+				taskbarList->ThumbBarUpdateButtons(window, 1, thumbButtons);
+
+				DeleteObject((HGDIOBJ)icon);
+
+				taskbarList->SetProgressValue(window, muted ? 100UL : 0UL,
+					100UL);
+				taskbarList->SetProgressState(window, muted ? TBPF_ERROR :
+					TBPF_NOPROGRESS);
+
+				taskbarList->Release();
+			}
+		}
 	}
 }

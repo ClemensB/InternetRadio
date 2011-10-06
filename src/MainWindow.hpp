@@ -132,6 +132,8 @@ namespace inetr {
 		static const int updatingLblId = 110;
 		static const int volumePbarId = 111;
 
+		static const int thumbBarMuteBtnId = 201;
+
 		static const int bufferTimerId = 1;
 		static const int slideTimerId = 2;
 		static const int metaTimerId = 3;
@@ -163,6 +165,8 @@ namespace inetr {
 		HWND updateBtn;
 		HWND dontUpdateBtn;
 		HWND volumePbar;
+
+		UINT taskbarBtnCreatedMsg;
 
 		std::map<std::string, RECT> controlPositions;
 

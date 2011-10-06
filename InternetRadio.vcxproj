@@ -104,6 +104,8 @@
     <None Include="dependencies\bass\bass.dll" />
     <None Include="Release.bat" />
     <None Include="resource\icon.ico" />
+    <None Include="resource\mute.ico" />
+    <None Include="resource\sound.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\bass\bass.h" />
