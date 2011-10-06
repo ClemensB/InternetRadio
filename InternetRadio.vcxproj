@@ -102,6 +102,7 @@
     <None Include="data\img\wdr_4.png" />
     <None Include="data\img\wdr_5.png" />
     <None Include="dependencies\bass\bass.dll" />
+    <None Include="README" />
     <None Include="Release.bat" />
     <None Include="resource\icon.ico" />
     <None Include="resource\mute.ico" />

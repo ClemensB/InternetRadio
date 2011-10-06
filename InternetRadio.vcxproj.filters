@@ -31,14 +31,17 @@
     <Filter Include="Other Files">
       <UniqueIdentifier>{d8138629-2fc9-4f1c-9d2b-90ad6f978071}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Other Files\Station Images">
-      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Metadata Providers/Processors">
       <UniqueIdentifier>{00cf091c-f840-466b-b423-bd0b9d5d3ecd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Metadata Providers/Processors">
       <UniqueIdentifier>{93603c30-4ff9-4596-8bdb-4764dcfb18f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data Files">
+      <UniqueIdentifier>{26c9d8fb-51d5-4d7e-824c-02951d649003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data Files\Station Images">
+      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -53,74 +56,77 @@
     <None Include="resource\icon.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="data\config.json">
-      <Filter>Other Files</Filter>
-    </None>
     <None Include="data\img\ffn.bmp">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="Release.bat">
       <Filter>Other Files</Filter>
     </None>
     <None Include="data\img\n-joy.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_2.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_info.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_1_nds.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\1live.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_2.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_3.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_4.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_5.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\klassik_radio.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\deutschlandfunk.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\deutschlandradio_kultur.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\mdr_sputnik.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\radio_aktiv.gif">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\hardbase_fm.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\bigfm.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\89_0_rtl.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_kultur.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="resource\sound.ico">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="resource\mute.ico">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="README">
+      <Filter>Other Files</Filter>
+    </None>
+    <None Include="data\config.json">
+      <Filter>Data Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
