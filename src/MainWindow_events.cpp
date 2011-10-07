@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <ShObjIdl.h>
+
 #include "MUtil.hpp"
 
 using namespace std;
@@ -245,6 +247,27 @@ namespace inetr {
 					CurrentLanguage = *it;
 
 					updateControlLanguageStrings();
+
+					ITaskbarList3 *taskbarList;
+					if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+						CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+						reinterpret_cast<void**>(&taskbarList)))) {
+
+						THUMBBUTTON thumbButtons[1];
+						thumbButtons[0].dwMask = THB_TOOLTIP;
+						thumbButtons[0].iId = thumbBarMuteBtnId;
+						string muteButtonStr = CurrentLanguage["mute"];
+						wstring wMuteButtonStr(muteButtonStr.length(), L'');
+						copy(muteButtonStr.begin(), muteButtonStr.end(),
+							wMuteButtonStr.begin());
+						wcscpy_s(thumbButtons[0].szTip,
+							sizeof(thumbButtons[0].szTip) /
+							sizeof(thumbButtons[0].szTip[0]),
+							wMuteButtonStr.c_str());
+
+						taskbarList->ThumbBarUpdateButtons(window, 1,
+							thumbButtons);
+					}
 				}
 		}
 	}
