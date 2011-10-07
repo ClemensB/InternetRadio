@@ -658,6 +658,11 @@ namespace inetr {
 
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
 		SetWindowText(statusLbl, statusText.c_str());
+
+		if (radioStatus == Connected && radioStatus_currentMetadata != "")
+			SetWindowText(window, radioStatus_currentMetadata.c_str());
+		else
+			SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
 	}
 
 	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
