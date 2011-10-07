@@ -28,23 +28,20 @@
       <UniqueIdentifier>{f355b386-fffe-4ef9-a1e3-4be4724e1332}</UniqueIdentifier>
       <Extensions>dll</Extensions>
     </Filter>
-    <Filter Include="Header Files\JSONCpp">
-      <UniqueIdentifier>{bc2ebbe6-61cd-44b6-b659-6c06b56f40bc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\JSONCpp">
-      <UniqueIdentifier>{d31e54f3-8534-40c8-af53-9ff7bd3d3b20}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Other Files">
       <UniqueIdentifier>{d8138629-2fc9-4f1c-9d2b-90ad6f978071}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Other Files\Station Images">
-      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Metadata Providers/Processors">
       <UniqueIdentifier>{00cf091c-f840-466b-b423-bd0b9d5d3ecd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Metadata Providers/Processors">
       <UniqueIdentifier>{93603c30-4ff9-4596-8bdb-4764dcfb18f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data Files">
+      <UniqueIdentifier>{26c9d8fb-51d5-4d7e-824c-02951d649003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data Files\Station Images">
+      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -59,77 +56,77 @@
     <None Include="resource\icon.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="dependencies\jsoncpp\src\json_internalarray.inl">
-      <Filter>Header Files\JSONCpp</Filter>
-    </None>
-    <None Include="dependencies\jsoncpp\src\json_internalmap.inl">
-      <Filter>Header Files\JSONCpp</Filter>
-    </None>
-    <None Include="dependencies\jsoncpp\src\json_valueiterator.inl">
-      <Filter>Header Files\JSONCpp</Filter>
-    </None>
-    <None Include="data\config.json">
-      <Filter>Other Files</Filter>
-    </None>
     <None Include="data\img\ffn.bmp">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="Release.bat">
       <Filter>Other Files</Filter>
     </None>
     <None Include="data\img\n-joy.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_2.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_info.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_1_nds.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\1live.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_2.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_3.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_4.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\wdr_5.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\klassik_radio.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\deutschlandfunk.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\deutschlandradio_kultur.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\mdr_sputnik.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\radio_aktiv.gif">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\hardbase_fm.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\bigfm.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\89_0_rtl.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="data\img\ndr_kultur.png">
-      <Filter>Other Files\Station Images</Filter>
+      <Filter>Data Files\Station Images</Filter>
+    </None>
+    <None Include="resource\sound.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resource\mute.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="README">
+      <Filter>Other Files</Filter>
+    </None>
+    <None Include="data\config.json">
+      <Filter>Data Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -141,33 +138,6 @@
     </ClInclude>
     <ClInclude Include="src\Station.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\config.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\features.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\forwards.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\json.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\reader.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\value.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\writer.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\include\json\autolink.h">
-      <Filter>Header Files\JSONCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\jsoncpp\src\json_batchallocator.h">
-      <Filter>Header Files\JSONCpp</Filter>
     </ClInclude>
     <ClInclude Include="src\Language.hpp">
       <Filter>Header Files</Filter>
@@ -220,6 +190,9 @@
     <ClInclude Include="src\OSUtil.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MUtil.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -230,15 +203,6 @@
     </ClCompile>
     <ClCompile Include="src\Station.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\jsoncpp\src\json_reader.cpp">
-      <Filter>Source Files\JSONCpp</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\jsoncpp\src\json_value.cpp">
-      <Filter>Source Files\JSONCpp</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\jsoncpp\src\json_writer.cpp">
-      <Filter>Source Files\JSONCpp</Filter>
     </ClCompile>
     <ClCompile Include="src\Language.cpp">
       <Filter>Source Files</Filter>
@@ -286,6 +250,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\OSUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow_static.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow_events.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow_radio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow_config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

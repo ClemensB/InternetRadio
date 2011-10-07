@@ -6,13 +6,13 @@
 #include <sstream>
 #include <fstream>
 #include <map>
-#include <regex>
 
+#include <process.h>
 #include <CommCtrl.h>
 #include <Uxtheme.h>
+#include <ShObjIdl.h>
 
-#include <json/json.h>
-
+#include "MUtil.hpp"
 #include "HTTP.hpp"
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
@@ -27,52 +27,18 @@
 #include "RegExArtistTitleMetadataProcessor.hpp"
 #include "HTMLEntityFixMetadataProcessor.hpp"
 
-#define RWIDTH(rect) (rect.right - rect.left)
-#define RHEIGHT(rect) (rect.bottom - rect.top)
-
-#define INETR_MWND_CLASSNAME "InternetRadio"
-#define INETR_MWND_WIDTH 350
-#define INETR_MWND_HEIGHT 292
-
-#define INETR_MWND_STATIONSLBOX_ID 101
-#define INETR_MWND_STATUSLBL_ID 102
-#define INETR_MWND_STATIONIMG_ID 103
-#define INETR_MWND_ALLSTATIONSLBOX_ID 104
-#define INETR_MWND_LANGUAGECBOX_ID 105
-#define INETR_MWND_NOSTATIONINFOLBL_ID 106
-#define INETR_MWND_UPDATEINFOLBL_ID 107
-#define INETR_MWND_UPDATEBTN_ID 108
-#define INETR_MWND_DONTUPDATEBTN_ID 109
-#define INETR_MWND_UPDATINGLBL_ID 110
-#define INETR_MWND_VOLUMEPBAR_ID 111
-
-#define INETR_MWND_SLIDE_LEFT_MAX 110
-#define INETR_MWND_SLIDE_BOTTOM_MAX 20
-#define INETR_MWND_SLIDE_STEP 2
-#define INETR_MWND_SLIDE_SPEED 1
-
-#define INETR_MWND_TIMER_BUFFER 0
-#define INETR_MWND_TIMER_META 1
-#define INETR_MWND_TIMER_SLIDE 2
-#define INETR_MWND_TIMER_HIDEVOLBAR 3
-
 using namespace std;
-using namespace std::tr1;
-using namespace Json;
 
 namespace inetr {
-	WNDPROC MainWindow::staticListBoxOriginalWndProc;
-	map<HWND, MainWindow*> MainWindow::staticParentLookupTable;
-
 	MainWindow::MainWindow() {
 		initialized = false;
 
 		isColorblindModeEnabled = false;
 
-		defaultLanguage = NULL;
+		defaultLanguage = nullptr;
 
-		currentStation = NULL;
-		currentStream = NULL;
+		currentStation = nullptr;
+		currentStream = 0;
 
 		leftPanelSlideStatus = Retracted;
 		leftPanelSlideProgress = 0;
@@ -83,6 +49,8 @@ namespace inetr {
 
 		radioVolume = 1.0f;
 		radioMuted = false;
+
+		taskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
 	}
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
@@ -101,7 +69,7 @@ namespace inetr {
 			}
 		}
 
-		CoInitialize(NULL);
+		CoInitialize(nullptr);
 
 		INITCOMMONCONTROLSEX iCCE;
 		iCCE.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -116,7 +84,7 @@ namespace inetr {
 		try {
 			createWindow();
 		} catch (INETRException &e) {
-			e.mbox(NULL, &CurrentLanguage);
+			e.mbox(nullptr, &CurrentLanguage);
 		}
 
 		ShowWindow(window, showCmd);
@@ -125,7 +93,7 @@ namespace inetr {
 		initialized = true;
 
 		MSG msg;
-		while (GetMessage(&msg, NULL, 0, 0) > 0) {
+		while (GetMessage(&msg, nullptr, 0, 0) > 0) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -137,10 +105,6 @@ namespace inetr {
 		return msg.wParam;
 	}
 
-	HWND MainWindow::GetWindow() {
-		return window;
-	}
-
 	void MainWindow::createWindow() {
 		WNDCLASSEX wndClass;
 		wndClass.cbSize				= sizeof(WNDCLASSEX);
@@ -149,26 +113,26 @@ namespace inetr {
 		wndClass.cbClsExtra			= 0;
 		wndClass.cbWndExtra			= 0;
 		wndClass.hInstance			= instance;
-		wndClass.hIcon				= LoadIcon(GetModuleHandle(NULL),
+		wndClass.hIcon				= LoadIcon(GetModuleHandle(nullptr),
 										MAKEINTRESOURCE(IDI_ICON_MAIN));
-		wndClass.hIconSm			= LoadIcon(GetModuleHandle(NULL),
+		wndClass.hIconSm			= LoadIcon(GetModuleHandle(nullptr),
 										MAKEINTRESOURCE(IDI_ICON_MAIN));
-		wndClass.hCursor			= LoadCursor(NULL, IDC_ARROW);
+		wndClass.hCursor			= LoadCursor(nullptr, IDC_ARROW);
 		wndClass.hbrBackground		= (HBRUSH)(COLOR_WINDOW + 1);
-		wndClass.lpszMenuName		= NULL;
-		wndClass.lpszClassName		= INETR_MWND_CLASSNAME;
+		wndClass.lpszMenuName		= nullptr;
+		wndClass.lpszClassName		= windowClassName;
 
 		if (!RegisterClassEx(&wndClass))
 			throw INETRException("[wndRegFailed]");
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
-			INETR_MWND_CLASSNAME, CurrentLanguage["windowTitle"].c_str(),
+			windowClassName, CurrentLanguage["windowTitle"].c_str(),
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
-			INETR_MWND_WIDTH, INETR_MWND_HEIGHT,
-			NULL, NULL, instance, (LPVOID)this);
+			windowWidth, windowHeight,
+			nullptr, nullptr, instance, (LPVOID)this);
 
-		if (window == NULL)
+		if (window == nullptr)
 			throw INETRException("[wndCreFailed]");
 	}
 
@@ -182,15 +146,14 @@ namespace inetr {
 			controlPositions["stationsLbox"].top,
 			RWIDTH(controlPositions["stationsLbox"]),
 			RHEIGHT(controlPositions["stationsLbox"]),
-			hwnd, (HMENU)INETR_MWND_STATIONSLBOX_ID,
-			instance, NULL);
+			hwnd, (HMENU)stationsLboxId,
+			instance, nullptr);
 
-		if (stationsLbox == NULL)
+		if (stationsLbox == nullptr)
 			throw INETRException("[ctlCreFailed]: stationsLbox");
 
 		HFONT defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		SendMessage(stationsLbox, WM_SETFONT, (WPARAM)defaultFont,
-			(LPARAM)0);
+		SendMessage(stationsLbox, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
 
 		staticParentLookupTable.insert(pair<HWND, MainWindow*>(stationsLbox,
 			this));
@@ -202,13 +165,12 @@ namespace inetr {
 			controlPositions["statusLbl"].top,
 			RWIDTH(controlPositions["statusLbl"]),
 			RHEIGHT(controlPositions["statusLbl"]),
-			hwnd, (HMENU)INETR_MWND_STATUSLBL_ID, instance, NULL);
+			hwnd, (HMENU)statusLblId, instance, nullptr);
 
-		if (statusLbl == NULL)
+		if (statusLbl == nullptr)
 			throw INETRException("[ctlCreFailed]: statusLbl");
 
-		SendMessage(statusLbl, WM_SETFONT, (WPARAM)defaultFont,
-			(LPARAM)0);
+		SendMessage(statusLbl, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
 
 		stationImg = CreateWindow("STATIC", "", WS_CHILD |
 			SS_BITMAP,
@@ -217,9 +179,9 @@ namespace inetr {
 			RWIDTH(controlPositions["stationImg"]),
 			RHEIGHT(controlPositions["stationImg"]),
 			hwnd,
-			(HMENU)INETR_MWND_STATIONIMG_ID, instance, NULL);
+			(HMENU)stationImgId, instance, nullptr);
 
-		if (stationImg == NULL)
+		if (stationImg == nullptr)
 			throw INETRException("[ctlCreFailed]: stationImg");
 
 		allStationsLbox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
@@ -229,10 +191,10 @@ namespace inetr {
 			RWIDTH(controlPositions["allStationsLbox"]),
 			RHEIGHT(controlPositions["allStationsLbox"]),
 			hwnd,
-			(HMENU)INETR_MWND_ALLSTATIONSLBOX_ID,
-			instance, NULL);
+			(HMENU)allStationsLboxId,
+			instance, nullptr);
 
-		if (allStationsLbox == NULL)
+		if (allStationsLbox == nullptr)
 			throw INETRException("[ctlCreFailed]: allStationsLbox");
 
 		SendMessage(allStationsLbox, WM_SETFONT, (WPARAM)defaultFont,
@@ -244,10 +206,10 @@ namespace inetr {
 			controlPositions["languageCbox"].top,
 			RWIDTH(controlPositions["languageCbox"]),
 			RHEIGHT(controlPositions["languageCbox"]),
-			hwnd, (HMENU)INETR_MWND_LANGUAGECBOX_ID,
-			instance, NULL);
+			hwnd, (HMENU)languageCboxId,
+			instance, nullptr);
 
-		if (languageCbox == NULL)
+		if (languageCbox == nullptr)
 			throw INETRException("[ctlCreFailed]: languageCbox");
 
 		SendMessage(languageCbox, WM_SETFONT, (WPARAM)defaultFont,
@@ -259,10 +221,10 @@ namespace inetr {
 			controlPositions["noStationsInfoLbl"].top,
 			RWIDTH(controlPositions["noStationsInfoLbl"]),
 			RHEIGHT(controlPositions["noStationsInfoLbl"]),
-			hwnd, (HMENU)INETR_MWND_NOSTATIONINFOLBL_ID,
-			instance, NULL);
+			hwnd, (HMENU)noStationsInfoLblId,
+			instance, nullptr);
 
-		if (noStationsInfoLbl == NULL)
+		if (noStationsInfoLbl == nullptr)
 			throw INETRException("[ctlCreFailed]: noStationsInfoLbl");
 
 		SendMessage(noStationsInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
@@ -273,9 +235,9 @@ namespace inetr {
 			controlPositions["updateInfoLbl"].top,
 			RWIDTH(controlPositions["updateInfoLbl"]),
 			RHEIGHT(controlPositions["updateInfoLbl"]),
-			hwnd, (HMENU)INETR_MWND_UPDATEINFOLBL_ID, instance, NULL);
+			hwnd, (HMENU)updateInfoLblId, instance, nullptr);
 
-		if (updateInfoLbl == NULL)
+		if (updateInfoLbl == nullptr)
 			throw INETRException("[ctlCreFailed]: updateInfoLbl");
 
 		SendMessage(updateInfoLbl, WM_SETFONT, (WPARAM)defaultFont,
@@ -287,9 +249,9 @@ namespace inetr {
 			controlPositions["updateBtn"].top,
 			RWIDTH(controlPositions["updateBtn"]),
 			RHEIGHT(controlPositions["updateBtn"]),
-			hwnd, (HMENU)INETR_MWND_UPDATEBTN_ID, instance, NULL);
+			hwnd, (HMENU)updateBtnId, instance, nullptr);
 
-		if (updateBtn == NULL)
+		if (updateBtn == nullptr)
 			throw INETRException("[ctlCreFailed]: updateBtn");
 
 		SendMessage(updateBtn, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
@@ -300,9 +262,9 @@ namespace inetr {
 			controlPositions["dontUpdateBtn"].top,
 			RWIDTH(controlPositions["dontUpdateBtn"]),
 			RHEIGHT(controlPositions["dontUpdateBtn"]),
-			hwnd, (HMENU)INETR_MWND_DONTUPDATEBTN_ID, instance, NULL);
+			hwnd, (HMENU)dontUpdateBtnId, instance, nullptr);
 
-		if (dontUpdateBtn == NULL)
+		if (dontUpdateBtn == nullptr)
 			throw INETRException("[ctlCreFailed]: dontUpdateBtn");
 
 		SendMessage(dontUpdateBtn, WM_SETFONT, (WPARAM)defaultFont,
@@ -314,9 +276,9 @@ namespace inetr {
 			controlPositions["volumePbar"].top,
 			RWIDTH(controlPositions["volumePbar"]),
 			RHEIGHT(controlPositions["volumePbar"]),
-			hwnd, (HMENU)INETR_MWND_VOLUMEPBAR_ID, instance, NULL);
+			hwnd, (HMENU)volumePbarId, instance, nullptr);
 
-		if (volumePbar == NULL)
+		if (volumePbar == nullptr)
 			throw INETRException("[ctlCreFailed]: volumePbar");
 
 		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(radioVolume * 100.0f),
@@ -367,11 +329,11 @@ namespace inetr {
 
 		updateControlLanguageStrings();
 
-		BASS_Init(-1, 44100, 0, hwnd, NULL);
+		BASS_Init(-1, 44100, 0, hwnd, nullptr);
 	}
 
 	void MainWindow::uninitializeWindow(HWND hwnd) {
-		if (currentStream != NULL) {
+		if (currentStream != 0) {
 			BASS_ChannelStop(currentStream);
 			BASS_StreamFree(currentStream);
 		}
@@ -439,7 +401,7 @@ namespace inetr {
 		dontUpdateBtnRect.right = clientArea.right - 5;
 		dontUpdateBtnRect.left = dontUpdateBtnRect.right - updateBtnWidth;
 		dontUpdateBtnRect.bottom = clientArea.bottom - bottomPanelSlideProgress
-			+ INETR_MWND_SLIDE_BOTTOM_MAX - 4;
+			+ slideMax_Bottom - 4;
 		dontUpdateBtnRect.top = dontUpdateBtnRect.bottom - updateBtnHeight;
 
 		RECT updateBtnRect = dontUpdateBtnRect;
@@ -492,7 +454,7 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdate() {
-		CreateThread(NULL, 0, staticCheckUpdateThread, (LPVOID)this, 0, NULL);
+		_beginthread(staticCheckUpdateThread, 0, (void*)this);
 	}
 
 	void MainWindow::checkUpdateThread() {
@@ -550,317 +512,9 @@ namespace inetr {
 			expandBottomPanel();
 		}
 	}
-
-	DWORD WINAPI MainWindow::staticCheckUpdateThread(__in LPVOID parameter) {
-		MainWindow *parent = (MainWindow*)parameter;
-		if (parent)
-			parent->checkUpdateThread();
-
-		return 0;
-	}
-
-	void MainWindow::loadConfig() {
-		ifstream configFile;
-		configFile.open("config.json");
-
-		if (!configFile.is_open())
-			throw INETRException("Couldn't open config file");
-
-		Value rootValue;
-		Reader jsonReader;
-
-		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
-		if (!successfullyParsed)
-			throw INETRException(string("Couldn't parse config file\n") +
-				jsonReader.getFormatedErrorMessages());
-		
-		Value languageList = rootValue.get("languages", NULL);
-		if (languageList == NULL || !languageList.isArray())
-			throw INETRException("Error while parsing config file");
-
-		for (unsigned int i = 0; i < languageList.size(); ++i) {
-			Value languageObject = languageList[i];
-			if (languageObject == NULL || !languageObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			Value nameValue = languageObject.get("name", NULL);
-			if (nameValue == NULL || !nameValue.isString())
-				throw INETRException("Error while parsing config file");
-			string name = nameValue.asString();
-
-			Value stringsObject = languageObject.get("strings", NULL);
-			if (stringsObject == NULL || !stringsObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			map<string, string> strings;
-
-			for (unsigned int j = 0; j < stringsObject.size(); ++j) {
-				string stringKey = stringsObject.getMemberNames().at(j);
-
-				Value stringValueValue = stringsObject.get(stringKey, NULL);
-				if (stringValueValue == NULL || !stringValueValue.isString())
-					throw INETRException("Error while parsing config file");
-				string stringValue = stringValueValue.asString();
-
-				strings.insert(pair<string, string>(stringKey, stringValue));
-			}
-
-			languages.push_back(Language(name, strings));
-		}
-
-		Value defaultLanguageValue = rootValue.get("defaultLanguage", NULL);
-		if (defaultLanguageValue == NULL || !defaultLanguageValue.isString())
-			throw INETRException("Error while parsing config file");
-		string strDefaultLanguage = defaultLanguageValue.asString();
-
-		for (list<Language>::iterator it = languages.begin();
-			it != languages.end(); ++it) {
-
-				if (it->Name == strDefaultLanguage)
-					defaultLanguage = &*it;
-		}
-
-		if (defaultLanguage == NULL)
-			throw INETRException(string("Error while parsing config file\n") +
-				string("Unsupported language: ") + strDefaultLanguage);
-
-		Value stationList = rootValue.get("stations", NULL);
-		if (stationList == NULL || !stationList.isArray())
-			throw INETRException("Error while parsing config file");
-
-		for (unsigned int i = 0; i < stationList.size(); ++i) {
-			Value stationObject = stationList[i];
-			if (!stationObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			Value nameValue = stationObject.get("name", NULL);
-			if (nameValue == NULL || !nameValue.isString())
-				throw INETRException("Error while parsing config file");
-			string name = nameValue.asString();
-
-			Value urlValue = stationObject.get("url", NULL);
-			if (urlValue == NULL || !urlValue.isString())
-				throw INETRException("Error while parsing config file");
-			string url = urlValue.asString();
-
-			Value imageValue = stationObject.get("image", NULL);
-			if (imageValue == NULL || !imageValue.isString())
-				throw INETRException("Error while parsing config file");
-			string image = string("img/") + imageValue.asString();
-
-			Value metaValue = stationObject.get("meta", Value("none"));
-			if (!metaValue.isString())
-				throw INETRException("Error while parsing config file");
-			string metaStr = metaValue.asString();
-			
-			map<string, string> additionalParameters;
-
-			MetadataProvider* meta = NULL;
-			if (metaStr != string("none")) {
-				for (list<MetadataProvider*>::iterator it =
-					metaProviders.begin();
-					it != metaProviders.end(); ++it) {
-				
-					if ((*it)->GetIdentifier() == metaStr)
-						meta = *it;
-				}
-
-				if (meta == NULL)
-					throw INETRException(string("Error while parsing config ") +
-						string("file\nUnsupported meta provider: ") + metaStr);
-
-				map<string, bool> *additionalParametersStr =
-					meta->GetAdditionalParameters();
-				for (map<string, bool>::iterator it =
-					additionalParametersStr->begin();
-					it != additionalParametersStr->end(); ++it) {
-
-						Value parameterValue = stationObject.get(it->first,
-							NULL);
-						if (parameterValue == NULL ||
-							!parameterValue.isString()) {
-							if (!it->second)
-								throw INETRException(string("Missing or ") +
-									string("invalid meta provider parameter: ")
-									+ it->first);
-						} else {
-							string parameterStr = parameterValue.asString();
-
-							additionalParameters.insert(
-								pair<string, string>(it->first, parameterStr));
-						}
-				}
-			}
-
-			Value metaProcValue = stationObject.get("metaProc", Value("none"));
-			if (!metaProcValue.isString())
-				throw INETRException("Error while parsing config file");
-			string metaProcsStr = metaProcValue.asString();
-
-			vector<MetadataProcessor*> metaProcs;
-
-			if (metaProcsStr != string("none")) {
-				vector<string> metaProcsVec = StringUtil::Explode(metaProcsStr,
-					",");
-
-				for (vector<string>::iterator it = metaProcsVec.begin();
-					it != metaProcsVec.end(); ++it) {
-				
-					string metaProcStr = *it;
-
-					MetadataProcessor* metaProc = NULL;
-					for (list<MetadataProcessor*>::iterator it =
-						metaProcessors.begin(); it != metaProcessors.end();
-						++it) {
-					
-						if ((*it)->GetIdentifier() == metaProcStr)
-							metaProc = *it;
-					}
-
-					if (metaProc == NULL)
-						throw INETRException(string("Error while parsing ") +
-						string("config file\nUnsupported meta processor: ") +
-						metaProcStr);
-
-					map<string, bool> *additionalParametersStr =
-						metaProc->GetAdditionalParameters();
-					for (map<string, bool>::iterator it = 
-						additionalParametersStr->begin();
-						it != additionalParametersStr->end(); ++it) {
-					
-						Value parameterValue = stationObject.get(it->first,
-							NULL);
-						if (parameterValue == NULL ||
-							!parameterValue.isString()) {
-							if (!it->second)
-								throw INETRException(string("Missing or inv") +
-									string("alid meta processor parameter: ") +
-									it->first);
-						} else {
-							string parameterStr = parameterValue.asString();
-
-							additionalParameters.insert(pair<string, string>
-								(it->first, parameterStr));
-						}
-					}
-
-					metaProcs.push_back(metaProc);
-				}
-			}
-
-			if (meta == NULL && !metaProcs.empty())
-				throw INETRException(string("Error while parsing config file") +
-					string("\nMetaProcessors specified, but no MetaProvider"));
-
-			stations.push_back(Station(name, url, image, meta, metaProcs,
-				additionalParameters));
-		}
-
-		configFile.close();
-	}
-
-	void MainWindow::loadUserConfig() {
-		ifstream configFile;
-		configFile.open("userconfig.json");
-
-		if (configFile.is_open()) {
-			Value rootValue;
-			Reader jsonReader;
-
-			bool successfullyParsed = jsonReader.parse(configFile, rootValue);
-			if (!successfullyParsed)
-				throw INETRException(string("Couldn't parse user config file") +
-				string("\n") + jsonReader.getFormatedErrorMessages());
-
-			Value languageValue = rootValue.get("language", NULL);
-			if (languageValue == NULL || !languageValue.isString())
-				throw INETRException("Error while parsing config file");
-			string languageStr = languageValue.asString();
-
-			for (list<Language>::iterator it = languages.begin();
-				it != languages.end(); ++it) {
-
-					if (it->Name == languageStr)
-						CurrentLanguage = *it;
-			}
-
-			if (CurrentLanguage.Name == "Undefined")
-				CurrentLanguage = *defaultLanguage;
-
-			if (CurrentLanguage.Name == "Undefined")
-				throw INETRException(string("Error while parsing user config") +
-				string(" file\nUnsupported language: ") + languageStr);
-
-			Value favoriteStationsValue = rootValue.get("favoriteStations",
-				NULL);
-			if (favoriteStationsValue == NULL ||
-				!favoriteStationsValue.isArray())
-				throw INETRException("Error while parsing config file");
-
-			for (unsigned int i = 0; i < favoriteStationsValue.size(); ++i) {
-				Value favoriteStationValue = favoriteStationsValue[i];
-				if (!favoriteStationValue.isString())
-					throw INETRException("Error while parsing config file");
-				string favoriteStationStr = favoriteStationValue.asString();
-
-				Station *favoriteStation = NULL;
-				for (list<Station>::iterator it = stations.begin();
-					it != stations.end(); ++it) {
-					
-					if (it->Name == favoriteStationStr)
-						favoriteStation = &*it;
-				}
-
-				if (favoriteStation == NULL)
-					throw INETRException(string("Error while parsing config ") +
-						string("file\nUnknown station: ") + favoriteStationStr);
-
-				favoriteStations.push_back(favoriteStation);
-			}
-
-			Value volumeValue = rootValue.get("volume", NULL);
-			if (volumeValue == NULL || !volumeValue.isDouble())
-				throw INETRException("Error while parsing config file");
-			radioVolume = (float)volumeValue.asDouble();
-		} else {
-			CurrentLanguage = *defaultLanguage;
-		}
-
-		if (CurrentLanguage.Name == "Undefined")
-			CurrentLanguage = *defaultLanguage;
-	}
-
-	void MainWindow::saveUserConfig() {
-		Value rootValue(objectValue);
-
-		rootValue["language"] = Value(CurrentLanguage.Name);
-		rootValue["favoriteStations"] = Value(arrayValue);
-
-		for (list<Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ++it) {
-
-			rootValue["favoriteStations"].append(Value((*it)->Name));
-		}
-
-		rootValue["volume"] = Value(radioVolume);
-
-		StyledWriter jsonWriter;
-
-		string json = jsonWriter.write(rootValue);
-
-		ofstream configFile;
-		configFile.open("userconfig.json", ios::out | ios::trunc);
-
-		if (!configFile.is_open())
-			throw INETRException("Couldn't open user config file");
-
-		configFile << json;
-
-		configFile.close();
-	}
 	
 	void MainWindow::populateFavoriteStationsListbox() {
-		SendMessage(stationsLbox, LB_RESETCONTENT, 0, 0);
+		SendMessage(stationsLbox, LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
 
 		for (list<Station*>::iterator it = favoriteStations.begin();
 			it != favoriteStations.end(); ++it) {
@@ -897,306 +551,8 @@ namespace inetr {
 		}
 	}
 
-	void MainWindow::bufferTimer_Tick() {
-		QWORD progress = BASS_StreamGetFilePosition(currentStream,
-			BASS_FILEPOS_BUFFER) * 100 / BASS_StreamGetFilePosition(
-			currentStream, BASS_FILEPOS_END);
-
-		if (progress > 75 || !BASS_StreamGetFilePosition(currentStream,
-			BASS_FILEPOS_CONNECTED)) {
-
-				KillTimer(window, INETR_MWND_TIMER_BUFFER);
-
-				radioStatus = Connected;
-				updateStatusLabel();
-
-				updateMeta();
-
-				BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
-					&staticMetaSync, (void*)this);
-				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
-					&staticMetaSync, (void*)this);
-
-				BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
-					radioGetVolume());
-				BASS_ChannelPlay(currentStream, FALSE);
-
-				SetTimer(window, INETR_MWND_TIMER_META, 5000,
-					NULL);
-		} else {
-			radioStatus = Buffering;
-			radioStatus_bufferingProgress = progress;
-			updateStatusLabel();
-		}
-	}
-
-	void MainWindow::metaTime_Tick() {
-		updateMeta();
-	}
-
-	void MainWindow::slideTimer_Tick() {
-		int oSlideOffset = leftPanelSlideProgress;
-
-		switch (leftPanelSlideStatus) {
-		case Expanding:
-			leftPanelSlideProgress += INETR_MWND_SLIDE_STEP;
-			if (leftPanelSlideProgress >= INETR_MWND_SLIDE_LEFT_MAX) {
-				leftPanelSlideProgress = INETR_MWND_SLIDE_LEFT_MAX;
-				leftPanelSlideStatus = Expanded;
-			}
-			break;
-		case Retracting:
-			leftPanelSlideProgress -= INETR_MWND_SLIDE_STEP;
-			if (leftPanelSlideProgress <= 0) {
-				leftPanelSlideProgress = 0;
-				leftPanelSlideStatus = Retracted;
-			}
-		}
-		switch (bottomPanelSlideStatus) {
-		case Expanding:
-			bottomPanelSlideProgress += INETR_MWND_SLIDE_STEP;
-			if (bottomPanelSlideProgress >= INETR_MWND_SLIDE_BOTTOM_MAX) {
-				bottomPanelSlideProgress = INETR_MWND_SLIDE_BOTTOM_MAX;
-				bottomPanelSlideStatus = Expanded;
-			}
-			break;
-		case Retracting:
-			bottomPanelSlideProgress -= INETR_MWND_SLIDE_STEP;
-			if (bottomPanelSlideProgress <= 0) {
-				bottomPanelSlideProgress = 0;
-				bottomPanelSlideStatus = Retracted;
-				ShowWindow(updateBtn, SW_HIDE);
-				ShowWindow(dontUpdateBtn, SW_HIDE);
-			}
-		}
-		
-		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
-			Retracting && bottomPanelSlideStatus != Expanding &&
-			bottomPanelSlideStatus != Retracting)
-			KillTimer(window, INETR_MWND_TIMER_SLIDE);
-
-		calculateControlPositions(window);
-
-		RECT wndPos;
-		GetWindowRect(window, &wndPos);
-		int slideOffsetDiff = leftPanelSlideProgress - oSlideOffset;
-
-		MoveWindow(window, wndPos.left - slideOffsetDiff,
-			wndPos.top, INETR_MWND_WIDTH + leftPanelSlideProgress,
-			INETR_MWND_HEIGHT + bottomPanelSlideProgress, TRUE);
-
-		SetWindowPos(stationsLbox, NULL, controlPositions["stationsLbox"].left,
-			controlPositions["stationsLbox"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(statusLbl, NULL, controlPositions["statusLbl"].left,
-			controlPositions["statusLbl"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(stationImg, NULL, controlPositions["stationImg"].left,
-			controlPositions["stationImg"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(noStationsInfoLbl, NULL,
-			controlPositions["noStationsInfoLbl"].left,
-			controlPositions["noStationsInfoLbl"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(updateBtn, NULL, controlPositions["updateBtn"].left,
-			controlPositions["updateBtn"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(dontUpdateBtn, NULL,
-			controlPositions["dontUpdateBtn"].left,
-			controlPositions["dontUpdateBtn"].top, 0, 0, SWP_NOSIZE);
-
-		SetWindowPos(volumePbar, NULL, 0, 0,
-			RWIDTH(controlPositions["volumePbar"]),
-			RHEIGHT(controlPositions["volumePbar"]), SWP_NOMOVE);
-
-		if (RWIDTH(controlPositions["allStationsLbox"]) <= 0) {
-			ShowWindow(allStationsLbox, SW_HIDE);
-			ShowWindow(languageCbox, SW_HIDE);
-		} else {
-			ShowWindow(allStationsLbox, SW_SHOW);
-			ShowWindow(languageCbox, SW_SHOW);
-
-			SetWindowPos(allStationsLbox, NULL, 0, 0,
-				RWIDTH(controlPositions["allStationsLbox"]),
-				RHEIGHT(controlPositions["allStationsLbox"]),
-				SWP_NOMOVE);
-			SetWindowPos(languageCbox, NULL, 0, 0,
-				RWIDTH(controlPositions["languageCbox"]),
-				RHEIGHT(controlPositions["languageCbox"]),
-				SWP_NOMOVE);
-		}
-	}
-
-	void MainWindow::hideVolBarTimer_Tick() {
-		KillTimer(window, INETR_MWND_TIMER_HIDEVOLBAR);
-
-		ShowWindow(volumePbar, SW_HIDE);
-	}
-
-	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel,
-		DWORD data, void *user) {
-
-		MainWindow* parent = (MainWindow*)user;
-		if (parent)
-			parent->updateMeta();
-	}
-
-	void MainWindow::stationsListBox_SelChange() {
-		if (leftPanelSlideStatus != Retracted)
-			return;
-
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
-			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
-			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
-		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
-		string text(cText);
-		delete[] cText;
-
-		for (list<Station>::iterator it = stations.begin();
-			it != stations.end(); ++it) {
-			
-			if (text == it->Name && &*it != currentStation) {
-				currentStation = &*it;
-				ShowWindow(stationImg, SW_SHOW);
-				SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
-					(LPARAM)currentStation->Image);
-				radioOpenURL(it->URL);
-			}
-		}
-	}
-
-	void MainWindow::stationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
-			return;
-
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
-			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
-			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
-		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
-		string text(cText);
-		delete[] cText;
-
-		for (list<Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ) {
-
-			if (text == (*it)->Name) {
-				it = favoriteStations.erase(it);
-			} else {
-				++it;
-			}
-		}
-
-		populateFavoriteStationsListbox();
-	}
-
-	void MainWindow::moreStationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
-			return;
-
-		int index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
-			(LPARAM)0);
-		int textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
-			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
-		SendMessage(allStationsLbox, LB_GETTEXT, (WPARAM)index,
-			(LPARAM)cText);
-		string text(cText);
-		delete[] cText;
-
-		for (list<Station>::iterator it = stations.begin();
-			it != stations.end(); ++it) {
-			
-			if (text == it->Name && find(favoriteStations.begin(),
-				favoriteStations.end(), &*it) == favoriteStations.end())
-				favoriteStations.push_back(&*it);
-		}
-
-		populateFavoriteStationsListbox();
-	}
-
-	void MainWindow::languageComboBox_SelChange() {
-		if (leftPanelSlideStatus != Expanded)
-			return;
-
-		int index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
-		int textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
-			(WPARAM)index, 0);
-		char* cText = new char[textLength + 1];
-		SendMessage(languageCbox, CB_GETLBTEXT, (WPARAM)index,
-			(LPARAM)cText);
-		string text(cText);
-		delete[] cText;
-
-		if (CurrentLanguage.Name == text)
-			return;
-
-		for (list<Language>::iterator it = languages.begin();
-			it != languages.end(); ++it) {
-
-			if (text == it->Name) {
-				CurrentLanguage = *it;
-
-				CurrentLanguage = *it;
-
-				updateControlLanguageStrings();
-			}
-		}
-	}
-
-	void MainWindow::updateButton_Click() {
-		radioStop();
-
-		EnableWindow(stationsLbox, FALSE);
-		EnableWindow(stationImg, FALSE);
-		EnableWindow(statusLbl, FALSE);
-		EnableWindow(allStationsLbox, FALSE);
-		EnableWindow(languageCbox, FALSE);
-		EnableWindow(updateInfoLbl, FALSE);
-		EnableWindow(updateBtn, FALSE);
-		EnableWindow(dontUpdateBtn, FALSE);
-		EnableWindow(window, FALSE);
-
-		if (leftPanelSlideStatus != Retracted) {
-			leftPanelSlideStatus = Retracting;
-			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
-				NULL);
-		}
-		retractBottomPanel();
-
-		RECT clientRect;
-		GetClientRect(window, &clientRect);
-
-		HWND updateLabel = CreateWindow("STATIC",
-			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | WS_VISIBLE |
-			SS_CENTER, (clientRect.right - clientRect.left) / 2 - 50,
-			(clientRect.bottom - clientRect.top - bottomPanelSlideProgress)
-			/ 2 - 10, 100, 20, window, (HMENU)INETR_MWND_UPDATINGLBL_ID,
-			instance, (LPARAM)0);
-		SendMessage(updateLabel, WM_SETFONT,
-			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
-
-		downloadUpdates();
-	}
-
-	void MainWindow::dontUpdateButton_Click() {
-		retractBottomPanel();
-	}
-
-	void MainWindow::mouseScroll(short delta) {
-		float rDelta = (float)delta / (float)WHEEL_DELTA;
-		float nVolume = radioVolume + (rDelta * 0.1f);
-		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
-			nVolume);
-		radioSetVolume(nVolume);
-	}
-
 	void MainWindow::downloadUpdates() {
-		CreateThread(NULL, 0, staticDownloadUpdatesThread, (LPVOID)this, 0,
-			NULL);
+		_beginthread(staticDownloadUpdatesThread, 0, (void*)this);
 	}
 
 	void MainWindow::downloadUpdatesThread() {
@@ -1233,144 +589,8 @@ namespace inetr {
 		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
 	}
 
-	DWORD WINAPI MainWindow::staticDownloadUpdatesThread(__in LPVOID
-		parameter) {
-
-		MainWindow *parent = (MainWindow*)parameter;
-		if (parent)
-			parent->downloadUpdatesThread();
-
-		return 0;
-	}
-
-	void MainWindow::radioOpenURL(string url) {
-		LPVOID *args = new LPVOID[2];
-
-		string *str = new string(url);
-		*args = this;
-		*(args + 1) = str;
-
-		currentStreamURL = url;
-
-		CreateThread(NULL, 0, staticOpenURLThread, (LPVOID)args, 0, NULL);
-	}
-
-	DWORD WINAPI MainWindow::staticOpenURLThread(__in LPVOID parameter) {
-		LPVOID *args = (LPVOID*)parameter;
-
-		MainWindow *parent = (MainWindow*)*args;
-		string *strPtr = (string*)*(args + 1);
-
-		string str(*strPtr);
-
-		delete strPtr;
-		delete[] args;
-
-		parent->radioOpenURLThread(str);
-
-		return 0;
-	}
-
-	void MainWindow::radioOpenURLThread(string url) {
-		radioStatus_currentMetadata = "";
-
-		KillTimer(window, INETR_MWND_TIMER_BUFFER);
-		KillTimer(window, INETR_MWND_TIMER_META);
-
-		if (currentStream != NULL) {
-			BASS_ChannelStop(currentStream);
-			BASS_StreamFree(currentStream);
-		}
-
-		radioStatus = Connecting;
-		updateStatusLabel();
-
-		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, NULL, 0);
-
-		if (currentStreamURL != url) {
-			BASS_StreamFree(tempStream);
-			return;
-		}
-
-		currentStream = tempStream;
-		
-		if (currentStream != NULL) {
-			SetTimer(window, INETR_MWND_TIMER_BUFFER, 50, NULL);
-		} else {
-			radioStatus = ConnectionError;
-			updateStatusLabel();
-		}
-	}
-
-	void MainWindow::radioStop() {
-		if (currentStream != NULL) {
-			BASS_ChannelStop(currentStream);
-			BASS_StreamFree(currentStream);
-		}
-
-		ShowWindow(stationImg, SW_HIDE);
-		radioStatus = Idle;
-		updateStatusLabel();
-
-		KillTimer(window, INETR_MWND_TIMER_BUFFER);
-		KillTimer(window, INETR_MWND_TIMER_META);
-
-		currentStation = NULL;
-	}
-
-	float MainWindow::radioGetVolume() const {
-		return radioMuted ? 0.0f : radioVolume;
-	}
-
-	void MainWindow::radioSetVolume(float volume) {
-		radioSetMuted(false);
-
-		radioVolume = volume;
-		if (currentStream)
-			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
-			radioGetVolume());
-
-		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(volume * 100.0f),
-			(LPARAM)0);
-
-		ShowWindow(volumePbar, SW_SHOW);
-		SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
-	}
-
-	void MainWindow::radioSetMuted(bool muted) {
-		radioMuted = muted;
-		if (currentStream)
-			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
-			radioGetVolume());
-
-		if (OSUtil::IsVistaOrLater()) {
-			SendMessage(volumePbar, PBM_SETSTATE, muted ?
-				(isColorblindModeEnabled ? PBST_PAUSED : PBST_ERROR) :
-				PBST_NORMAL, (LPARAM)0);
-		} else if (IsAppThemed() == FALSE) {
-			SendMessage(volumePbar, PBM_SETBARCOLOR,
-				(WPARAM)0, (LPARAM)(muted ? RGB(255, 0, 0) : CLR_DEFAULT));
-		}
-
-		ShowWindow(volumePbar, SW_SHOW);
-		if (muted)
-			KillTimer(window, INETR_MWND_TIMER_HIDEVOLBAR);
-		else
-			SetTimer(window, INETR_MWND_TIMER_HIDEVOLBAR, 1000, NULL);
-
-		updateStatusLabel();
-	}
-
 	void MainWindow::updateMeta() {
-		CreateThread(NULL, 0, &staticUpdateMetaThread, (LPVOID)this, 0, NULL);
-	}
-
-	DWORD WINAPI MainWindow::staticUpdateMetaThread(__in LPVOID parameter) {
-		MainWindow *parent = (MainWindow*)parameter;
-		if (parent)
-			parent->updateMetaThread();
-
-		return 0;
+		_beginthread(staticUpdateMetaThread, 0, (void*)this);
 	}
 
 	void MainWindow::updateMetaThread() {
@@ -1379,11 +599,11 @@ namespace inetr {
 
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr, strlen(metaStr),
-			NULL, NULL);
+			nullptr, 0);
 		wchar_t *wide = new wchar_t[length + 1];
 		MultiByteToWideChar(CP_UTF8, 0, metaStr, -1, wide, length + 1);
 		char *ansi = new char[length + 1];
-		WideCharToMultiByte(CP_ACP, 0, wide, -1, ansi, length + 1, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, wide, -1, ansi, length + 1, nullptr, 0);
 		delete[] wide;
 		meta = string(ansi);
 		delete[] ansi;
@@ -1438,13 +658,18 @@ namespace inetr {
 
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
 		SetWindowText(statusLbl, statusText.c_str());
+
+		if (radioStatus == Connected && radioStatus_currentMetadata != "")
+			SetWindowText(window, radioStatus_currentMetadata.c_str());
+		else
+			SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
 	}
 
 	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
 		HSTREAM stream, map<string, string> &additionalParameters) {
 
-		if (currentStation == NULL ||
-			currentStation->MyMetadataProvider == NULL)
+		if (currentStation == nullptr ||
+			currentStation->MyMetadataProvider == nullptr)
 			return "";
 		
 		try {
@@ -1476,8 +701,8 @@ namespace inetr {
 		leftPanelSlideStatus = Expanding;
 		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
 			Retracting)
-			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
-				NULL);
+			SetTimer(window, slideTimerId, slideSpeed,
+				nullptr);
 	}
 
 	void MainWindow::retractLeftPanel() {
@@ -1487,8 +712,8 @@ namespace inetr {
 		leftPanelSlideStatus = Retracting;
 		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
 			Retracting)
-			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
-				NULL);
+			SetTimer(window, slideTimerId, slideSpeed,
+				nullptr);
 	}
 
 	void MainWindow::expandBottomPanel() {
@@ -1500,8 +725,8 @@ namespace inetr {
 		ShowWindow(dontUpdateBtn, SW_SHOW);
 		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
 			Retracting)
-			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
-				NULL);
+			SetTimer(window, slideTimerId, slideSpeed,
+				nullptr);
 	}
 
 	void MainWindow::retractBottomPanel() {
@@ -1511,23 +736,8 @@ namespace inetr {
 		bottomPanelSlideStatus = Retracting;
 		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
 			Retracting)
-			SetTimer(window, INETR_MWND_TIMER_SLIDE, INETR_MWND_SLIDE_SPEED,
-			NULL);
-	}
-
-	LRESULT CALLBACK MainWindow::staticWndProc(HWND hwnd, UINT uMsg, WPARAM
-		wParam, LPARAM lParam) {
-
-		MainWindow *parent;
-		if (uMsg == WM_CREATE) {
-			parent = (MainWindow*)((LPCREATESTRUCT)lParam)->lpCreateParams;
-			SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)parent);
-		} else {
-			parent = (MainWindow*)GetWindowLongPtr(hwnd, GWL_USERDATA);
-			if (!parent)
-				return DefWindowProc(hwnd, uMsg, wParam, lParam);
-		}
-		return parent->wndProc(hwnd, uMsg, wParam, lParam);
+			SetTimer(window, slideTimerId, slideSpeed,
+			nullptr);
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
@@ -1536,23 +746,23 @@ namespace inetr {
 		switch (uMsg) {
 		case WM_TIMER:
 			switch (wParam) {
-				case INETR_MWND_TIMER_BUFFER:
+				case bufferTimerId:
 					bufferTimer_Tick();
 					break;
-				case INETR_MWND_TIMER_META:
+				case metaTimerId:
 					metaTime_Tick();
 					break;
-				case INETR_MWND_TIMER_SLIDE:
+				case slideTimerId:
 					slideTimer_Tick();
 					break;
-				case INETR_MWND_TIMER_HIDEVOLBAR:
+				case hideVolBarTimerId:
 					hideVolBarTimer_Tick();
 					break;
 			}
 			break;
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
-			case INETR_MWND_STATIONSLBOX_ID:
+			case stationsLboxId:
 				switch (HIWORD(wParam)) {
 				case LBN_SELCHANGE:
 					stationsListBox_SelChange();
@@ -1562,31 +772,38 @@ namespace inetr {
 					break;
 				}
 				break;
-			case INETR_MWND_ALLSTATIONSLBOX_ID:
+			case allStationsLboxId:
 				switch (HIWORD(wParam)) {
 				case LBN_DBLCLK:
 					moreStationsListBox_DblClick();
 					break;
 				}
 				break;
-			case INETR_MWND_LANGUAGECBOX_ID:
+			case languageCboxId:
 				switch (HIWORD(wParam)) {
 				case CBN_SELCHANGE:
 					languageComboBox_SelChange();
 					break;
 				}
 				break;
-			case INETR_MWND_UPDATEBTN_ID:
+			case updateBtnId:
 				switch (HIWORD(wParam)) {
 				case BN_CLICKED:
 					updateButton_Click();
 					break;
 				}
 				break;
-			case INETR_MWND_DONTUPDATEBTN_ID:
+			case dontUpdateBtnId:
 				switch (HIWORD(wParam)) {
 				case BN_CLICKED:
 					dontUpdateButton_Click();
+					break;
+				}
+				break;
+			case thumbBarMuteBtnId:
+				switch (HIWORD(wParam)) {
+				case THBN_CLICKED:
+					radioSetMuted(!radioMuted);
 					break;
 				}
 				break;
@@ -1626,24 +843,43 @@ namespace inetr {
 			break;
 		}
 
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
-	}
+		if (uMsg == taskbarBtnCreatedMsg) {
+			if (OSUtil::IsWin7OrLater()) {
+				ITaskbarList3 *taskbarList = nullptr;
 
-	LRESULT CALLBACK MainWindow::staticListBoxReplacementWndProc(HWND hwnd,
-		UINT uMsg, WPARAM wParam, LPARAM lParam) {
+				if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+					CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+					reinterpret_cast<void**>(&taskbarList)))) {
 
-		switch (uMsg) {
-		case WM_MBUTTONUP:
-			staticParentLookupTable[hwnd]->radioSetMuted(
-				!staticParentLookupTable[hwnd]->radioMuted);
-			break;
-		case WM_MOUSEWHEEL:
-			staticParentLookupTable[hwnd]->mouseScroll(
-				GET_WHEEL_DELTA_WPARAM(wParam));
-			break;
+					taskbarList->SetThumbnailClip(hwnd,
+						&controlPositions["stationImg"]);
+
+					HICON icon = LoadIcon(instance,
+						MAKEINTRESOURCE(IDI_ICON_MUTE));
+
+					THUMBBUTTON thumbButtons[1];
+
+					thumbButtons[0].dwMask = THB_ICON | THB_TOOLTIP;
+					thumbButtons[0].iId = thumbBarMuteBtnId;
+					thumbButtons[0].hIcon = icon;
+					string muteButtonStr = CurrentLanguage["mute"];
+					wstring wMuteButtonStr(muteButtonStr.length(), L'');
+					copy(muteButtonStr.begin(), muteButtonStr.end(),
+						wMuteButtonStr.begin());
+					wcscpy_s(thumbButtons[0].szTip,
+						sizeof(thumbButtons[0].szTip) /
+						sizeof(thumbButtons[0].szTip[0]),
+						wMuteButtonStr.c_str());
+
+					taskbarList->ThumbBarAddButtons(hwnd, 1, thumbButtons);
+
+					DeleteObject((HGDIOBJ)icon);
+
+					taskbarList->Release();
+				}
+			}
 		}
 
-		return CallWindowProc(staticListBoxOriginalWndProc, hwnd, uMsg, wParam,
-			lParam);
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 }

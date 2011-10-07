@@ -22,9 +22,11 @@ namespace inetr {
 			std::map<std::string, std::string>
 			metadataProcessor_additionalParameters);
 		Station(const Station &original);
+		Station(Station &&original);
 		~Station();
 
-		Station &operator=(const Station &original);
+		Station& operator=(const Station &original);
+		Station& operator=(Station &&original);
 
 		std::string Name;
 		std::string URL;

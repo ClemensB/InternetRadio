@@ -5,6 +5,7 @@ namespace inetr {
 	class OSUtil {
 	public:
 		static bool IsVistaOrLater();
+		static bool IsWin7OrLater();
 		static bool IsAeroEnabled();
 	};
 }

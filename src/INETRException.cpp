@@ -19,11 +19,11 @@ namespace inetr {
 		return language.LocalizeStringTokens(message);
 	}
 
-	void INETRException::mbox(HWND hwnd /* = NULL */, Language *language
-		/* = NULL */) {
+	void INETRException::mbox(HWND hwnd /* = nullptr */, Language *language
+		/* = nullptr */) {
 
-		string msg = (language == NULL) ? what() : what(*language);
-		MessageBox(hwnd, msg.c_str(), (language != NULL) ?
+		string msg = (language == nullptr) ? what() : what(*language);
+		MessageBox(hwnd, msg.c_str(), (language != nullptr) ?
 			language->LocalizeString("error").c_str() : "Error", MB_OK |
 			MB_ICONERROR);
 	}

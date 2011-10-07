@@ -50,7 +50,7 @@ namespace inetr {
 		if (getaddrinfo(hostname.c_str(), "http", &hints, &serverInfo) != 0)
 			throw INETRException("[hostResErr]:\n" + hostname);
 
-		for (ptr = serverInfo; ptr != NULL; ptr = ptr->ai_next) {
+		for (ptr = serverInfo; ptr != nullptr; ptr = ptr->ai_next) {
 			if ((sock = socket(ptr->ai_family, ptr->ai_socktype,
 				ptr->ai_protocol)) == -1)
 				continue;
@@ -63,7 +63,7 @@ namespace inetr {
 
 		freeaddrinfo(serverInfo);
 
-		if (ptr == NULL)
+		if (ptr == nullptr)
 			throw INETRException("[connFailedErr]");
 
 		string request = "GET "

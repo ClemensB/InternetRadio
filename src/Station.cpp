@@ -21,8 +21,8 @@ namespace inetr {
 
 		loadImage();
 
-		if (Image == NULL)
-			MessageBox(NULL, (string("Couldn't load image\n") +
+		if (this->Image == nullptr)
+			MessageBox(nullptr, (string("Couldn't load image\n") +
 			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
@@ -38,18 +38,36 @@ namespace inetr {
 
 		loadImage();
 
-		if (Image == NULL)
-			MessageBox(NULL, (string("Couldn't load image\n") +
+		if (this->Image == nullptr)
+			MessageBox(nullptr, (string("Couldn't load image\n") +
 			imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
 	}
 
-	Station::~Station() {
-		if (Image != NULL)
-			DeleteObject(Image);
+	Station::Station(Station &&original) {
+		this->Name = original.Name;
+		this->URL = original.URL;
+		this->MyMetadataProvider = original.MyMetadataProvider;
+		this->MetadataProcessors = original.MetadataProcessors;
+		this->imagePath = original.imagePath;
+
+		this->AdditionalParameters =
+			original.AdditionalParameters;
+
+		this->Image = original.Image;
+
+		original.Image = nullptr;
 	}
 
-	Station &Station::operator=(const Station& original) {
+	Station::~Station() {
+		if (Image != nullptr)
+			DeleteObject((HGDIOBJ)Image);
+	}
+
+	Station& Station::operator=(const Station &original) {
 		if (this != &original) {
+			if (this->Image != nullptr)
+				DeleteObject((HGDIOBJ)this->Image);
+
 			this->Name = original.Name;
 			this->URL = original.URL;
 			this->MyMetadataProvider = original.MyMetadataProvider;
@@ -61,9 +79,31 @@ namespace inetr {
 
 			loadImage();
 
-			if (Image == NULL)
-				MessageBox(NULL, (string("Couldn't load image\n") +
+			if (this->Image == nullptr)
+				MessageBox(nullptr, (string("Couldn't load image\n") +
 				imagePath).c_str(),	"Error", MB_ICONERROR | MB_OK);
+		}
+
+		return *this;
+	}
+
+	Station& Station::operator=(Station &&original) {
+		if (this != &original) {
+			if (this->Image != nullptr)
+				DeleteObject((HGDIOBJ)this->Image);
+
+			this->Name = original.Name;
+			this->URL = original.URL;
+			this->MyMetadataProvider = original.MyMetadataProvider;
+			this->MetadataProcessors = original.MetadataProcessors;
+			this->imagePath = original.imagePath;
+
+			this->AdditionalParameters =
+				original.AdditionalParameters;
+
+			this->Image = original.Image;
+
+			original.Image = nullptr;
 		}
 
 		return *this;
@@ -104,12 +144,12 @@ namespace inetr {
 		bmInfo.bmiHeader.biBitCount = 32;
 		bmInfo.bmiHeader.biCompression = BI_RGB;
 
-		HDC hDC = GetDC(0);
+		HDC hDC = GetDC(nullptr);
 		HDC tmpDC = CreateCompatibleDC(hDC);
 
 		BYTE *pBase;
 		HBITMAP tmpBmp = CreateDIBSection(hDC, &bmInfo, DIB_RGB_COLORS,
-			(void**)&pBase, NULL, 0);
+			(void**)&pBase, nullptr, 0);
 		HGDIOBJ tmpObj = SelectObject(tmpDC, tmpBmp);
 
 		HDC dcBmp = CreateCompatibleDC(tmpDC);
