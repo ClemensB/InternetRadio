@@ -29,7 +29,8 @@
 				"imgLoadFailed" : "Couldn't load image",
 				"imgDecFailed" : "Couldn't decode image",
 				"unsupportedImg" : "Unsupported image type",
-				"muted" : "Muted"
+				"muted" : "Muted",
+				"mute" : "Mute"
 			}
 		},
 		{
@@ -61,7 +62,8 @@
 				"imgLoadFailed" : "Konnte Bild nicht laden",
 				"imgDecFailed" : "Konnte Bild nicht dekodieren",
 				"unsupportedImg" : "Nicht unterstuetzes Bildformat",
-				"muted" : "Stumm"
+				"muted" : "Stumm",
+				"mute" : "Stumm"
 			}
 		}
 	],

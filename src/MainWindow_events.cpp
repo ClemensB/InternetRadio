@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <ShObjIdl.h>
+
 #include "MUtil.hpp"
 
 using namespace std;
@@ -149,11 +151,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Retracted)
 			return;
 
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -175,11 +177,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -201,11 +203,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(allStationsLbox, LB_GETTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);
@@ -226,10 +228,10 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
-		int textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
+		LRESULT index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
+		LRESULT textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
 			(WPARAM)index, 0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(languageCbox, CB_GETLBTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);
@@ -245,6 +247,27 @@ namespace inetr {
 					CurrentLanguage = *it;
 
 					updateControlLanguageStrings();
+
+					ITaskbarList3 *taskbarList;
+					if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+						CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+						reinterpret_cast<void**>(&taskbarList)))) {
+
+						THUMBBUTTON thumbButtons[1];
+						thumbButtons[0].dwMask = THB_TOOLTIP;
+						thumbButtons[0].iId = thumbBarMuteBtnId;
+						string muteButtonStr = CurrentLanguage["mute"];
+						wstring wMuteButtonStr(muteButtonStr.length(), L'');
+						copy(muteButtonStr.begin(), muteButtonStr.end(),
+							wMuteButtonStr.begin());
+						wcscpy_s(thumbButtons[0].szTip,
+							sizeof(thumbButtons[0].szTip) /
+							sizeof(thumbButtons[0].szTip[0]),
+							wMuteButtonStr.c_str());
+
+						taskbarList->ThumbBarUpdateButtons(window, 1,
+							thumbButtons);
+					}
 				}
 		}
 	}

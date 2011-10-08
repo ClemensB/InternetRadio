@@ -15,9 +15,9 @@ namespace inetr {
 			MainWindow *parent;
 			if (uMsg == WM_CREATE) {
 				parent = (MainWindow*)((LPCREATESTRUCT)lParam)->lpCreateParams;
-				SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)parent);
+				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)parent);
 			} else {
-				parent = (MainWindow*)GetWindowLongPtr(hwnd, GWL_USERDATA);
+				parent = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 				if (!parent)
 					return DefWindowProc(hwnd, uMsg, wParam, lParam);
 			}

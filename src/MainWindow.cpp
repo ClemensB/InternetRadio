@@ -102,7 +102,7 @@ namespace inetr {
 
 		CoUninitialize();
 
-		return msg.wParam;
+		return int(msg.wParam);
 	}
 
 	void MainWindow::createWindow() {
@@ -158,7 +158,7 @@ namespace inetr {
 		staticParentLookupTable.insert(pair<HWND, MainWindow*>(stationsLbox,
 			this));
 		staticListBoxOriginalWndProc = (WNDPROC)SetWindowLongPtr(stationsLbox,
-			GWLP_WNDPROC, (LONG_PTR)staticListBoxReplacementWndProc);
+			GWLP_WNDPROC, (LONG_PTR)&staticListBoxReplacementWndProc);
 
 		statusLbl = CreateWindow("STATIC", "", WS_CHILD | WS_VISIBLE,
 			controlPositions["statusLbl"].left,
@@ -542,7 +542,7 @@ namespace inetr {
 		for (list<Language>::iterator it = languages.begin();
 			it != languages.end(); ++it) {
 			
-			int i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,
+			LRESULT i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,
 				(LPARAM)it->Name.c_str());
 
 			if (CurrentLanguage.Name == it->Name)
@@ -598,11 +598,11 @@ namespace inetr {
 			currentStream, currentStation->AdditionalParameters);
 
 		const char* metaStr = meta.c_str();
-		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr, strlen(metaStr),
-			nullptr, 0);
-		wchar_t *wide = new wchar_t[length + 1];
+		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
+			int(strlen(metaStr)), nullptr, 0);
+		wchar_t *wide = new wchar_t[size_t(length + 1)];
 		MultiByteToWideChar(CP_UTF8, 0, metaStr, -1, wide, length + 1);
-		char *ansi = new char[length + 1];
+		char *ansi = new char[size_t(length + 1)];
 		WideCharToMultiByte(CP_ACP, 0, wide, -1, ansi, length + 1, nullptr, 0);
 		delete[] wide;
 		meta = string(ansi);
