@@ -175,7 +175,6 @@
     <None Include="resource\sound.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dependencies\bass\bass.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="src\CryptUtil.hpp" />
     <ClInclude Include="src\HTTPMetadataProvider.hpp" />
