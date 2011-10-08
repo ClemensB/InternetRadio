@@ -151,11 +151,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Retracted)
 			return;
 
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -177,11 +177,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(stationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(stationsLbox, LB_GETTEXT, (WPARAM)index, (LPARAM)cText);
 		string text(cText);
 		delete[] cText;
@@ -203,11 +203,11 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
+		LRESULT index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
 			(LPARAM)0);
-		int textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
+		LRESULT textLength = SendMessage(allStationsLbox, LB_GETTEXTLEN,
 			(WPARAM)index, (LPARAM)0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(allStationsLbox, LB_GETTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);
@@ -228,10 +228,10 @@ namespace inetr {
 		if (leftPanelSlideStatus != Expanded)
 			return;
 
-		int index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
-		int textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
+		LRESULT index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
+		LRESULT textLength = SendMessage(languageCbox, CB_GETLBTEXTLEN,
 			(WPARAM)index, 0);
-		char* cText = new char[textLength + 1];
+		char* cText = new char[size_t(textLength + 1)];
 		SendMessage(languageCbox, CB_GETLBTEXT, (WPARAM)index,
 			(LPARAM)cText);
 		string text(cText);

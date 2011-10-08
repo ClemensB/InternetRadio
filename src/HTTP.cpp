@@ -4,6 +4,7 @@
 
 #include <WS2tcpip.h>
 
+#include "ssize_t.h"
 #include "INETRException.hpp"
 
 using namespace std;
@@ -39,7 +40,7 @@ namespace inetr {
 		}
 
 
-		int sock;
+		SOCKET sock;
 		struct addrinfo hints, *serverInfo, *ptr;
 
 		memset(&hints, 0, sizeof(hints));
@@ -55,7 +56,7 @@ namespace inetr {
 				ptr->ai_protocol)) == -1)
 				continue;
 
-			if (connect(sock, ptr->ai_addr, ptr->ai_addrlen) == -1)
+			if (connect(sock, ptr->ai_addr, (int)ptr->ai_addrlen) == -1)
 				closesocket(sock);
 
 			break;
@@ -74,7 +75,7 @@ namespace inetr {
 
 		sendAll(sock, request.c_str(), request.size());
 
-		int code = 100;
+		unsigned int code = 100;
 		string protocol;
 		stringstream firstLine;
 		while (code == 100) {
@@ -114,7 +115,7 @@ namespace inetr {
 		}
 
 		bool chunked = false;
-		int size = -1;
+		ssize_t size = -1;
 
 		while (true) {
 			stringstream sstream;
@@ -136,49 +137,51 @@ namespace inetr {
 			}
 		}
 
-		int recvSize = 0;
+		size_t recvSize = 0;
 		char buf[1024];
-		int bytesRecv = -1;
+		ssize_t bytesRecv = -1;
 
 		if (size != -1) {
-			while (recvSize < size) {
-				if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) <= 0)
+			while (recvSize < (size_t)size) {
+				if ((bytesRecv = (ssize_t)recv(sock, buf, sizeof(buf), 0)) <= 0)
 					throw INETRException("[recvErr]");
-
-				recvSize += bytesRecv;
-				stream->write(buf, bytesRecv);
+				
+				recvSize += (size_t)bytesRecv;
+				stream->write(buf, (streamsize)bytesRecv);
 			}
 		} else {
 			if (!chunked) {
 				while (bytesRecv != 0) {
-					if ((bytesRecv = recv(sock, buf, sizeof(buf), 0)) < 0)
+					if ((bytesRecv = (ssize_t)recv(sock, buf, sizeof(buf), 0))
+						< 0)
 						throw INETRException("[recvErr]");
 
-					stream->write(buf, bytesRecv);
+					stream->write(buf, (streamsize)bytesRecv);
 				}
 			} else {
 				while (true) {
 					stringstream sstream;
 					getLine(sock, sstream);
-					int chunkSize = -1;
+					ssize_t chunkSize = -1;
 					sstream >> std::hex >> chunkSize;
 
 					if (chunkSize <= 0)
 						break;
 
 					recvSize = 0;
-					while (recvSize < chunkSize) {
-						int bytesToRecv = chunkSize - recvSize;
+					while (recvSize < (size_t)chunkSize) {
+						size_t bytesToRecv = chunkSize - recvSize;
 
-						if ((bytesRecv = recv(sock, buf, bytesToRecv >
-							sizeof(buf) ? sizeof(buf) : bytesToRecv, 0)) <= 0)
+						if ((bytesRecv = (ssize_t)recv(sock, buf,
+							int(bytesToRecv > sizeof(buf) ? sizeof(buf) :
+							bytesToRecv), 0)) <= 0)
 							throw INETRException("[recvErr]");
 
-						recvSize += bytesRecv;
-						stream->write(buf, bytesRecv);
+						recvSize += (size_t)bytesRecv;
+						stream->write(buf, (streamsize)bytesRecv);
 					}
 
-					for (int i = 0; i < 2; ++i) {
+					for (unsigned char i = 0; i < 2; ++i) {
 						char tmp;
 						recv(sock, &tmp, 1, 0);
 					}
@@ -189,20 +192,23 @@ namespace inetr {
 		closesocket(sock);
 	}
 
-	void HTTP::getLine(int socket, std::stringstream &out) {
+	void HTTP::getLine(SOCKET socket, std::stringstream &out) {
 		for (char c; recv(socket, &c, 1, 0) > 0; out << c) {
 			if (c == '\n')
 				return;
 		}
 	}
+	
+	void HTTP::sendAll(SOCKET socket, const char* const buf,
+		const size_t size) {
 
-	void HTTP::sendAll(int socket, const char* const buf, const int size) {
-		int bytesSent = 0;
+		size_t bytesSent = 0;
 		do {
-			int result = send(socket, buf + bytesSent, size - bytesSent, 0);
+			int result = send(socket, buf + ptrdiff_t(bytesSent),
+				int(size - bytesSent), 0);
 			if (result < 0)
 				return;
-			bytesSent += result;
+			bytesSent += size_t(result);
 		} while (bytesSent < size);
 	}
 }

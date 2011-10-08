@@ -9,7 +9,7 @@
 namespace inetr {
 	struct MD5Context {
 		unsigned char Digest[16];
-		unsigned long Hash;
+		HCRYPTHASH Hash;
 	};
 
 	class CryptUtil {
