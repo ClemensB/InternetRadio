@@ -9,7 +9,7 @@ if exist %out_build_dir% rmdir /s /q %out_build_dir%
 mkdir %out_build_dir%
 xcopy Release\InternetRadio.exe %out_build_dir%
 xcopy Release\InternetRadio.pdb %out_build_dir%
-xcopy dependencies\bass\bass.dll %out_build_dir%
+xcopy dependencies\bass\bin\x86\bass.dll %out_build_dir%
 xcopy data\config.json %out_build_dir%
 mkdir %out_build_dir%\img
 xcopy data\img %out_build_dir%\img

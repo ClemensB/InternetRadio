@@ -5,7 +5,6 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <map>
 
 #include <process.h>
 #include <CommCtrl.h>

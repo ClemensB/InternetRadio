@@ -1,5 +1,7 @@
 #include "Language.hpp"
 
+#include "ssize_t.h"
+
 using namespace std;
 
 namespace inetr {
@@ -35,7 +37,7 @@ namespace inetr {
 
 	string Language::LocalizeStringTokens(string str) {
 		string newStr;
-		int lastPos = -1;
+		ssize_t lastPos = -1;
 		size_t pos = str.find_first_of('[');
 		while (pos != string::npos) {
 			newStr += str.substr(lastPos + 1, (pos - (lastPos + 1)));
