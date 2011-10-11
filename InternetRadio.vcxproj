@@ -66,23 +66,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass\lib\$(Platform);$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass\include;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass\lib\$(Platform);$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass\include;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass\lib\$(Platform);$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass\include;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(ProjectDir)dependencies\bass;$(OutputPath);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)dependencies\bass;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)dependencies\bass\lib\$(Platform);$(SolutionDir)$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)dependencies\bass\include;$(ProjectDir)dependencies\jsoncpp\jsoncpp\include;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -94,7 +98,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -102,12 +106,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>DEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;_AMD64_;_WIN64;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -123,7 +127,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -133,19 +137,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WIN64;_AMD64_;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Library Include="dependencies\bass\bass.lib" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="data\config.json" />
     <None Include="data\img\1live.png" />
@@ -167,7 +169,6 @@
     <None Include="data\img\wdr_3.png" />
     <None Include="data\img\wdr_4.png" />
     <None Include="data\img\wdr_5.png" />
-    <None Include="dependencies\bass\bass.dll" />
     <None Include="README" />
     <None Include="Release.bat" />
     <None Include="resource\icon.ico" />
@@ -175,7 +176,6 @@
     <None Include="resource\sound.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dependencies\bass\bass.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="src\CryptUtil.hpp" />
     <ClInclude Include="src\HTTPMetadataProvider.hpp" />
@@ -197,6 +197,7 @@
     <ClInclude Include="src\ssize_t.h" />
     <ClInclude Include="src\Station.hpp" />
     <ClInclude Include="src\StringUtil.hpp" />
+    <ClInclude Include="src\Updater.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CryptUtil.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="src\RegExMetadataProcessor.cpp" />
     <ClCompile Include="src\Station.cpp" />
     <ClCompile Include="src\StringUtil.cpp" />
+    <ClCompile Include="src\Updater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\InternetRadio.rc" />

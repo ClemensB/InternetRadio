@@ -20,11 +20,15 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\Internetradio
 DefaultGroupName=Internetradio
-OutputDir=out\{#MyAppVersion}
+OutputDir=publish\{#MyAppVersion}\{#MyAppArchitecture}
 OutputBaseFilename=Setup
 SetupIconFile=resource\icon.ico
 Compression=lzma
 SolidCompression=yes
+#if "x64" == MyAppArchitecture
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -34,10 +38,10 @@ Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "Release\InternetRadio.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "data\config.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "data\img\*"; DestDir: "{app}\img"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "dependencies\bass\bass.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\InternetRadio.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\config.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\img\*"; DestDir: "{app}\img"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\bass.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -48,3 +52,5 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, "&", "&&")}}"; Flags: nowait postinstall skipifsilent
 
+[UninstallDelete]
+Type: files; Name: "{app}\img\*.*"

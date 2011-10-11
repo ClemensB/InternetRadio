@@ -1,15 +1,14 @@
 for /f "delims=" %%a in ('git describe --tags') do set gittag=%%a
 set ver=%gittag%
 set timestamp=%date%_%time%
-symstore add /r /f Release\*.* /s C:\Symbols /t "InternetRadio" /v "%ver%" /c "%timestamp%"
 set out_dir=out
 set out_build_dir=%out_dir%\%ver%
 if not exist %out_dir% mkdir %out_dir%
 if exist %out_build_dir% rmdir /s /q %out_build_dir%
 mkdir %out_build_dir%
-xcopy Release\InternetRadio.exe %out_build_dir%
-xcopy Release\InternetRadio.pdb %out_build_dir%
-xcopy dependencies\bass\bass.dll %out_build_dir%
+xcopy Win32\Release\InternetRadio.exe %out_build_dir%
+xcopy Win32\Release\InternetRadio.pdb %out_build_dir%
+xcopy dependencies\bass\bin\Win32\bass.dll %out_build_dir%
 xcopy data\config.json %out_build_dir%
 mkdir %out_build_dir%\img
 xcopy data\img %out_build_dir%\img
@@ -29,4 +28,3 @@ for /d %%a in (*) do (
     )
 )
 cd ..\..
-"%INNOSETUP%\ISCC.exe" /dMyAppVersion="%gittag%" Setup.iss

@@ -30,8 +30,8 @@ namespace inetr {
 		if (!languageList.isArray())
 			throw INETRException("Error while parsing config file");
 
-		for (unsigned int i = 0; i < languageList.size(); ++i) {
-			Value languageObject = languageList[i];
+		for (size_t i = 0; i < (size_t)languageList.size(); ++i) {
+			Value languageObject = languageList[Value::ArrayIndex(i)];
 			if (!languageObject.isObject())
 				throw INETRException("Error while parsing config file");
 
@@ -46,7 +46,7 @@ namespace inetr {
 
 			map<string, string> strings;
 
-			for (unsigned int j = 0; j < stringsObject.size(); ++j) {
+			for (size_t j = 0; j < (size_t)stringsObject.size(); ++j) {
 				string stringKey = stringsObject.getMemberNames().at(j);
 
 				Value stringValueValue = stringsObject.get(stringKey, Value());

@@ -7,7 +7,7 @@ namespace inetr {
 	class HTMLEntityFixMetadataProcessor : public MetadataProcessor {
 	private:
 		static const char* const entities[][2];
-		static const int entityCount;
+		static const size_t entityCount;
 	public:
 		HTMLEntityFixMetadataProcessor() : MetadataProcessor(
 			std::string("htmlEntityFix"), 0) { }

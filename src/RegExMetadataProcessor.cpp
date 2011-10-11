@@ -12,10 +12,11 @@ namespace inetr {
 		cmatch res;
 		regex_search(meta.c_str(), res, rx);
 
-		int index = 1;
+		size_t index = 1;
 		if (additionalParameterValues.find("regexExpr") !=
 			additionalParameterValues.end())
-			index = atoi(additionalParameterValues["regexExpr"].c_str());
+			index = size_t(atoi(
+				additionalParameterValues["regexExpr"].c_str()));
 
 		meta = res[index];
 	}

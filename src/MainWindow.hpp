@@ -2,7 +2,9 @@
 #define INTERNETRADIO_MAINWINDOW_HPP
 
 #include <string>
+#include <vector>
 #include <list>
+#include <map>
 
 #include <Windows.h>
 
@@ -12,6 +14,7 @@
 #include "Language.hpp"
 #include "MetadataProvider.hpp"
 #include "MetadataProcessor.hpp"
+#include "Updater.hpp"
 
 namespace inetr {
 	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
@@ -23,8 +26,7 @@ namespace inetr {
 	public:
 		MainWindow();
 
-		int Main(std::string commandLine, HINSTANCE instance,
-			int showCmd);
+		int Main(std::string commandLine, HINSTANCE instance, int showCmd);
 
 		Language CurrentLanguage;
 	private:
@@ -78,6 +80,8 @@ namespace inetr {
 		void retractLeftPanel();
 		void expandBottomPanel();
 		void retractBottomPanel();
+		void expandBottom2Panel();
+		void retractBottom2Panel();
 
 
 		void bufferTimer_Tick();
@@ -131,6 +135,7 @@ namespace inetr {
 		static const int dontUpdateBtnId = 109;
 		static const int updatingLblId = 110;
 		static const int volumePbarId = 111;
+		static const int updateInfoEdId = 112;
 
 		static const int thumbBarMuteBtnId = 201;
 
@@ -141,6 +146,7 @@ namespace inetr {
 		
 		static const int slideMax_Left = 110;
 		static const int slideMax_Bottom = 20;
+		static const int slideMax_Bottom2 = 100;
 		static const int slideSpeed = 1;
 		static const int slideStep = 2;
 		
@@ -165,6 +171,8 @@ namespace inetr {
 		HWND updateBtn;
 		HWND dontUpdateBtn;
 		HWND volumePbar;
+		HWND updateInfoEd;
+		HWND updatingLbl;
 
 		UINT taskbarBtnCreatedMsg;
 
@@ -174,8 +182,12 @@ namespace inetr {
 		int leftPanelSlideProgress;
 		WindowSlideStatus bottomPanelSlideStatus;
 		int bottomPanelSlideProgress;
+		WindowSlideStatus bottom2PanelSlideStatus;
+		int bottom2PanelSlideProgress;
 
-		std::list<std::string> filesToUpdate;
+		//std::list<std::string> filesToUpdate;
+		//std::string versionToUpdateTo;
+		Updater updater;
 
 		std::list<Language> languages;
 		Language *defaultLanguage;

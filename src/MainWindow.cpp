@@ -5,7 +5,6 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <map>
 
 #include <process.h>
 #include <CommCtrl.h>
@@ -30,7 +29,11 @@
 using namespace std;
 
 namespace inetr {
-	MainWindow::MainWindow() {
+	MainWindow::MainWindow() :
+		updater(string("http://internetradio.clemensboos.net/publish")) {
+
+		updater.OptionalFiles.push_back("InternetRadio.pdb");
+
 		initialized = false;
 
 		isColorblindModeEnabled = false;
@@ -44,6 +47,8 @@ namespace inetr {
 		leftPanelSlideProgress = 0;
 		bottomPanelSlideStatus = Retracted;
 		bottomPanelSlideProgress = 0;
+		bottom2PanelSlideStatus = Retracted;
+		bottom2PanelSlideProgress = 0;
 
 		radioStatus = Idle;
 
@@ -283,6 +288,33 @@ namespace inetr {
 
 		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(radioVolume * 100.0f),
 			(LPARAM)0);
+
+		updateInfoEd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD |
+			ES_MULTILINE | ES_WANTRETURN | ES_READONLY,
+			controlPositions["updateInfoEd"].left,
+			controlPositions["updateInfoEd"].top,
+			RWIDTH(controlPositions["updateInfoEd"]),
+			RHEIGHT(controlPositions["updateInfoEd"]),
+			hwnd, (HMENU)updateInfoEdId, instance, nullptr);
+
+		if (updateInfoEd == nullptr)
+			throw INETRException("[ctlCreFailed]: updateInfoEd");
+
+		updatingLbl = CreateWindow("STATIC",
+			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | SS_CENTER,
+			controlPositions["updatingLbl"].left,
+			controlPositions["updatingLbl"].top,
+			RWIDTH(controlPositions["updatingLbl"]),
+			RHEIGHT(controlPositions["updatingLbl"]),
+			hwnd, (HMENU)updatingLblId, instance, nullptr);
+
+		if (updatingLbl == nullptr)
+			throw INETRException("[ctlCreFailed]: updatingLbl");
+		
+		SendMessage(updatingLbl, WM_SETFONT,
+			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
+
+		SendMessage(updateInfoEd, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
 	}
 
 	void MainWindow::initialize() {
@@ -346,9 +378,10 @@ namespace inetr {
 		const int sImgDim = 200;
 		const int lngCboxHeight = 20;
 		const int noStaInfoLblHeight = 40;
-		const int updateInfoLblHeight = 15;
+		const int sLineLblHeight = 15;
 		const int updateBtnWidth = 80;
 		const int updateBtnHeight = 22;
+		const int updatingLblWidth = 100;
 
 		RECT clientArea;
 		GetClientRect(hwnd, &clientArea);
@@ -358,7 +391,7 @@ namespace inetr {
 		stationLboxRect.right = stationLboxRect.left + sLboxWidth;
 		stationLboxRect.top = 10;
 		stationLboxRect.bottom = clientArea.bottom -
-			bottomPanelSlideProgress;
+			bottomPanelSlideProgress - bottom2PanelSlideProgress;
 
 		RECT stationImgRect;
 		stationImgRect.left = stationLboxRect.right + ((clientArea.right -
@@ -411,15 +444,29 @@ namespace inetr {
 		RECT updateInfoLblRect;
 		updateInfoLblRect.left = 10;
 		updateInfoLblRect.right = updateBtnRect.left - 5;
-		updateInfoLblRect.top = clientArea.bottom - bottomPanelSlideProgress
-			- 1;
-		updateInfoLblRect.bottom = updateInfoLblRect.top + updateInfoLblHeight;
+		updateInfoLblRect.bottom = clientArea.bottom - 7 + (slideMax_Bottom -
+			bottomPanelSlideProgress);
+		updateInfoLblRect.top = updateInfoLblRect.bottom - sLineLblHeight;
 
 		RECT volumePbarRect;
 		volumePbarRect.left = 1;
 		volumePbarRect.right = clientArea.right - 2;
 		volumePbarRect.top = 1;
 		volumePbarRect.bottom = stationLboxRect.top - 1;
+
+		RECT updateInfoEdRect;
+		updateInfoEdRect.left = 10;
+		updateInfoEdRect.right = clientArea.right - 10;
+		updateInfoEdRect.top = stationLboxRect.bottom;
+		updateInfoEdRect.bottom = updateBtnRect.top - 8;
+
+		RECT updatingLblRect;
+		updatingLblRect.left = (RWIDTH(clientArea) / 2) - (updatingLblWidth
+			/ 2);
+		updatingLblRect.right = updatingLblRect.left + updatingLblWidth;
+		updatingLblRect.top = (RHEIGHT(clientArea) / 2) - (sLineLblHeight
+			/ 2);
+		updatingLblRect.bottom = updatingLblRect.top + sLineLblHeight;
 
 		controlPositions.clear();
 		controlPositions.insert(pair<string, RECT>("stationsLbox",
@@ -442,6 +489,10 @@ namespace inetr {
 			dontUpdateBtnRect));
 		controlPositions.insert(pair<string, RECT>("volumePbar",
 			volumePbarRect));
+		controlPositions.insert(pair<string, RECT>("updateInfoEd",
+			updateInfoEdRect));
+		controlPositions.insert(pair<string, RECT>("updatingLbl",
+			updatingLblRect));
 	}
 
 	void MainWindow::updateControlLanguageStrings() {
@@ -458,59 +509,39 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdateThread() {
-		stringstream versionFileStream;
-		try {
-			HTTP::Get("http://internetradio.clemensboos.net/release/version",
-				&versionFileStream);
-		} catch (INETRException &e) {
-			e.mbox(window, &CurrentLanguage);
+
+		bool isUpToDate;
+		unsigned short upToDateVersion[4];
+		if (!updater.IsInstalledVersionUpToDate(isUpToDate, upToDateVersion) ||
+			isUpToDate)
+			return;
+
+		stringstream remoteVersionInfoStream;
+
+		if (!updater.ReceiveRemoteVersionInfo(upToDateVersion,
+			remoteVersionInfoStream))
+			return;
+
+		string remoteVersionInfo;
+
+		while (remoteVersionInfoStream.good()) {
+			char remoteVersionInfoLine[512];
+			remoteVersionInfoStream.getline(remoteVersionInfoLine,
+				sizeof(remoteVersionInfoLine));
+			if (remoteVersionInfo != "")
+				remoteVersionInfo += "\r\n";
+			remoteVersionInfo += remoteVersionInfoLine;
 		}
 
-		map<string, string> fileHashes;
-		string dir = ".";
-		while (versionFileStream.good()) {
-			string line;
-			versionFileStream >> line;
-			if (line.empty())
-				continue;
-			if (line[0] == '[') {
-				dir = line.substr(1, line.length() - 2);
-			} else {
-				string hash = line;
-				string filename;
-				if (versionFileStream.good()) {
-					versionFileStream >> filename;
-					if (hash != "" && filename != "") {
-						fileHashes.insert(pair<string, string>(dir +
-							string("\\") + filename.substr(1), hash));
-					}
-				}
-			}
-		}
+		if (!updater.PrepareUpdateToRemoteVersion(upToDateVersion))
+			return;
 
-		for (map<string, string>::iterator it = fileHashes.begin(); it !=
-			fileHashes.end(); ++it) {
+		while (!initialized) { }
 
-			ifstream iStream(it->first);
-			if (iStream) {
-				string md5hash = "";
-				try {
-					md5hash = CryptUtil::FileMD5Hash(it->first);
-				} catch (INETRException &e) {
-					e.mbox(window, &CurrentLanguage);
-				}
-				if (md5hash != "" && md5hash == it->second)
-					continue;
-			}
+		SetWindowText(updateInfoEd, remoteVersionInfo.c_str());
 
-			filesToUpdate.push_back(it->first);
-		}
-
-		if (!filesToUpdate.empty()) {
-			while (!initialized) {}
-			
-			expandBottomPanel();
-		}
+		expandBottomPanel();
+		expandBottom2Panel();
 	}
 	
 	void MainWindow::populateFavoriteStationsListbox() {
@@ -556,35 +587,10 @@ namespace inetr {
 	}
 
 	void MainWindow::downloadUpdatesThread() {
-		for (list<string>::iterator it = filesToUpdate.begin();
-			it != filesToUpdate.end(); ++it) {
 
-			string fileName = *it;
-			StringUtil::SearchAndReplace(fileName, "\\", "/");
-			if (fileName[0] == '.')
-				fileName.erase(0, 1);
-			if (fileName[0] == '/')
-				fileName.erase(0, 1);
-
-			string url = string("http://internetradio.clemensboos.net/release/")
-				+ fileName;
-
-			string oldFileName = fileName + string(".old");
-
-			MoveFile(fileName.c_str(), oldFileName.c_str());
-
-			stringstream downloadFileStream;
-			HTTP::Get(url, &downloadFileStream);
-
-			ofstream fileStream;
-			fileStream.open(fileName, ios::out | ios::binary);
-
-			fileStream << downloadFileStream.rdbuf();
-
-			fileStream.close();
-
-			DeleteFile(oldFileName.c_str());
-		}
+		if (!updater.PerformPreparedUpdate())
+			MessageBox(window, CurrentLanguage["error"].c_str(),
+				CurrentLanguage["error"].c_str(), MB_OK | MB_ICONERROR);
 
 		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
 	}
@@ -699,10 +705,7 @@ namespace inetr {
 			return;
 
 		leftPanelSlideStatus = Expanding;
-		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
-			Retracting)
-			SetTimer(window, slideTimerId, slideSpeed,
-				nullptr);
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractLeftPanel() {
@@ -710,10 +713,7 @@ namespace inetr {
 			return;
 
 		leftPanelSlideStatus = Retracting;
-		if (bottomPanelSlideStatus != Expanding && bottomPanelSlideStatus !=
-			Retracting)
-			SetTimer(window, slideTimerId, slideSpeed,
-				nullptr);
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::expandBottomPanel() {
@@ -723,10 +723,7 @@ namespace inetr {
 		bottomPanelSlideStatus = Expanding;
 		ShowWindow(updateBtn, SW_SHOW);
 		ShowWindow(dontUpdateBtn, SW_SHOW);
-		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
-			Retracting)
-			SetTimer(window, slideTimerId, slideSpeed,
-				nullptr);
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractBottomPanel() {
@@ -734,10 +731,23 @@ namespace inetr {
 			return;
 
 		bottomPanelSlideStatus = Retracting;
-		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
-			Retracting)
-			SetTimer(window, slideTimerId, slideSpeed,
-			nullptr);
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
+	}
+
+	void MainWindow::expandBottom2Panel() {
+		if (bottom2PanelSlideStatus != Retracted)
+			return;
+
+		bottom2PanelSlideStatus = Expanding;
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
+	}
+
+	void MainWindow::retractBottom2Panel() {
+		if (bottom2PanelSlideStatus != Expanded)
+			return;
+
+		bottom2PanelSlideStatus = Retracting;
+		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
