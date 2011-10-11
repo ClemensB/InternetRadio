@@ -7,9 +7,9 @@ set out_build_dir=%out_dir%\%ver%
 if not exist %out_dir% mkdir %out_dir%
 if exist %out_build_dir% rmdir /s /q %out_build_dir%
 mkdir %out_build_dir%
-xcopy Release\InternetRadio.exe %out_build_dir%
-xcopy Release\InternetRadio.pdb %out_build_dir%
-xcopy dependencies\bass\bin\x86\bass.dll %out_build_dir%
+xcopy Win32\Release\InternetRadio.exe %out_build_dir%
+xcopy Win32\Release\InternetRadio.pdb %out_build_dir%
+xcopy dependencies\bass\bin\Win32\bass.dll %out_build_dir%
 xcopy data\config.json %out_build_dir%
 mkdir %out_build_dir%\img
 xcopy data\img %out_build_dir%\img
