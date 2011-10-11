@@ -82,10 +82,27 @@ namespace inetr {
 				ShowWindow(dontUpdateBtn, SW_HIDE);
 			}
 		}
+		switch (bottom2PanelSlideStatus) {
+		case Expanding:
+			bottom2PanelSlideProgress += slideStep;
+			if (bottom2PanelSlideProgress >= slideMax_Bottom2) {
+				bottom2PanelSlideProgress = slideMax_Bottom2;
+				bottom2PanelSlideStatus = Expanded;
+			}
+			break;
+		case Retracting:
+			bottom2PanelSlideProgress -= slideStep;
+			if (bottom2PanelSlideProgress <= 0) {
+				bottom2PanelSlideProgress = 0;
+				bottom2PanelSlideStatus = Retracted;
+			}
+			break;
+		}
 
 		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
 			Retracting && bottomPanelSlideStatus != Expanding &&
-			bottomPanelSlideStatus != Retracting)
+			bottomPanelSlideStatus != Retracting && bottom2PanelSlideStatus !=
+			Expanding && bottom2PanelSlideStatus != Retracting)
 			KillTimer(window, slideTimerId);
 
 		calculateControlPositions(window);
@@ -96,9 +113,11 @@ namespace inetr {
 
 		MoveWindow(window, wndPos.left - slideOffsetDiff,
 			wndPos.top, windowWidth + leftPanelSlideProgress,
-			windowHeight + bottomPanelSlideProgress, TRUE);
+			windowHeight + bottomPanelSlideProgress +
+			bottom2PanelSlideProgress, TRUE);
 
-		SetWindowPos(stationsLbox, nullptr, controlPositions["stationsLbox"].left,
+		SetWindowPos(stationsLbox, nullptr,
+			controlPositions["stationsLbox"].left,
 			controlPositions["stationsLbox"].top, 0, 0, SWP_NOSIZE);
 
 		SetWindowPos(statusLbl, nullptr, controlPositions["statusLbl"].left,
@@ -111,6 +130,10 @@ namespace inetr {
 			controlPositions["noStationsInfoLbl"].left,
 			controlPositions["noStationsInfoLbl"].top, 0, 0, SWP_NOSIZE);
 
+		SetWindowPos(updateInfoLbl, nullptr,
+			controlPositions["updateInfoLbl"].left,
+			controlPositions["updateInfoLbl"].top, 0, 0, SWP_NOSIZE);
+
 		SetWindowPos(updateBtn, nullptr, controlPositions["updateBtn"].left,
 			controlPositions["updateBtn"].top, 0, 0, SWP_NOSIZE);
 
@@ -121,6 +144,9 @@ namespace inetr {
 		SetWindowPos(volumePbar, nullptr, 0, 0,
 			RWIDTH(controlPositions["volumePbar"]),
 			RHEIGHT(controlPositions["volumePbar"]), SWP_NOMOVE);
+
+		SetWindowPos(updatingLbl, nullptr, controlPositions["updatingLbl"].left,
+			controlPositions["updatingLbl"].top, 0, 0, SWP_NOSIZE);
 
 		if (RWIDTH(controlPositions["allStationsLbox"]) <= 0) {
 			ShowWindow(allStationsLbox, SW_HIDE);
@@ -136,6 +162,17 @@ namespace inetr {
 			SetWindowPos(languageCbox, nullptr, 0, 0,
 				RWIDTH(controlPositions["languageCbox"]),
 				RHEIGHT(controlPositions["languageCbox"]),
+				SWP_NOMOVE);
+		}
+
+		if (RHEIGHT(controlPositions["updateInfoEd"]) <= 0) {
+			ShowWindow(updateInfoEd, SW_HIDE);
+		} else {
+			ShowWindow(updateInfoEd, SW_SHOW);
+
+			SetWindowPos(updateInfoEd, nullptr, 0, 0,
+				RWIDTH(controlPositions["updateInfoEd"]),
+				RHEIGHT(controlPositions["updateInfoEd"]),
 				SWP_NOMOVE);
 		}
 	}
@@ -283,6 +320,8 @@ namespace inetr {
 		EnableWindow(updateInfoLbl, FALSE);
 		EnableWindow(updateBtn, FALSE);
 		EnableWindow(dontUpdateBtn, FALSE);
+		EnableWindow(volumePbar, FALSE);
+		EnableWindow(updateInfoEd, FALSE);
 		EnableWindow(window, FALSE);
 
 		if (leftPanelSlideStatus != Retracted) {
@@ -291,24 +330,16 @@ namespace inetr {
 				nullptr);
 		}
 		retractBottomPanel();
-
-		RECT clientRect;
-		GetClientRect(window, &clientRect);
-
-		HWND updateLabel = CreateWindow("STATIC",
-			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | WS_VISIBLE |
-			SS_CENTER, (clientRect.right - clientRect.left) / 2 - 50,
-			(clientRect.bottom - clientRect.top - bottomPanelSlideProgress)
-			/ 2 - 10, 100, 20, window, (HMENU)updatingLblId,
-			instance, nullptr);
-		SendMessage(updateLabel, WM_SETFONT,
-			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
+		
+		ShowWindow(updatingLbl, SW_SHOW);
 
 		downloadUpdates();
 	}
 
 	void MainWindow::dontUpdateButton_Click() {
 		retractBottomPanel();
+		if (bottom2PanelSlideStatus == Expanded)
+			retractBottom2Panel();
 	}
 
 

@@ -170,6 +170,9 @@
     <ClInclude Include="src\ssize_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Updater.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -239,6 +242,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\MainWindow_config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

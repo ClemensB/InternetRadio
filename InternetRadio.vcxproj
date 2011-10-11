@@ -98,7 +98,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -111,7 +111,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -127,7 +127,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -144,7 +144,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;JSONCpp.lib;UxTheme.lib;Comctl32.lib;Windowscodecs.lib;Shlwapi.lib;bass.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -197,6 +197,7 @@
     <ClInclude Include="src\ssize_t.h" />
     <ClInclude Include="src\Station.hpp" />
     <ClInclude Include="src\StringUtil.hpp" />
+    <ClInclude Include="src\Updater.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CryptUtil.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="src\RegExMetadataProcessor.cpp" />
     <ClCompile Include="src\Station.cpp" />
     <ClCompile Include="src\StringUtil.cpp" />
+    <ClCompile Include="src\Updater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\InternetRadio.rc" />
