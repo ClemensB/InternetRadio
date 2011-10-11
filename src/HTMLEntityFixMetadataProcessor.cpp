@@ -29,7 +29,7 @@ namespace inetr {
 		{ "szlig", "ß" }
 	};
 
-	const int HTMLEntityFixMetadataProcessor::entityCount = (sizeof(entities) /
+	const size_t HTMLEntityFixMetadataProcessor::entityCount = (sizeof(entities) /
 		sizeof(entities[0]));
 
 	void HTMLEntityFixMetadataProcessor::Process(string &meta,
@@ -77,7 +77,7 @@ namespace inetr {
 
 						*ptrNew = id;
 					} else {
-						for (int i = 0; i < entityCount; ++i) {
+						for (size_t i = 0; i < entityCount; ++i) {
 							if (strcmp(entities[i][0], buf) == 0)
 								*ptrNew = *entities[i][1];
 						}
