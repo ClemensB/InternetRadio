@@ -185,8 +185,6 @@ namespace inetr {
 		WindowSlideStatus bottom2PanelSlideStatus;
 		int bottom2PanelSlideProgress;
 
-		//std::list<std::string> filesToUpdate;
-		//std::string versionToUpdateTo;
 		Updater updater;
 
 		std::list<Language> languages;
