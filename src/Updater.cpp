@@ -127,7 +127,7 @@ namespace inetr {
 
 	bool Updater::PrepareUpdateToRemoteVersion(unsigned short *version) {
 		memset(versionToUpdateTo, 0, sizeof(versionToUpdateTo));
-		remoteFilesToDownload.empty();
+		remoteFilesToDownload.clear();
 		
 		string versionStr;
 		VersionArrToStr(version, versionStr, true);
@@ -269,7 +269,7 @@ namespace inetr {
 			return false;
 
 		LPVOID versionMappingPtr = MapViewOfFile(versionToUpdateToMapping,
-			FILE_MAP_ALL_ACCESS, 0, 0, DWORD(4 * sizeof(short)));
+			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(short));
 		if (versionMappingPtr == nullptr) {
 			CloseHandle(versionToUpdateToMapping);
 			return false;
