@@ -260,6 +260,36 @@
 			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
 			"regexExpr" : "2"
+		},
+		{
+			"name" : "TranceBase.FM",
+			"url" : "http://listen.trancebase.fm/tunein-dsl-pls",
+			"image" : "trancebase_fm.png",
+			"meta" : "http",
+			"httpURL" : "http://www.trancebase.fm",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
+		},
+		{
+			"name" : "CoreTime.FM",
+			"url" : "http://listen.coretime.fm/tunein-dsl-pls",
+			"image" : "coretime_fm.png",
+			"meta" : "http",
+			"httpURL" : "http://www.coretime.fm",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
+		},
+		{
+			"name" : "ClubTime.FM",
+			"url" : "http://listen.clubtime.fm/tunein-dsl-pls",
+			"image" : "clubtime_fm.png",
+			"meta" : "http",
+			"httpURL" : "http://www.clubtime.fm",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
 		}
 	]
 }
