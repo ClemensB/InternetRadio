@@ -260,6 +260,7 @@ namespace inetr {
 			throw INETRException("[ctlCreFailed]: updateBtn");
 
 		SendMessage(updateBtn, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
+		SendMessage(updateBtn, BCM_SETSHIELD, (WPARAM)0, (LPARAM)TRUE);
 
 		dontUpdateBtn = CreateWindow("BUTTON", "", WS_CHILD |
 			BS_DEFPUSHBUTTON,
@@ -412,7 +413,7 @@ namespace inetr {
 		languageCboxRect.right = languageCboxRect.left +
 			(leftPanelSlideProgress - 10);
 		languageCboxRect.bottom = clientArea.bottom - 10 -
-			bottomPanelSlideProgress;
+			bottomPanelSlideProgress - bottom2PanelSlideProgress;
 		languageCboxRect.top = languageCboxRect.bottom - lngCboxHeight;
 
 		RECT allStationsLboxRect;
@@ -426,9 +427,11 @@ namespace inetr {
 		noStationsInfoLblRect.left = stationLboxRect.right + 10;
 		noStationsInfoLblRect.right = clientArea.right - 10;
 		noStationsInfoLblRect.top = 10 + ((clientArea.bottom -
-			bottomPanelSlideProgress) / 2) - (noStaInfoLblHeight / 2);
+			bottomPanelSlideProgress - bottom2PanelSlideProgress) / 2) -
+			(noStaInfoLblHeight / 2);
 		noStationsInfoLblRect.bottom = 10 + ((clientArea.bottom -
-			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
+			bottomPanelSlideProgress - bottom2PanelSlideProgress) / 2) +
+			(noStaInfoLblHeight / 2);
 
 		RECT dontUpdateBtnRect;
 		dontUpdateBtnRect.right = clientArea.right - 5;
@@ -509,7 +512,6 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdateThread() {
-
 		bool isUpToDate;
 		unsigned short upToDateVersion[4];
 		if (!updater.IsInstalledVersionUpToDate(isUpToDate, upToDateVersion) ||
@@ -588,7 +590,7 @@ namespace inetr {
 
 	void MainWindow::downloadUpdatesThread() {
 
-		if (!updater.PerformPreparedUpdate())
+		if (!updater.LaunchPreparedUpdateProcess())
 			MessageBox(window, CurrentLanguage["error"].c_str(),
 				CurrentLanguage["error"].c_str(), MB_OK | MB_ICONERROR);
 

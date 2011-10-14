@@ -99,7 +99,7 @@ namespace inetr {
 			return false;
 		if (!GetRemoteVersion(remoteVersion))
 			return false;
-		if (isUpToDate = (CompareVersions(installedVersion, remoteVersion) ==
+		if (isUpToDate = (CompareVersions(remoteVersion, installedVersion) !=
 			VCR_Newer)) {
 
 			upToDateVersion = nullptr;
@@ -127,8 +127,8 @@ namespace inetr {
 
 	bool Updater::PrepareUpdateToRemoteVersion(unsigned short *version) {
 		memset(versionToUpdateTo, 0, sizeof(versionToUpdateTo));
-		remoteFilesToDownload.empty();
-
+		remoteFilesToDownload.clear();
+		
 		string versionStr;
 		VersionArrToStr(version, versionStr, true);
 
@@ -183,11 +183,46 @@ namespace inetr {
 		return true;
 	}
 
-	bool Updater::PerformPreparedUpdate() {
+	bool Updater::LaunchPreparedUpdateProcess() {
 		if (reinterpret_cast<unsigned long long>(versionToUpdateTo) == 0L ||
 			remoteFilesToDownload.empty())
 			return false;
 
+		if (!WriteUpdateInformationToSharedMemory())
+			return false;
+
+		char modulePath[MAX_PATH];
+		GetModuleFileName(GetModuleHandle(nullptr), modulePath,
+			sizeof(modulePath));
+
+		string sModulePath(modulePath);
+		size_t lastDelim = sModulePath.find_last_of("\\");
+		if (lastDelim == string::npos)
+			return false;
+
+		SHELLEXECUTEINFO shExInfo;
+		ZeroMemory(&shExInfo, sizeof(shExInfo));
+		shExInfo.cbSize = sizeof(shExInfo);
+		shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		shExInfo.hwnd = nullptr;
+		shExInfo.lpVerb = "runas";
+		shExInfo.lpFile = modulePath;
+		shExInfo.lpParameters = "/update";
+		shExInfo.lpDirectory = sModulePath.substr(0, lastDelim).c_str();
+		shExInfo.nShow = SW_SHOW;
+		shExInfo.hInstApp = nullptr;
+
+		if (ShellExecuteEx(&shExInfo)) {
+			WaitForSingleObject(shExInfo.hProcess, INFINITE);
+			CloseHandle(shExInfo.hProcess);
+		}
+
+		FreeUpdateInformationSharedMemory();
+
+		return true;
+	}
+
+	bool Updater::PerformPreparedUpdate() {
 		for (vector<string>::iterator it = remoteFilesToDownload.begin();
 			it != remoteFilesToDownload.end(); ++it) {
 
@@ -223,6 +258,145 @@ namespace inetr {
 		}
 
 		return true;
+	}
+
+	bool Updater::WriteUpdateInformationToSharedMemory() {
+		versionToUpdateToMapping = CreateFileMapping(INVALID_HANDLE_VALUE,
+			nullptr, PAGE_READWRITE, 0, DWORD(4 * sizeof(short)),
+			"inetrUpdateVersionMapping");
+		if (versionToUpdateToMapping == nullptr || versionToUpdateToMapping ==
+			INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID versionMappingPtr = MapViewOfFile(versionToUpdateToMapping,
+			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(short));
+		if (versionMappingPtr == nullptr) {
+			CloseHandle(versionToUpdateToMapping);
+			return false;
+		}
+
+		memcpy(versionMappingPtr, (void*)versionToUpdateTo, 4 * sizeof(short));
+		UnmapViewOfFile(versionMappingPtr);
+
+		size_t filesToDlMappingSize = 0;
+		for (vector<string>::iterator it = remoteFilesToDownload.begin();
+			it != remoteFilesToDownload.end(); ++it) {
+
+				filesToDlMappingSize += it->length() + 1;
+		}
+		filesToDlMappingSize += 1;
+
+		remoteFilesToDownloadSizeMapping = CreateFileMapping(
+			INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, sizeof(size_t),
+			"inetrUpdateMappingSize");
+		if (remoteFilesToDownloadSizeMapping == nullptr ||
+			remoteFilesToDownloadSizeMapping == INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID sizeMappingPtr = MapViewOfFile(remoteFilesToDownloadSizeMapping,
+			FILE_MAP_ALL_ACCESS, 0, 0, sizeof(size_t));
+		if (sizeMappingPtr == nullptr) {
+			CloseHandle(remoteFilesToDownloadSizeMapping);
+			return false;
+		}
+
+		memcpy(sizeMappingPtr, &filesToDlMappingSize, sizeof(size_t));
+		UnmapViewOfFile(sizeMappingPtr);
+
+		remoteFilesToDownloadMapping = CreateFileMapping(
+			INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
+			(DWORD)(((unsigned long long)filesToDlMappingSize &
+			0xffffffff00000000) >> 4),
+			(DWORD)((unsigned long long)filesToDlMappingSize &
+			0x00000000ffffffff), "inetrUpdateMapping");
+		if (remoteFilesToDownloadMapping == nullptr ||
+			remoteFilesToDownloadMapping == INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID filesToDlPtr = MapViewOfFile(remoteFilesToDownloadMapping,
+			FILE_MAP_ALL_ACCESS, 0, 0, filesToDlMappingSize);
+		if (filesToDlPtr == nullptr) {
+			CloseHandle(remoteFilesToDownloadMapping);
+			return false;
+		}
+
+		char *ptr = (char*)filesToDlPtr;
+		for (vector<string>::iterator it = remoteFilesToDownload.begin();
+			it != remoteFilesToDownload.end(); ++it) {
+
+				memcpy(ptr, it->c_str(), it->length() + 1);
+				ptr += (ptrdiff_t)(it->length() + 1);
+		}
+		*ptr = '\0';
+
+		UnmapViewOfFile(filesToDlPtr);
+
+		return true;
+	}
+
+	bool Updater::FetchUpdateInformationFromSharedMemory() {
+		HANDLE versionMapping = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE,
+			"inetrUpdateVersionMapping");
+		if (versionMapping == nullptr || versionMapping == INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID versionMappingPtr = MapViewOfFile(versionMapping,
+			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(short));
+		if (versionMappingPtr == nullptr) {
+			CloseHandle(versionMapping);
+			return false;
+		}
+
+		memcpy(versionToUpdateTo, versionMappingPtr, 4 * sizeof(short));
+		UnmapViewOfFile(versionMappingPtr);
+		CloseHandle(versionMapping);
+
+		HANDLE sizeMapping = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE,
+			"inetrUpdateMappingSize");
+		if (sizeMapping == nullptr || sizeMapping == INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID sizeMappingPtr = MapViewOfFile(sizeMapping, FILE_MAP_ALL_ACCESS,
+			0, 0, sizeof(size_t));
+		if (sizeMappingPtr == nullptr) {
+			CloseHandle(sizeMapping);
+			return false;
+		}
+
+		size_t filesToDlMappingSize = 0;
+		memcpy(&filesToDlMappingSize, sizeMappingPtr, sizeof(size_t));
+		UnmapViewOfFile(sizeMappingPtr);
+		CloseHandle(sizeMapping);
+
+		HANDLE filesToDlMapping = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE,
+			"inetrUpdateMapping");
+		if (filesToDlMapping == nullptr || filesToDlMapping ==
+			INVALID_HANDLE_VALUE)
+			return false;
+
+		LPVOID filesToDlPtr = MapViewOfFile(filesToDlMapping,
+			FILE_MAP_ALL_ACCESS, 0, 0, filesToDlMappingSize);
+		if (filesToDlPtr == nullptr) {
+			CloseHandle(filesToDlMapping);
+			return false;
+		}
+
+		char *ptr = (char*)filesToDlPtr;
+		while (*ptr != '\0') {
+			remoteFilesToDownload.push_back(string(ptr));
+			ptr += (ptrdiff_t)(strlen(ptr) + 1);
+		}
+
+		UnmapViewOfFile(filesToDlPtr);
+		CloseHandle(filesToDlMapping);
+
+		return true;
+	}
+
+	void Updater::FreeUpdateInformationSharedMemory() {
+		CloseHandle(versionToUpdateToMapping);
+		CloseHandle(remoteFilesToDownloadSizeMapping);
+		CloseHandle(remoteFilesToDownloadMapping);
 	}
 
 	void Updater::VersionStrToArr(string &verStr, unsigned short *version) {

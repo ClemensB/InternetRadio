@@ -8,8 +8,4 @@
 /Win32
 /x64
 
-/out
 /publish
-
-/data/userconfig.json
-/data/InternetRadio.log

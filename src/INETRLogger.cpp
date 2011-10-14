@@ -3,6 +3,9 @@
 #include <ctime>
 #include <fstream>
 
+#include <Windows.h>
+#include <ShlObj.h>
+
 using namespace std;
 
 namespace inetr {
@@ -49,8 +52,17 @@ namespace inetr {
 		return;
 #endif
 
+		char appDataPath[MAX_PATH];
+		SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT,
+			appDataPath);
+
+		string inetrDir = string(appDataPath) + "\\InternetRadio";
+
+		if (GetFileAttributes(inetrDir.c_str()) == INVALID_FILE_ATTRIBUTES)
+			CreateDirectory(inetrDir.c_str(), nullptr);
+
 		ofstream logFile;
-		logFile.open("InternetRadio.log", ios::out | ios::app);
+		logFile.open(inetrDir + "\\InternetRadio.log", ios::out | ios::app);
 
 		logFile << getTimestamp() << str << endl;
 

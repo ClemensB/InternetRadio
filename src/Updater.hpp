@@ -19,7 +19,12 @@ namespace inetr {
 		bool ReceiveRemoteVersionInfo(unsigned short *version, std::stringstream
 			&info);
 		bool PrepareUpdateToRemoteVersion(unsigned short *version);
+		bool LaunchPreparedUpdateProcess();
 		bool PerformPreparedUpdate();
+		
+		bool WriteUpdateInformationToSharedMemory();
+		bool FetchUpdateInformationFromSharedMemory();
+		void FreeUpdateInformationSharedMemory();
 		
 		void VersionStrToArr(std::string &verStr, unsigned short *version);
 		void VersionArrToStr(unsigned short *version, std::string &verStr,
@@ -30,6 +35,10 @@ namespace inetr {
 		std::vector<std::string> OptionalFiles;
 	private:
 		std::string remoteUpdateRoot;
+
+		void *versionToUpdateToMapping;
+		void *remoteFilesToDownloadSizeMapping;
+		void *remoteFilesToDownloadMapping;
 
 		unsigned short versionToUpdateTo[4];
 		std::vector<std::string> remoteFilesToDownload;
