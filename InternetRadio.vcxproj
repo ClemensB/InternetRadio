@@ -150,25 +150,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="data\config.json" />
-    <None Include="data\img\1live.png" />
-    <None Include="data\img\89_0_rtl.png" />
-    <None Include="data\img\bigfm.png" />
-    <None Include="data\img\deutschlandfunk.png" />
-    <None Include="data\img\deutschlandradio_kultur.png" />
-    <None Include="data\img\ffn.bmp" />
-    <None Include="data\img\hardbase_fm.png" />
-    <None Include="data\img\klassik_radio.png" />
-    <None Include="data\img\mdr_sputnik.png" />
-    <None Include="data\img\n-joy.png" />
-    <None Include="data\img\ndr_1_nds.png" />
-    <None Include="data\img\ndr_2.png" />
-    <None Include="data\img\ndr_info.png" />
-    <None Include="data\img\ndr_kultur.png" />
-    <None Include="data\img\radio_aktiv.gif" />
-    <None Include="data\img\wdr_2.png" />
-    <None Include="data\img\wdr_3.png" />
-    <None Include="data\img\wdr_4.png" />
-    <None Include="data\img\wdr_5.png" />
     <None Include="README" />
     <None Include="Release.py" />
     <None Include="resource\icon.ico" />
