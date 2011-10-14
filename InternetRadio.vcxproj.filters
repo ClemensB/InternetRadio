@@ -36,9 +36,6 @@
     <None Include="data\img\ffn.bmp">
       <Filter>Data Files\Station Images</Filter>
     </None>
-    <None Include="Release.bat">
-      <Filter>Other Files</Filter>
-    </None>
     <None Include="data\img\n-joy.png">
       <Filter>Data Files\Station Images</Filter>
     </None>
@@ -104,6 +101,9 @@
     </None>
     <None Include="data\config.json">
       <Filter>Data Files</Filter>
+    </None>
+    <None Include="Release.py">
+      <Filter>Other Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
