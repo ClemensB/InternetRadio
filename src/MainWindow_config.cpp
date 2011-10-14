@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+#include <ShlObj.h>
+
 #include <json/json.h>
 
 #include "INETRException.hpp"
@@ -210,8 +212,13 @@ namespace inetr {
 	}
 
 	void MainWindow::loadUserConfig() {
+		char appDataPath[MAX_PATH];
+		SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT,
+			appDataPath);
+
 		ifstream configFile;
-		configFile.open("userconfig.json");
+		configFile.open(string(appDataPath) +
+			"\\InternetRadio\\userconfig.json");
 
 		if (configFile.is_open()) {
 			Value rootValue;
@@ -297,8 +304,17 @@ namespace inetr {
 
 		string json = jsonWriter.write(rootValue);
 
+		char appDataPath[MAX_PATH];
+		SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT,
+			appDataPath);
+
+		string inetrDir = string(appDataPath) + "\\InternetRadio";
+
+		if (GetFileAttributes(inetrDir.c_str()) == INVALID_FILE_ATTRIBUTES)
+			CreateDirectory(inetrDir.c_str(), nullptr);
+
 		ofstream configFile;
-		configFile.open("userconfig.json", ios::out | ios::trunc);
+		configFile.open(inetrDir + "\\userconfig.json", ios::out | ios::trunc);
 
 		if (!configFile.is_open())
 			throw INETRException("Couldn't open user config file");
