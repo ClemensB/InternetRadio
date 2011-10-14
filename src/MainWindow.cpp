@@ -426,9 +426,11 @@ namespace inetr {
 		noStationsInfoLblRect.left = stationLboxRect.right + 10;
 		noStationsInfoLblRect.right = clientArea.right - 10;
 		noStationsInfoLblRect.top = 10 + ((clientArea.bottom -
-			bottomPanelSlideProgress) / 2) - (noStaInfoLblHeight / 2);
+			bottomPanelSlideProgress - bottom2PanelSlideProgress) / 2) -
+			(noStaInfoLblHeight / 2);
 		noStationsInfoLblRect.bottom = 10 + ((clientArea.bottom -
-			bottomPanelSlideProgress) / 2) + (noStaInfoLblHeight / 2);
+			bottomPanelSlideProgress - bottom2PanelSlideProgress) / 2) +
+			(noStaInfoLblHeight / 2);
 
 		RECT dontUpdateBtnRect;
 		dontUpdateBtnRect.right = clientArea.right - 5;
