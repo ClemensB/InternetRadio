@@ -79,6 +79,33 @@
 			"regex" : "webradio_song_now\">\\n([^<>]+)"
 		},
 		{
+			"name" : "NDR 1 Radio MV",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1radiomv_hi_mp3",
+			"image" : "ndr_1_radio_mv.png",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/radiomv/onaircenter107-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
+		},
+		{
+			"name" : "NDR 1 Welle Nord",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1wellenord_hi_mp3",
+			"image" : "ndr_1_welle_nord.png",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/wellenord/onaircenter111-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
+		},
+		{
+			"name" : "NDR 90,3",
+			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr903_hi_mp3",
+			"image" : "ndr_90_3.png",
+			"meta" : "http",
+			"httpURL" : "http://www.ndr.de/903/onaircenter105-onaircenterpopup.html",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "webradio_song_now\">\\n([^<>]+)"
+		},
+		{
 			"name" : "NDR 2",
 			"url" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
 			"image" : "ndr_2.png",
@@ -205,7 +232,7 @@
 			"image" : "89_0_rtl.png"
 		},
 		{
-			"name" : "Hardbase.FM",
+			"name" : "HardBase.FM",
 			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
 			"image" : "hardbase_fm.png",
 			"meta" : "http",
@@ -220,6 +247,16 @@
 			"image" : "housetime_fm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.housetime.fm",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
+		},
+		{
+			"name" : "TechnoBase.FM",
+			"url" : "http://listen.technobase.fm/tunein-dsl-pls",
+			"image" : "technobase_fm.png",
+			"meta" : "http",
+			"httpURL" : "http://www.technobase.fm",
 			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
 			"regexExpr" : "2"
