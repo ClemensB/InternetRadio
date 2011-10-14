@@ -589,7 +589,7 @@ namespace inetr {
 
 	void MainWindow::downloadUpdatesThread() {
 
-		if (!updater.PerformPreparedUpdate())
+		if (!updater.LaunchPreparedUpdateProcess())
 			MessageBox(window, CurrentLanguage["error"].c_str(),
 				CurrentLanguage["error"].c_str(), MB_OK | MB_ICONERROR);
 
