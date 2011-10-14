@@ -509,11 +509,10 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdateThread() {
-
 		bool isUpToDate;
 		unsigned short upToDateVersion[4];
 		if (!updater.IsInstalledVersionUpToDate(isUpToDate, upToDateVersion) ||
-			isUpToDate)
+			isUpToDate || isUpToDate)
 			return;
 
 		stringstream remoteVersionInfoStream;

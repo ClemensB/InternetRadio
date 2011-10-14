@@ -99,7 +99,7 @@ namespace inetr {
 			return false;
 		if (!GetRemoteVersion(remoteVersion))
 			return false;
-		if (isUpToDate = (CompareVersions(installedVersion, remoteVersion) ==
+		if (isUpToDate = (CompareVersions(remoteVersion, installedVersion) !=
 			VCR_Newer)) {
 
 			upToDateVersion = nullptr;
