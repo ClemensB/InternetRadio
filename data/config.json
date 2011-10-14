@@ -206,10 +206,20 @@
 		},
 		{
 			"name" : "Hardbase.FM",
-			"url" : "http://listen.hardbase.fm/tunein-dsl-asx",
+			"url" : "http://listen.hardbase.fm/tunein-dsl-pls",
 			"image" : "hardbase_fm.png",
 			"meta" : "http",
 			"httpURL" : "http://www.hardbase.fm",
+			"metaProc" : "regex,htmlEntityFix",
+			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+			"regexExpr" : "2"
+		},
+		{
+			"name" : "HouseTime.FM",
+			"url" : "http://listen.housetime.fm/tunein-dsl-pls",
+			"image" : "housetime_fm.png",
+			"meta" : "http",
+			"httpURL" : "http://www.housetime.fm",
 			"metaProc" : "regex,htmlEntityFix",
 			"regex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
 			"regexExpr" : "2"
