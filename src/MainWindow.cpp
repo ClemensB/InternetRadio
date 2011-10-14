@@ -412,7 +412,7 @@ namespace inetr {
 		languageCboxRect.right = languageCboxRect.left +
 			(leftPanelSlideProgress - 10);
 		languageCboxRect.bottom = clientArea.bottom - 10 -
-			bottomPanelSlideProgress;
+			bottomPanelSlideProgress - bottom2PanelSlideProgress;
 		languageCboxRect.top = languageCboxRect.bottom - lngCboxHeight;
 
 		RECT allStationsLboxRect;
