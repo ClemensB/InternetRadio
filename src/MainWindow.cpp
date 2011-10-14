@@ -260,6 +260,7 @@ namespace inetr {
 			throw INETRException("[ctlCreFailed]: updateBtn");
 
 		SendMessage(updateBtn, WM_SETFONT, (WPARAM)defaultFont, (LPARAM)0);
+		SendMessage(updateBtn, BCM_SETSHIELD, (WPARAM)0, (LPARAM)TRUE);
 
 		dontUpdateBtn = CreateWindow("BUTTON", "", WS_CHILD |
 			BS_DEFPUSHBUTTON,
