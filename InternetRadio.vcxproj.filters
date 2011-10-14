@@ -25,70 +25,10 @@
     <Filter Include="Data Files">
       <UniqueIdentifier>{26c9d8fb-51d5-4d7e-824c-02951d649003}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data Files\Station Images">
-      <UniqueIdentifier>{a2dc1947-38d2-4189-b185-8129b859544d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\icon.ico">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="data\img\ffn.bmp">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\n-joy.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndr_2.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndr_info.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndr_1_nds.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\1live.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr_2.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr_3.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr_4.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\wdr_5.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\klassik_radio.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\deutschlandfunk.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\deutschlandradio_kultur.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\mdr_sputnik.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\radio_aktiv.gif">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\hardbase_fm.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\bigfm.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\89_0_rtl.png">
-      <Filter>Data Files\Station Images</Filter>
-    </None>
-    <None Include="data\img\ndr_kultur.png">
-      <Filter>Data Files\Station Images</Filter>
     </None>
     <None Include="resource\sound.ico">
       <Filter>Resource Files</Filter>
