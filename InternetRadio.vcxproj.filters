@@ -25,6 +25,12 @@
     <Filter Include="Data Files">
       <UniqueIdentifier>{26c9d8fb-51d5-4d7e-824c-02951d649003}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Meta Sources">
+      <UniqueIdentifier>{edce3a8f-debd-4fbf-8e9e-a9830aecb24a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Meta Sources">
+      <UniqueIdentifier>{18eb67fa-a6b7-424a-b835-41c48b27dc20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\icon.ico">
@@ -122,6 +128,12 @@
     <ClInclude Include="src\Languages.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MetaSource.hpp">
+      <Filter>Data Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HTTPMetaSource.hpp">
+      <Filter>Header Files\Meta Sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -198,6 +210,9 @@
     </ClCompile>
     <ClCompile Include="src\Languages.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTTPMetaSource.cpp">
+      <Filter>Source Files\Meta Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
