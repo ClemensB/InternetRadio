@@ -26,8 +26,6 @@ int CALLBACK WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance,
 		}
 	}
 
-	DeleteFile("InternetRadio.exe.updatetmp");
-
 	MainWindow window;
 	return window.Main(string(lpCmdLine), hInstance, nShowCmd);
 }

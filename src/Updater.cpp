@@ -238,6 +238,7 @@ namespace inetr {
 				INETR_ARCH + "/" + remoteFilename;
 
 			string localTmpFilename = localFilename + ".updatetmp";
+			DeleteFile(localTmpFilename.c_str());
 			MoveFile(localFilename.c_str(), localTmpFilename.c_str());
 
 			stringstream remoteFileStream;
