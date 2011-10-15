@@ -150,11 +150,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="data\config.json" />
+    <None Include="data\language.json" />
     <None Include="README" />
     <None Include="Release.py" />
     <None Include="resource\icon.ico" />
     <None Include="resource\mute.ico" />
     <None Include="resource\sound.ico" />
+    <None Include="setup.iss" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource\resource.h" />
@@ -166,6 +168,7 @@
     <ClInclude Include="src\HTTP.hpp" />
     <ClInclude Include="src\INETRLogger.hpp" />
     <ClInclude Include="src\Language.hpp" />
+    <ClInclude Include="src\Languages.hpp" />
     <ClInclude Include="src\MainWindow.hpp" />
     <ClInclude Include="src\MetadataProcessor.hpp" />
     <ClInclude Include="src\MetadataProvider.hpp" />
@@ -189,6 +192,7 @@
     <ClCompile Include="src\HTTP.cpp" />
     <ClCompile Include="src\INETRLogger.cpp" />
     <ClCompile Include="src\Language.cpp" />
+    <ClCompile Include="src\Languages.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\MainWindow_config.cpp" />

@@ -28,56 +28,6 @@ namespace inetr {
 			throw INETRException(string("Couldn't parse config file\n") +
 			jsonReader.getFormattedErrorMessages());
 
-		Value languageList = rootValue.get("languages", Value());
-		if (!languageList.isArray())
-			throw INETRException("Error while parsing config file");
-
-		for (size_t i = 0; i < (size_t)languageList.size(); ++i) {
-			Value languageObject = languageList[Value::ArrayIndex(i)];
-			if (!languageObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			Value nameValue = languageObject.get("name", Value());
-			if (!nameValue.isString())
-				throw INETRException("Error while parsing config file");
-			string name = nameValue.asString();
-
-			Value stringsObject = languageObject.get("strings", Value());
-			if (!stringsObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			map<string, string> strings;
-
-			for (size_t j = 0; j < (size_t)stringsObject.size(); ++j) {
-				string stringKey = stringsObject.getMemberNames().at(j);
-
-				Value stringValueValue = stringsObject.get(stringKey, Value());
-				if (!stringValueValue.isString())
-					throw INETRException("Error while parsing config file");
-				string stringValue = stringValueValue.asString();
-
-				strings.insert(pair<string, string>(stringKey, stringValue));
-			}
-
-			languages.push_back(Language(name, strings));
-		}
-
-		Value defaultLanguageValue = rootValue.get("defaultLanguage", Value());
-		if (!defaultLanguageValue.isString())
-			throw INETRException("Error while parsing config file");
-		string strDefaultLanguage = defaultLanguageValue.asString();
-
-		for (list<Language>::iterator it = languages.begin();
-			it != languages.end(); ++it) {
-
-				if (it->Name == strDefaultLanguage)
-					defaultLanguage = &*it;
-		}
-
-		if (defaultLanguage == nullptr)
-			throw INETRException(string("Error while parsing config file\n") +
-			string("Unsupported language: ") + strDefaultLanguage);
-
 		Value stationList = rootValue.get("stations", Value());
 		if (!stationList.isArray())
 			throw INETRException("Error while parsing config file");
@@ -166,8 +116,8 @@ namespace inetr {
 							metaProcessors.begin(); it != metaProcessors.end();
 							++it) {
 
-								if ((*it)->GetIdentifier() == metaProcStr)
-									metaProc = *it;
+							if ((*it)->GetIdentifier() == metaProcStr)
+								metaProc = *it;
 						}
 
 						if (metaProc == nullptr)
@@ -234,15 +184,10 @@ namespace inetr {
 				throw INETRException("Error while parsing config file");
 			string languageStr = languageValue.asString();
 
-			for (list<Language>::iterator it = languages.begin();
-				it != languages.end(); ++it) {
-
-					if (it->Name == languageStr)
-						CurrentLanguage = *it;
-			}
-
-			if (CurrentLanguage.Name == "Undefined")
-				CurrentLanguage = *defaultLanguage;
+			if (languages.IsLanguageLoaded(languageStr))
+				CurrentLanguage = languages[languageStr];
+			else
+				CurrentLanguage = languages.DefaultLanguage;
 
 			if (CurrentLanguage.Name == "Undefined")
 				throw INETRException(string("Error while parsing user config") +
@@ -279,17 +224,14 @@ namespace inetr {
 				throw INETRException("Error while parsing config file");
 			radioVolume = (float)volumeValue.asDouble();
 		} else {
-			CurrentLanguage = *defaultLanguage;
+			CurrentLanguage = languages.DefaultLanguage;
 		}
-
-		if (CurrentLanguage.Name == "Undefined")
-			CurrentLanguage = *defaultLanguage;
 	}
 
 	void MainWindow::saveUserConfig() {
 		Value rootValue(objectValue);
 
-		rootValue["language"] = Value(CurrentLanguage.Name);
+		rootValue["language"] = Value(CurrentLanguage.Identifier);
 		rootValue["favoriteStations"] = Value(arrayValue);
 
 		for (list<Station*>::iterator it = favoriteStations.begin();

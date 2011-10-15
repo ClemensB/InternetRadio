@@ -9,7 +9,10 @@ namespace inetr {
 		this->Name = "Undefined";
 	}
 
-	Language::Language(string name, map<string, string> strings) {
+	Language::Language(string identifier, string name, map<string, string>
+		strings) {
+
+		this->Identifier = identifier;
 		this->Name = name;
 		this->strings = strings;
 	}

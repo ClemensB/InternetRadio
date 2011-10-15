@@ -277,7 +277,7 @@ namespace inetr {
 		if (CurrentLanguage.Name == text)
 			return;
 
-		for (list<Language>::iterator it = languages.begin();
+		for (vector<Language>::const_iterator it = languages.begin();
 			it != languages.end(); ++it) {
 
 				if (text == it->Name) {

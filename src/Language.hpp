@@ -8,9 +8,10 @@ namespace inetr {
 	class Language {
 	public:
 		Language();
-		Language(std::string name, std::map<std::string, std::string>
-			strings);
+		Language(std::string identifier, std::string name,
+			std::map<std::string, std::string> strings);
 
+		std::string Identifier;
 		std::string Name;
 		std::string operator[](std::string *str);
 		std::string operator[](char *str);

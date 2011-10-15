@@ -30,15 +30,14 @@ using namespace std;
 
 namespace inetr {
 	MainWindow::MainWindow() :
-		updater(string("http://internetradio.clemensboos.net/publish")) {
+		updater(string("http://internetradio.clemensboos.net/publish")),
+		CurrentLanguage(Languages::None) {
 
 		updater.OptionalFiles.push_back("InternetRadio.pdb");
 
 		initialized = false;
 
 		isColorblindModeEnabled = false;
-
-		defaultLanguage = nullptr;
 
 		currentStation = nullptr;
 		currentStream = 0;
@@ -60,6 +59,9 @@ namespace inetr {
 
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
+
+		if (!languages.Load())
+			return 1;
 
 		bool performUpdateCheck = true;
 
@@ -572,7 +574,7 @@ namespace inetr {
 	}
 
 	void MainWindow::populateLanguageComboBox() {
-		for (list<Language>::iterator it = languages.begin();
+		for (vector<Language>::const_iterator it = languages.begin();
 			it != languages.end(); ++it) {
 			
 			LRESULT i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,

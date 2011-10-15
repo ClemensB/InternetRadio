@@ -45,6 +45,12 @@
     <None Include="Release.py">
       <Filter>Other Files</Filter>
     </None>
+    <None Include="data\language.json">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="setup.iss">
+      <Filter>Other Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MainWindow.hpp">
@@ -111,6 +117,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Updater.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Languages.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -185,6 +194,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Updater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Languages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

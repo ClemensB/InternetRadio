@@ -12,6 +12,7 @@
 
 #include "Station.hpp"
 #include "Language.hpp"
+#include "Languages.hpp"
 #include "MetadataProvider.hpp"
 #include "MetadataProcessor.hpp"
 #include "Updater.hpp"
@@ -28,7 +29,7 @@ namespace inetr {
 
 		int Main(std::string commandLine, HINSTANCE instance, int showCmd);
 
-		Language CurrentLanguage;
+		Language &CurrentLanguage;
 	private:
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
@@ -187,8 +188,7 @@ namespace inetr {
 
 		Updater updater;
 
-		std::list<Language> languages;
-		Language *defaultLanguage;
+		Languages languages;
 
 		std::list<MetadataProvider*> metaProviders;
 		std::list<MetadataProcessor*> metaProcessors;
