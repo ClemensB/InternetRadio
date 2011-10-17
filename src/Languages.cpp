@@ -28,6 +28,8 @@ namespace inetr {
 			return false;
 		}
 
+		languageFile.close();
+
 		for (size_t i = 0; i < (size_t)rootValue.size(); ++i) {
 			string lngIdentifer = rootValue.getMemberNames().at(i);
 

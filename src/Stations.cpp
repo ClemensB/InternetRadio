@@ -47,6 +47,8 @@ namespace inetr {
 			return false;
 		}
 
+		stationsFile.close();
+
 		Value minVersionValue = rootValue.get("minVersion", Value(nullValue));
 		if (!minVersionValue.isString()) {
 			MessageBox(nullptr, "Unable to load stations, couldn't read \
