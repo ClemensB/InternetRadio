@@ -578,20 +578,26 @@ namespace inetr {
 			StringUtil::PointerToString((void*)&currentStream)));
 
 		vector<string> metaSrcOut;
+		bool failed = false;
 		EnterCriticalSection(&mutex);
 		for_each(currentStation->MetaSources.begin(),
 			currentStation->MetaSources.end(),
-			[&metaSrcOut,&metaAdParam](const MetaSource &elem) {
+			[&metaSrcOut,&metaAdParam,&failed](const MetaSource &elem) {
+
+			if (failed)
+				return;
 
 			string cMetaSrcOut;
 			if (elem.Get(metaSrcOut, cMetaSrcOut, metaAdParam))
 				metaSrcOut.push_back(cMetaSrcOut);
-			else
-				metaSrcOut.push_back("ERROR");
+			else {
+				failed = true;
+			}
 		});
 		LeaveCriticalSection(&mutex);
 
-		string meta = StringUtil::DetokenizeVectorToPattern(metaSrcOut,
+		string meta = failed ? string("ERROR") :
+			StringUtil::DetokenizeVectorToPattern(metaSrcOut,
 			currentStation->MetaOut);
 
 		const char* metaStr = meta.c_str();
