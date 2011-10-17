@@ -207,8 +207,11 @@ namespace inetr {
 			return elem.Name == text;
 		});
 
-		if (it == stations.end() || &*it == currentStation)
+		if (it == stations.end() || &*it == currentStation) {
+			if (radioStatus == INETR_RS_ConnectionError)
+				radioOpenURL(it->StreamURL);
 			return;
+		}
 
 		currentStation = &*it;
 		ShowWindow(stationImg, SW_SHOW);
