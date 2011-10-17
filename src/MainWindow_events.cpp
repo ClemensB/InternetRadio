@@ -233,9 +233,7 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		remove_if(userConfig.FavoriteStations.begin(),
-			userConfig.FavoriteStations.end(), [&text](const Station* &elem) {
-
+		userConfig.FavoriteStations.remove_if([&text](const Station* &elem) {
 			return elem->Name == text;
 		});
 
