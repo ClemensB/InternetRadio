@@ -31,14 +31,14 @@ namespace inetr {
 		currentStation = nullptr;
 		currentStream = 0;
 
-		leftPanelSlideStatus = Retracted;
+		leftPanelSlideStatus = INETR_WSS_Retracted;
 		leftPanelSlideProgress = 0;
-		bottomPanelSlideStatus = Retracted;
+		bottomPanelSlideStatus = INETR_WSS_Retracted;
 		bottomPanelSlideProgress = 0;
-		bottom2PanelSlideStatus = Retracted;
+		bottom2PanelSlideStatus = INETR_WSS_Retracted;
 		bottom2PanelSlideProgress = 0;
 
-		radioStatus = Idle;
+		radioStatus = INETR_RS_Idle;
 
 		radioMuted = false;
 
@@ -619,10 +619,10 @@ namespace inetr {
 		string statusText = "";
 
 		switch (radioStatus) {
-		case Connecting:
+		case INETR_RS_Connecting:
 			statusText = "[connecting]...";
 			break;
-		case Buffering:
+		case INETR_RS_Buffering:
 			{
 				stringstream sstext;
 				sstext << "[buffering]... ";
@@ -631,16 +631,16 @@ namespace inetr {
 				statusText = sstext.str();
 			}
 			break;
-		case Connected:
+		case INTER_RS_Connected:
 			if (radioStatus_currentMetadata == "")
 				statusText = "[connected]";
 			else 
 				statusText = radioStatus_currentMetadata;
 			break;
-		case Idle:
+		case INETR_RS_Idle:
 			statusText = "";
 			break;
-		case ConnectionError:
+		case INETR_RS_ConnectionError:
 			statusText = "[connectionError]";
 			break;
 		}
@@ -658,7 +658,8 @@ namespace inetr {
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
 		SetWindowText(statusLbl, statusText.c_str());
 
-		if (radioStatus == Connected && radioStatus_currentMetadata != "")
+		if (radioStatus == INTER_RS_Connected && radioStatus_currentMetadata
+			!= "")
 			SetWindowText(window, radioStatus_currentMetadata.c_str());
 		else
 			SetWindowText(window,
@@ -666,52 +667,52 @@ namespace inetr {
 	}
 	
 	void MainWindow::expandLeftPanel() {
-		if (leftPanelSlideStatus != Retracted)
+		if (leftPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		leftPanelSlideStatus = Expanding;
+		leftPanelSlideStatus = INETR_WSS_Expanding;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractLeftPanel() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		leftPanelSlideStatus = Retracting;
+		leftPanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::expandBottomPanel() {
-		if (bottomPanelSlideStatus != Retracted)
+		if (bottomPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		bottomPanelSlideStatus = Expanding;
+		bottomPanelSlideStatus = INETR_WSS_Expanding;
 		ShowWindow(updateBtn, SW_SHOW);
 		ShowWindow(dontUpdateBtn, SW_SHOW);
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractBottomPanel() {
-		if (bottomPanelSlideStatus != Expanded)
+		if (bottomPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		bottomPanelSlideStatus = Retracting;
+		bottomPanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::expandBottom2Panel() {
-		if (bottom2PanelSlideStatus != Retracted)
+		if (bottom2PanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		bottom2PanelSlideStatus = Expanding;
+		bottom2PanelSlideStatus = INETR_WSS_Expanding;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractBottom2Panel() {
-		if (bottom2PanelSlideStatus != Expanded)
+		if (bottom2PanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		bottom2PanelSlideStatus = Retracting;
+		bottom2PanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
@@ -796,10 +797,10 @@ namespace inetr {
 			return (INT_PTR)GetStockObject(WHITE_BRUSH);
 			break;
 		case WM_LBUTTONDBLCLK:
-			if (leftPanelSlideStatus == Retracted) {
+			if (leftPanelSlideStatus == INETR_WSS_Retracted) {
 				radioStop();
 				expandLeftPanel();
-			} else if (leftPanelSlideStatus == Expanded) {
+			} else if (leftPanelSlideStatus == INETR_WSS_Expanded) {
 				retractLeftPanel();
 			}
 			break;

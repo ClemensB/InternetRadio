@@ -19,7 +19,7 @@ namespace inetr {
 
 				KillTimer(window, bufferTimerId);
 
-				radioStatus = Connected;
+				radioStatus = INTER_RS_Connected;
 				updateStatusLabel();
 
 				updateMeta();
@@ -36,7 +36,7 @@ namespace inetr {
 				SetTimer(window, metaTimerId, 5000,
 					nullptr);
 		} else {
-			radioStatus = Buffering;
+			radioStatus = INETR_RS_Buffering;
 			radioStatus_bufferingProgress = progress;
 			updateStatusLabel();
 		}
@@ -50,60 +50,64 @@ namespace inetr {
 		int oSlideOffset = leftPanelSlideProgress;
 
 		switch (leftPanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			leftPanelSlideProgress += slideStep;
 			if (leftPanelSlideProgress >= slideMax_Left) {
 				leftPanelSlideProgress = slideMax_Left;
-				leftPanelSlideStatus = Expanded;
+				leftPanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			leftPanelSlideProgress -= slideStep;
 			if (leftPanelSlideProgress <= 0) {
 				leftPanelSlideProgress = 0;
-				leftPanelSlideStatus = Retracted;
+				leftPanelSlideStatus = INETR_WSS_Retracted;
 			}
 		}
 		switch (bottomPanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			bottomPanelSlideProgress += slideStep;
 			if (bottomPanelSlideProgress >= slideMax_Bottom) {
 				bottomPanelSlideProgress = slideMax_Bottom;
-				bottomPanelSlideStatus = Expanded;
+				bottomPanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			bottomPanelSlideProgress -= slideStep;
 			if (bottomPanelSlideProgress <= 0) {
 				bottomPanelSlideProgress = 0;
-				bottomPanelSlideStatus = Retracted;
+				bottomPanelSlideStatus = INETR_WSS_Retracted;
 
 				ShowWindow(updateBtn, SW_HIDE);
 				ShowWindow(dontUpdateBtn, SW_HIDE);
 			}
 		}
 		switch (bottom2PanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			bottom2PanelSlideProgress += slideStep;
 			if (bottom2PanelSlideProgress >= slideMax_Bottom2) {
 				bottom2PanelSlideProgress = slideMax_Bottom2;
-				bottom2PanelSlideStatus = Expanded;
+				bottom2PanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			bottom2PanelSlideProgress -= slideStep;
 			if (bottom2PanelSlideProgress <= 0) {
 				bottom2PanelSlideProgress = 0;
-				bottom2PanelSlideStatus = Retracted;
+				bottom2PanelSlideStatus = INETR_WSS_Retracted;
 			}
 			break;
 		}
 
-		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
-			Retracting && bottomPanelSlideStatus != Expanding &&
-			bottomPanelSlideStatus != Retracting && bottom2PanelSlideStatus !=
-			Expanding && bottom2PanelSlideStatus != Retracting)
+		if (leftPanelSlideStatus != INETR_WSS_Expanding && leftPanelSlideStatus
+			!= INETR_WSS_Retracting && bottomPanelSlideStatus !=
+			INETR_WSS_Expanding && bottomPanelSlideStatus !=
+			INETR_WSS_Retracting && bottom2PanelSlideStatus !=
+			INETR_WSS_Expanding && bottom2PanelSlideStatus !=
+			INETR_WSS_Retracting) {
+
 			KillTimer(window, slideTimerId);
+		}
 
 		calculateControlPositions(window);
 
@@ -185,7 +189,7 @@ namespace inetr {
 
 
 	void MainWindow::stationsListBox_SelChange() {
-		if (leftPanelSlideStatus != Retracted)
+		if (leftPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
 		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -214,7 +218,7 @@ namespace inetr {
 	}
 
 	void MainWindow::stationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -236,7 +240,7 @@ namespace inetr {
 	}
 
 	void MainWindow::moreStationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -266,7 +270,7 @@ namespace inetr {
 	}
 
 	void MainWindow::languageComboBox_SelChange() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
@@ -331,8 +335,8 @@ namespace inetr {
 		EnableWindow(updateInfoEd, FALSE);
 		EnableWindow(window, FALSE);
 
-		if (leftPanelSlideStatus != Retracted) {
-			leftPanelSlideStatus = Retracting;
+		if (leftPanelSlideStatus != INETR_WSS_Retracted) {
+			leftPanelSlideStatus = INETR_WSS_Retracting;
 			SetTimer(window, slideTimerId, slideSpeed,
 				nullptr);
 		}
@@ -345,7 +349,7 @@ namespace inetr {
 
 	void MainWindow::dontUpdateButton_Click() {
 		retractBottomPanel();
-		if (bottom2PanelSlideStatus == Expanded)
+		if (bottom2PanelSlideStatus == INETR_WSS_Expanded)
 			retractBottom2Panel();
 	}
 

@@ -34,7 +34,7 @@ namespace inetr {
 			BASS_StreamFree(currentStream);
 		}
 
-		radioStatus = Connecting;
+		radioStatus = INETR_RS_Connecting;
 		updateStatusLabel();
 
 		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, nullptr
@@ -50,7 +50,7 @@ namespace inetr {
 		if (currentStream != 0) {
 			SetTimer(window, bufferTimerId, 50, nullptr);
 		} else {
-			radioStatus = ConnectionError;
+			radioStatus = INETR_RS_ConnectionError;
 			updateStatusLabel();
 		}
 	}
@@ -62,7 +62,7 @@ namespace inetr {
 		}
 
 		ShowWindow(stationImg, SW_HIDE);
-		radioStatus = Idle;
+		radioStatus = INETR_RS_Idle;
 		updateStatusLabel();
 
 		KillTimer(window, bufferTimerId);

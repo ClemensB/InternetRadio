@@ -15,10 +15,11 @@
 #include "Updater.hpp"
 
 namespace inetr {
-	enum WindowSlideStatus { Retracted, Expanded, Expanding, Retracting };
+	enum WindowSlideStatus { INETR_WSS_Retracted, INETR_WSS_Expanded,
+		INETR_WSS_Expanding, INETR_WSS_Retracting };
 
-	enum RadioStatus { Connecting, Buffering, Connected, Idle, ConnectionError
-	};
+	enum RadioStatus { INETR_RS_Connecting, INETR_RS_Buffering,
+		INTER_RS_Connected, INETR_RS_Idle, INETR_RS_ConnectionError };
 
 	class MainWindow {
 	public:
