@@ -50,7 +50,8 @@ namespace inetr {
 		if (currentStream != 0) {
 			SetTimer(window, bufferTimerId, 50, nullptr);
 		} else {
-			radioStatus = INETR_RS_ConnectionError;
+			if (radioStatus == INETR_RS_Connecting)
+				radioStatus = INETR_RS_ConnectionError;
 			updateStatusLabel();
 		}
 	}
