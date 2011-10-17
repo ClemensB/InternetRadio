@@ -122,6 +122,9 @@
     <ClInclude Include="src\HTMLFixMetaSource.hpp">
       <Filter>Header Files\Meta Sources</Filter>
     </ClInclude>
+    <ClInclude Include="src\UserConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -166,9 +169,6 @@
     <ClCompile Include="src\MainWindow_radio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MainWindow_config.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -192,6 +192,9 @@
     </ClCompile>
     <ClCompile Include="src\HTMLFixMetaSource.cpp">
       <Filter>Source Files\Meta Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserConfig.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,6 @@
 #define INTERNETRADIO_MAINWINDOW_HPP
 
 #include <string>
-#include <list>
 #include <map>
 
 #include <Windows.h>
@@ -11,8 +10,8 @@
 
 #include "Station.hpp"
 #include "Stations.hpp"
-#include "Language.hpp"
 #include "Languages.hpp"
+#include "UserConfig.hpp"
 #include "Updater.hpp"
 
 namespace inetr {
@@ -26,8 +25,6 @@ namespace inetr {
 		MainWindow();
 
 		int Main(std::string commandLine, HINSTANCE instance, int showCmd);
-
-		Language &CurrentLanguage;
 	private:
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
@@ -62,9 +59,6 @@ namespace inetr {
 		void uninitialize();
 		void initializeWindow(HWND hwnd);
 		void uninitializeWindow(HWND hwnd);
-
-		void loadUserConfig();
-		void saveUserConfig();
 
 		void calculateControlPositions(HWND hwnd);
 		void updateControlLanguageStrings();
@@ -180,7 +174,8 @@ namespace inetr {
 		Languages languages;
 
 		Stations stations;
-		std::list<const Station*> favoriteStations;
+
+		UserConfig userConfig;
 
 		RadioStatus radioStatus;
 		std::string radioStatus_currentMetadata;
@@ -190,7 +185,6 @@ namespace inetr {
 		std::string currentStreamURL;
 		HSTREAM currentStream;
 
-		float radioVolume;
 		bool radioMuted;
 	};
 }

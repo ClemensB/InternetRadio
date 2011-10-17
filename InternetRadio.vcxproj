@@ -181,6 +181,7 @@
     <ClInclude Include="src\Stations.hpp" />
     <ClInclude Include="src\StringUtil.hpp" />
     <ClInclude Include="src\Updater.hpp" />
+    <ClInclude Include="src\UserConfig.hpp" />
     <ClInclude Include="src\VersionUtil.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,7 +196,6 @@
     <ClCompile Include="src\Languages.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
-    <ClCompile Include="src\MainWindow_config.cpp" />
     <ClCompile Include="src\MainWindow_events.cpp" />
     <ClCompile Include="src\MainWindow_radio.cpp" />
     <ClCompile Include="src\MainWindow_static.cpp" />
@@ -206,6 +206,7 @@
     <ClCompile Include="src\Stations.cpp" />
     <ClCompile Include="src\StringUtil.cpp" />
     <ClCompile Include="src\Updater.cpp" />
+    <ClCompile Include="src\UserConfig.cpp" />
     <ClCompile Include="src\VersionUtil.cpp" />
   </ItemGroup>
   <ItemGroup>

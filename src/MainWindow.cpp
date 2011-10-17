@@ -20,7 +20,7 @@ using namespace std;
 namespace inetr {
 	MainWindow::MainWindow() :
 		updater(string("http://internetradio.clemensboos.net/publish")),
-		CurrentLanguage(Languages::None) {
+		userConfig(stations, languages) {
 
 		updater.OptionalFiles.push_back("InternetRadio.pdb");
 
@@ -40,7 +40,6 @@ namespace inetr {
 
 		radioStatus = Idle;
 
-		radioVolume = 1.0f;
 		radioMuted = false;
 
 		taskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
@@ -55,15 +54,13 @@ namespace inetr {
 		bool performUpdateCheck = true;
 
 		vector<string> cmdLineArgs = StringUtil::Explode(commandLine, " ");
-		for(vector<string>::iterator it = cmdLineArgs.begin(); it !=
-			cmdLineArgs.end(); ++it) {
-
-			if (*it == "-noupdate") {
+		for_each(cmdLineArgs.begin(), cmdLineArgs.end(), [&](const string &a) {
+			if (a == "-noupdate") {
 				performUpdateCheck = false;
-			} else if (*it == "-cb") {
+			} else if (a == "-cb") {
 				isColorblindModeEnabled = true;
 			}
-		}
+		});
 
 		CoInitialize(nullptr);
 
@@ -80,7 +77,7 @@ namespace inetr {
 		try {
 			createWindow();
 		} catch (INETRException &e) {
-			e.mbox(nullptr, &CurrentLanguage);
+			e.mbox(nullptr, &userConfig.CurrentLanguage);
 		}
 
 		ShowWindow(window, showCmd);
@@ -122,7 +119,7 @@ namespace inetr {
 			throw INETRException("[wndRegFailed]");
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
-			windowClassName, CurrentLanguage["windowTitle"].c_str(),
+			windowClassName, userConfig.CurrentLanguage["windowTitle"].c_str(),
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			windowWidth, windowHeight,
@@ -278,8 +275,8 @@ namespace inetr {
 		if (volumePbar == nullptr)
 			throw INETRException("[ctlCreFailed]: volumePbar");
 
-		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(radioVolume * 100.0f),
-			(LPARAM)0);
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(userConfig.RadioVolume
+			* 100.0f), (LPARAM)0);
 
 		updateInfoEd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD |
 			ES_MULTILINE | ES_WANTRETURN | ES_READONLY,
@@ -293,8 +290,8 @@ namespace inetr {
 			throw INETRException("[ctlCreFailed]: updateInfoEd");
 
 		updatingLbl = CreateWindow("STATIC",
-			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | SS_CENTER,
-			controlPositions["updatingLbl"].left,
+			userConfig.CurrentLanguage["updatingLbl"].c_str(), WS_CHILD |
+			SS_CENTER, controlPositions["updatingLbl"].left,
 			controlPositions["updatingLbl"].top,
 			RWIDTH(controlPositions["updatingLbl"]),
 			RHEIGHT(controlPositions["updatingLbl"]),
@@ -313,19 +310,11 @@ namespace inetr {
 		if (!stations.Load())
 			return;
 
-		try {
-			loadUserConfig();
-		} catch (INETRException &e) {
-			e.mbox();
-		}
+		userConfig.Load();
 	}
 
 	void MainWindow::uninitialize() {
-		try {
-			saveUserConfig();
-		} catch (INETRException &e) {
-			e.mbox();
-		}
+		userConfig.Save();
 	}
 
 	void MainWindow::initializeWindow(HWND hwnd) {
@@ -472,12 +461,16 @@ namespace inetr {
 	}
 
 	void MainWindow::updateControlLanguageStrings() {
-		SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+		SetWindowText(window,
+			userConfig.CurrentLanguage["windowTitle"].c_str());
 		SetWindowText(noStationsInfoLbl,
-			CurrentLanguage["noStationsInfo"].c_str());
-		SetWindowText(updateInfoLbl, CurrentLanguage["updateAvail"].c_str());
-		SetWindowText(updateBtn, CurrentLanguage["updateBtn"].c_str());
-		SetWindowText(dontUpdateBtn, CurrentLanguage["dUpdateBtn"].c_str());
+			userConfig.CurrentLanguage["noStationsInfo"].c_str());
+		SetWindowText(updateInfoLbl,
+			userConfig.CurrentLanguage["updateAvail"].c_str());
+		SetWindowText(updateBtn,
+			userConfig.CurrentLanguage["updateBtn"].c_str());
+		SetWindowText(dontUpdateBtn,
+			userConfig.CurrentLanguage["dUpdateBtn"].c_str());
 	}
 
 	void MainWindow::checkUpdate() {
@@ -522,39 +515,35 @@ namespace inetr {
 	void MainWindow::populateFavoriteStationsListbox() {
 		SendMessage(stationsLbox, LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
 
-		for (list<const Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ++it) {
+		for_each(userConfig.FavoriteStations.begin(),
+			userConfig.FavoriteStations.end(), [&](const Station* &elem){
 
 			SendMessage(stationsLbox, LB_ADDSTRING, (WPARAM)0,
-				(LPARAM)(*it)->Name.c_str());
-		}
+				(LPARAM)elem->Name.c_str());
+		});
 
-		if (favoriteStations.empty())
+		if (userConfig.FavoriteStations.empty())
 			ShowWindow(noStationsInfoLbl, SW_SHOW);
 		else
 			ShowWindow(noStationsInfoLbl, SW_HIDE);
 	}
 
 	void MainWindow::populateAllStationsListbox() {
-		for (list<Station>::const_iterator it = stations.begin();
-			it != stations.end(); ++it) {
-
-				SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
-					(LPARAM)it->Name.c_str());
-		}
+		for_each(stations.begin(), stations.end(), [&](const Station &elem) {
+			SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
+				(LPARAM)elem.Name.c_str());
+		});
 	}
 
 	void MainWindow::populateLanguageComboBox() {
-		for (vector<Language>::const_iterator it = languages.begin();
-			it != languages.end(); ++it) {
-			
+		for_each(languages.begin(), languages.end(), [&](const Language &elem) {
 			LRESULT i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,
-				(LPARAM)it->Name.c_str());
+				(LPARAM)elem.Name.c_str());
 
-			if (CurrentLanguage.Name == it->Name)
+			if (userConfig.CurrentLanguage.Name == elem.Name)
 				SendMessage(languageCbox, CB_SETCURSEL, (WPARAM)i,
 				(LPARAM)0);
-		}
+		});
 	}
 
 	void MainWindow::downloadUpdates() {
@@ -564,8 +553,9 @@ namespace inetr {
 	void MainWindow::downloadUpdatesThread() {
 
 		if (!updater.LaunchPreparedUpdateProcess())
-			MessageBox(window, CurrentLanguage["error"].c_str(),
-				CurrentLanguage["error"].c_str(), MB_OK | MB_ICONERROR);
+			MessageBox(window, userConfig.CurrentLanguage["error"].c_str(),
+				userConfig.CurrentLanguage["error"].c_str(), MB_OK |
+				MB_ICONERROR);
 
 		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
 	}
@@ -589,15 +579,16 @@ namespace inetr {
 
 		vector<string> metaSrcOut;
 		EnterCriticalSection(&mutex);
-		for (vector<MetaSource>::const_iterator it =
-			currentStation->MetaSources.begin(); it !=
-			currentStation->MetaSources.end(); ++it) {
+		for_each(currentStation->MetaSources.begin(),
+			currentStation->MetaSources.end(),
+			[&metaSrcOut,&metaAdParam](const MetaSource &elem) {
 
 			string cMetaSrcOut;
-			if (!it->Get(metaSrcOut, cMetaSrcOut, metaAdParam))
-				break;
-			metaSrcOut.push_back(cMetaSrcOut);
-		}
+			if (elem.Get(metaSrcOut, cMetaSrcOut, metaAdParam))
+				metaSrcOut.push_back(cMetaSrcOut);
+			else
+				metaSrcOut.push_back("ERROR");
+		});
 		LeaveCriticalSection(&mutex);
 
 		string meta = StringUtil::DetokenizeVectorToPattern(metaSrcOut,
@@ -655,7 +646,8 @@ namespace inetr {
 				statusText = "[muted]";
 		}
 
-		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
+		statusText =
+			userConfig.CurrentLanguage.LocalizeStringTokens(statusText);
 
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
 		SetWindowText(statusLbl, statusText.c_str());
@@ -663,7 +655,8 @@ namespace inetr {
 		if (radioStatus == Connected && radioStatus_currentMetadata != "")
 			SetWindowText(window, radioStatus_currentMetadata.c_str());
 		else
-			SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+			SetWindowText(window,
+				userConfig.CurrentLanguage["windowTitle"].c_str());
 	}
 	
 	void MainWindow::expandLeftPanel() {
@@ -789,7 +782,7 @@ namespace inetr {
 			try {
 				createControls(hwnd);
 			} catch (INETRException &e) {
-				e.mbox(hwnd, &CurrentLanguage);
+				e.mbox(hwnd, &userConfig.CurrentLanguage);
 			}
 			initializeWindow(hwnd);
 			break;
@@ -838,7 +831,7 @@ namespace inetr {
 					thumbButtons[0].dwMask = THB_ICON | THB_TOOLTIP;
 					thumbButtons[0].iId = thumbBarMuteBtnId;
 					thumbButtons[0].hIcon = icon;
-					string muteButtonStr = CurrentLanguage["mute"];
+					string muteButtonStr = userConfig.CurrentLanguage["mute"];
 					wstring wMuteButtonStr(muteButtonStr.length(), L'');
 					copy(muteButtonStr.begin(), muteButtonStr.end(),
 						wMuteButtonStr.begin());

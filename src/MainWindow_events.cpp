@@ -197,17 +197,20 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::const_iterator it = stations.begin();
-			it != stations.end(); ++it) {
+		list<Station>::const_iterator it = find_if(stations.begin(),
+			stations.end(), [&text](const Station &elem) {
 
-			if (text == it->Name && &*it != currentStation) {
-				currentStation = &*it;
-				ShowWindow(stationImg, SW_SHOW);
-				SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
-					(LPARAM)currentStation->Image);
-				radioOpenURL(it->StreamURL);
-			}
-		}
+			return elem.Name == text;
+		});
+
+		if (it == stations.end() || &*it == currentStation)
+			return;
+
+		currentStation = &*it;
+		ShowWindow(stationImg, SW_SHOW);
+		SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
+			(LPARAM)currentStation->Image);
+		radioOpenURL(it->StreamURL);
 	}
 
 	void MainWindow::stationsListBox_DblClick() {
@@ -223,15 +226,11 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<const Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end();) {
+		remove_if(userConfig.FavoriteStations.begin(),
+			userConfig.FavoriteStations.end(), [&text](const Station* &elem) {
 
-			if (text == (*it)->Name) {
-				it = favoriteStations.erase(it);
-			} else {
-					++it;
-			}
-		}
+			return elem->Name == text;
+		});
 
 		populateFavoriteStationsListbox();
 	}
@@ -250,12 +249,17 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::const_iterator it = stations.begin();
-			it != stations.end(); ++it) {
+		list<Station>::const_iterator it = find_if(stations.begin(),
+			stations.end(), [&text](const Station &elem) {
 
-			if (text == it->Name && find(favoriteStations.begin(),
-				favoriteStations.end(), &*it) == favoriteStations.end())
-				favoriteStations.push_back(&*it);
+			return elem.Name == text;
+		});
+
+		if (it != stations.end() && find(userConfig.FavoriteStations.begin(),
+			userConfig.FavoriteStations.end(), &*it) ==
+			userConfig.FavoriteStations.end()) {
+
+			userConfig.FavoriteStations.push_back(&*it);
 		}
 
 		populateFavoriteStationsListbox();
@@ -274,38 +278,41 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		if (CurrentLanguage.Name == text)
+		if (userConfig.CurrentLanguage.Name == text)
 			return;
 
-		for (vector<Language>::const_iterator it = languages.begin();
-			it != languages.end(); ++it) {
+		vector<Language>::const_iterator it = find_if(languages.begin(),
+			languages.end(), [&text](const Language &elem) {
 
-			if (text == it->Name) {
-				CurrentLanguage = *it;
+			return elem.Name == text;
+		});
 
-				updateControlLanguageStrings();
+		if (it == languages.end())
+			return;
 
-				ITaskbarList3 *taskbarList;
-				if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
-					CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
-					reinterpret_cast<void**>(&taskbarList)))) {
+		userConfig.CurrentLanguage = *it;
 
-					THUMBBUTTON thumbButtons[1];
-					thumbButtons[0].dwMask = THB_TOOLTIP;
-					thumbButtons[0].iId = thumbBarMuteBtnId;
-					string muteButtonStr = CurrentLanguage["mute"];
-					wstring wMuteButtonStr(muteButtonStr.length(), L'');
-					copy(muteButtonStr.begin(), muteButtonStr.end(),
-						wMuteButtonStr.begin());
-					wcscpy_s(thumbButtons[0].szTip,
-						sizeof(thumbButtons[0].szTip) /
-						sizeof(thumbButtons[0].szTip[0]),
-						wMuteButtonStr.c_str());
+		updateControlLanguageStrings();
 
-					taskbarList->ThumbBarUpdateButtons(window, 1,
-						thumbButtons);
-				}
-			}
+		ITaskbarList3 *taskbarList;
+		if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+			CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+			reinterpret_cast<void**>(&taskbarList)))) {
+
+			THUMBBUTTON thumbButtons[1];
+			thumbButtons[0].dwMask = THB_TOOLTIP;
+			thumbButtons[0].iId = thumbBarMuteBtnId;
+			string muteButtonStr = userConfig.CurrentLanguage["mute"];
+			wstring wMuteButtonStr(muteButtonStr.length(), L'');
+			copy(muteButtonStr.begin(), muteButtonStr.end(),
+				wMuteButtonStr.begin());
+			wcscpy_s(thumbButtons[0].szTip,
+				sizeof(thumbButtons[0].szTip) /
+				sizeof(thumbButtons[0].szTip[0]),
+				wMuteButtonStr.c_str());
+
+			taskbarList->ThumbBarUpdateButtons(window, 1,
+				thumbButtons);
 		}
 	}
 
@@ -345,7 +352,7 @@ namespace inetr {
 
 	void MainWindow::mouseScroll(short delta) {
 		float rDelta = (float)delta / (float)WHEEL_DELTA;
-		float nVolume = radioVolume + (rDelta * 0.1f);
+		float nVolume = userConfig.RadioVolume + (rDelta * 0.1f);
 		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
 			nVolume);
 		radioSetVolume(nVolume);

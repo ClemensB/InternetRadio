@@ -72,13 +72,13 @@ namespace inetr {
 	}
 
 	float MainWindow::radioGetVolume() const {
-		return radioMuted ? 0.0f : radioVolume;
+		return radioMuted ? 0.0f : userConfig.RadioVolume;
 	}
 
 	void MainWindow::radioSetVolume(float volume) {
 		radioSetMuted(false);
 
-		radioVolume = volume;
+		userConfig.RadioVolume = volume;
 		if (currentStream)
 			BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 			radioGetVolume());

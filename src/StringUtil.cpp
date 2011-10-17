@@ -27,7 +27,6 @@ namespace inetr {
 		size_t lastPos = 0;
 		size_t pos = 0;
 		while ((pos = pattern.find_first_of('$', pos)) != string::npos) {
-
 			out += pattern.substr(lastPos, (pos - lastPos));
 
 			if (++pos == pattern.length())
