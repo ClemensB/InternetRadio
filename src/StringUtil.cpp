@@ -1,6 +1,7 @@
 #include "StringUtil.hpp"
 
 #include <algorithm>
+#include <cctype>
 
 using namespace std;
 
@@ -17,6 +18,34 @@ namespace inetr {
 		if (str.length() > 0)
 			results.push_back(str);
 		return results;
+	}
+
+	string StringUtil::TrimLeft(string str) {
+		string::iterator it;
+
+		for (it = str.begin(); it != str.end(); ++it)
+			if (!isspace(*it))
+				break;
+
+		str.erase(str.begin(), it);
+		return str;
+	}
+
+	string StringUtil::TrimRight(string str) {
+		string::reverse_iterator it;
+
+		for (it = str.rbegin(); it != str.rend(); ++it)
+			if (!isspace(*it))
+				break;
+
+		string::difference_type dt = str.rend() - it;
+
+		str.erase(str.begin() + dt, str.end());
+		return str;
+	}
+
+	string StringUtil::Trim(string str) {
+		return TrimRight(TrimLeft(str));
 	}
 
 	string StringUtil::DetokenizeVectorToPattern(vector<string> &inputList,

@@ -600,6 +600,8 @@ namespace inetr {
 			StringUtil::DetokenizeVectorToPattern(metaSrcOut,
 			currentStation->MetaOut);
 
+		meta = StringUtil::Trim(meta);
+
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
 			int(strlen(metaStr)), nullptr, 0);
