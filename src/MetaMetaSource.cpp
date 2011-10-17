@@ -1,16 +1,23 @@
-#include "MetaMetadataProvider.hpp"
+#include "MetaMetaSource.hpp"
+
+#include <bass.h>
+
+#include "StringUtil.hpp"
 
 using namespace std;
 
 namespace inetr {
-	string MetaMetadataProvider::Fetch(HSTREAM stream, map<string, string>
-		&additionalParameterValues) {
+	bool MetaMetaSource::Get(const map<string, string> &parameters,
+		vector<string> &precedingMetaSources, string &out) const {
+
+		HSTREAM *currentStreamPtr = (HSTREAM*)StringUtil::StringToPointer(
+			parameters.find("rStream")->second);
 
 		const char *csMetadata =
-			BASS_ChannelGetTags(stream, BASS_TAG_META);
+			BASS_ChannelGetTags(*currentStreamPtr, BASS_TAG_META);
 
 		if (!csMetadata)
-			return string("");
+			return false;
 
 		string metadata(csMetadata);
 
@@ -19,17 +26,19 @@ namespace inetr {
 		size_t titlePos = metadata.find(titleStr);
 
 		if (titlePos == metadata.npos)
-			return "";
+			return false;
 
 		size_t titleBeginPos = titlePos + titleStr.length();
 		size_t titleEndPos = metadata.find("'", titleBeginPos);
 
 		if (titleEndPos == metadata.npos)
-			return "";
+			return false;
 
 		string title = metadata.substr(titleBeginPos, titleEndPos -
 			titleBeginPos);
 
-		return title;
+		out = title;
+
+		return true;
 	}
 }

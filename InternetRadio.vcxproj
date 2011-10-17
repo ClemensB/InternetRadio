@@ -149,8 +149,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="data\config.json" />
     <None Include="data\language.json" />
+    <None Include="data\stations.json" />
     <None Include="README" />
     <None Include="Release.py" />
     <None Include="resource\icon.ico" />
@@ -161,37 +161,34 @@
   <ItemGroup>
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="src\CryptUtil.hpp" />
-    <ClInclude Include="src\HTTPMetadataProvider.hpp" />
+    <ClInclude Include="src\HTMLFixMetaSource.hpp" />
     <ClInclude Include="src\HTTPMetaSource.hpp" />
     <ClInclude Include="src\ImageUtil.hpp" />
     <ClInclude Include="src\INETRException.hpp" />
-    <ClInclude Include="src\HTMLEntityFixMetadataProcessor.hpp" />
     <ClInclude Include="src\HTTP.hpp" />
     <ClInclude Include="src\INETRLogger.hpp" />
     <ClInclude Include="src\Language.hpp" />
     <ClInclude Include="src\Languages.hpp" />
     <ClInclude Include="src\MainWindow.hpp" />
-    <ClInclude Include="src\MetadataProcessor.hpp" />
-    <ClInclude Include="src\MetadataProvider.hpp" />
-    <ClInclude Include="src\MetaMetadataProvider.hpp" />
+    <ClInclude Include="src\MetaMetaSource.hpp" />
     <ClInclude Include="src\MetaSource.hpp" />
+    <ClInclude Include="src\MetaSourcePrototype.hpp" />
     <ClInclude Include="src\MUtil.hpp" />
-    <ClInclude Include="src\OGGMetadataProvider.hpp" />
     <ClInclude Include="src\OSUtil.hpp" />
-    <ClInclude Include="src\RegExArtistTitleMetadataProcessor.hpp" />
-    <ClInclude Include="src\RegExMetadataProcessor.hpp" />
+    <ClInclude Include="src\RegExMetaSource.hpp" />
     <ClInclude Include="src\ssize_t.h" />
     <ClInclude Include="src\Station.hpp" />
+    <ClInclude Include="src\Stations.hpp" />
     <ClInclude Include="src\StringUtil.hpp" />
     <ClInclude Include="src\Updater.hpp" />
+    <ClInclude Include="src\VersionUtil.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CryptUtil.cpp" />
-    <ClCompile Include="src\HTTPMetadataProvider.cpp" />
+    <ClCompile Include="src\HTMLFixMetaSource.cpp" />
     <ClCompile Include="src\HTTPMetaSource.cpp" />
     <ClCompile Include="src\ImageUtil.cpp" />
     <ClCompile Include="src\INETRException.cpp" />
-    <ClCompile Include="src\HTMLEntityFixMetadataProcessor.cpp" />
     <ClCompile Include="src\HTTP.cpp" />
     <ClCompile Include="src\INETRLogger.cpp" />
     <ClCompile Include="src\Language.cpp" />
@@ -202,16 +199,14 @@
     <ClCompile Include="src\MainWindow_events.cpp" />
     <ClCompile Include="src\MainWindow_radio.cpp" />
     <ClCompile Include="src\MainWindow_static.cpp" />
-    <ClCompile Include="src\MetadataProcessor.cpp" />
-    <ClCompile Include="src\MetadataProvider.cpp" />
-    <ClCompile Include="src\MetaMetadataProvider.cpp" />
-    <ClCompile Include="src\OGGMetadataProvider.cpp" />
+    <ClCompile Include="src\MetaMetaSource.cpp" />
     <ClCompile Include="src\OSUtil.cpp" />
-    <ClCompile Include="src\RegExArtistTitleMetadataProcessor.cpp" />
-    <ClCompile Include="src\RegExMetadataProcessor.cpp" />
+    <ClCompile Include="src\RegExMetaSource.cpp" />
     <ClCompile Include="src\Station.cpp" />
+    <ClCompile Include="src\Stations.cpp" />
     <ClCompile Include="src\StringUtil.cpp" />
     <ClCompile Include="src\Updater.cpp" />
+    <ClCompile Include="src\VersionUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\InternetRadio.rc" />

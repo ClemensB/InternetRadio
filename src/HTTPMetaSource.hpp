@@ -1,16 +1,17 @@
 #ifndef INETR_HTTPMETASOURCE_HPP
 #define INETR_HTTPMETASOURCE_HPP
 
-#include "MetaSource.hpp"
+#include "MetaSourcePrototype.hpp"
 
 namespace inetr {
-	class HTTPMetaSource : public MetaSource {
+	class HTTPMetaSource : public MetaSourcePrototype {
 	public:
-		HTTPMetaSource() : MetaSource("http") { }
+		HTTPMetaSource() : MetaSourcePrototype("http") { }
 		~HTTPMetaSource() { }
 
-		bool Get(std::map<std::string, std::string> &parameters, std::string
-			&out);
+		bool Get(const std::map<std::string, std::string> &parameters,
+			std::vector<std::string> &precedingMetaSources, std::string &out)
+			const;
 	};
 }
 

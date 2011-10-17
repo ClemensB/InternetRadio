@@ -2,7 +2,6 @@
 #define INTERNETRADIO_MAINWINDOW_HPP
 
 #include <string>
-#include <vector>
 #include <list>
 #include <map>
 
@@ -11,10 +10,9 @@
 #include <bass.h>
 
 #include "Station.hpp"
+#include "Stations.hpp"
 #include "Language.hpp"
 #include "Languages.hpp"
-#include "MetadataProvider.hpp"
-#include "MetadataProcessor.hpp"
 #include "Updater.hpp"
 
 namespace inetr {
@@ -65,7 +63,6 @@ namespace inetr {
 		void initializeWindow(HWND hwnd);
 		void uninitializeWindow(HWND hwnd);
 
-		void loadConfig();
 		void loadUserConfig();
 		void saveUserConfig();
 
@@ -110,14 +107,6 @@ namespace inetr {
 
 		void updateMeta();
 		void updateMetaThread();
-
-		std::string fetchMeta(MetadataProvider* metadataProvider,
-			HSTREAM stream, std::map<std::string, std::string>
-			&additionalParameters);
-		void processMeta(std::string &meta,
-			std::vector<MetadataProcessor*> &processors,
-			std::map<std::string, std::string> &additionalParameters);
-
 
 
 		static const char* const windowClassName;
@@ -190,17 +179,14 @@ namespace inetr {
 
 		Languages languages;
 
-		std::list<MetadataProvider*> metaProviders;
-		std::list<MetadataProcessor*> metaProcessors;
-
-		std::list<Station> stations;
-		std::list<Station*> favoriteStations;
+		Stations stations;
+		std::list<const Station*> favoriteStations;
 
 		RadioStatus radioStatus;
 		std::string radioStatus_currentMetadata;
 		QWORD radioStatus_bufferingProgress;
 
-		Station* currentStation;
+		const Station* currentStation;
 		std::string currentStreamURL;
 		HSTREAM currentStream;
 

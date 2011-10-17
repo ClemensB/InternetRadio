@@ -7,12 +7,14 @@
 using namespace std;
 
 namespace inetr {
-	bool HTTPMetaSource::Get(map<string, string> &parameters, string &out) {
+	bool HTTPMetaSource::Get(const map<string, string> &parameters,
+		vector<string> &precedingMetaSources, string &out) const {
 		stringstream httpStream;
-		if (parameters.find(string("sURL")) == parameters.end())
+		map<string, string>::const_iterator sURLIt;
+		if ((sURLIt = parameters.find(string("sURL"))) == parameters.end())
 			return false;
 		try {
-			HTTP::Get(parameters[string("sURL")], &httpStream);
+			HTTP::Get(sURLIt->second, &httpStream);
 		} catch (...) {
 			return false;
 		}

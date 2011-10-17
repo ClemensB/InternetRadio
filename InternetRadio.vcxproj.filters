@@ -16,12 +16,6 @@
     <Filter Include="Other Files">
       <UniqueIdentifier>{d8138629-2fc9-4f1c-9d2b-90ad6f978071}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Metadata Providers/Processors">
-      <UniqueIdentifier>{00cf091c-f840-466b-b423-bd0b9d5d3ecd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Metadata Providers/Processors">
-      <UniqueIdentifier>{93603c30-4ff9-4596-8bdb-4764dcfb18f2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Data Files">
       <UniqueIdentifier>{26c9d8fb-51d5-4d7e-824c-02951d649003}</UniqueIdentifier>
     </Filter>
@@ -45,9 +39,6 @@
     <None Include="README">
       <Filter>Other Files</Filter>
     </None>
-    <None Include="data\config.json">
-      <Filter>Data Files</Filter>
-    </None>
     <None Include="Release.py">
       <Filter>Other Files</Filter>
     </None>
@@ -56,6 +47,9 @@
     </None>
     <None Include="setup.iss">
       <Filter>Other Files</Filter>
+    </None>
+    <None Include="data\stations.json">
+      <Filter>Data Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -77,32 +71,8 @@
     <ClInclude Include="resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MetadataProcessor.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\INETRException.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MetadataProvider.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HTTPMetadataProvider.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HTMLEntityFixMetadataProcessor.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RegExMetadataProcessor.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RegExArtistTitleMetadataProcessor.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\OGGMetadataProvider.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MetaMetadataProvider.hpp">
-      <Filter>Header Files\Metadata Providers/Processors</Filter>
     </ClInclude>
     <ClInclude Include="src\CryptUtil.hpp">
       <Filter>Header Files</Filter>
@@ -128,10 +98,28 @@
     <ClInclude Include="src\Languages.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MetaSource.hpp">
-      <Filter>Data Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\HTTPMetaSource.hpp">
+      <Filter>Header Files\Meta Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stations.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VersionUtil.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MetaSourcePrototype.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MetaSource.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MetaMetaSource.hpp">
+      <Filter>Header Files\Meta Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RegExMetaSource.hpp">
+      <Filter>Header Files\Meta Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HTMLFixMetaSource.hpp">
       <Filter>Header Files\Meta Sources</Filter>
     </ClInclude>
   </ItemGroup>
@@ -154,32 +142,8 @@
     <ClCompile Include="src\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MetadataProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\INETRException.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MetadataProvider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HTMLEntityFixMetadataProcessor.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HTTPMetadataProvider.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MetaMetadataProvider.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\OGGMetadataProvider.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RegExMetadataProcessor.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RegExArtistTitleMetadataProcessor.cpp">
-      <Filter>Source Files\Metadata Providers/Processors</Filter>
     </ClCompile>
     <ClCompile Include="src\CryptUtil.cpp">
       <Filter>Source Files</Filter>
@@ -212,6 +176,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\HTTPMetaSource.cpp">
+      <Filter>Source Files\Meta Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VersionUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MetaMetaSource.cpp">
+      <Filter>Source Files\Meta Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegExMetaSource.cpp">
+      <Filter>Source Files\Meta Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTMLFixMetaSource.cpp">
       <Filter>Source Files\Meta Sources</Filter>
     </ClCompile>
   </ItemGroup>

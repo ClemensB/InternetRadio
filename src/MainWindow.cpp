@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include <process.h>
 #include <CommCtrl.h>
@@ -12,19 +11,9 @@
 #include <ShObjIdl.h>
 
 #include "MUtil.hpp"
-#include "HTTP.hpp"
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
-#include "CryptUtil.hpp"
 #include "OSUtil.hpp"
-
-#include "MetaMetadataProvider.hpp"
-#include "OGGMetadataProvider.hpp"
-#include "HTTPMetadataProvider.hpp"
-
-#include "RegExMetadataProcessor.hpp"
-#include "RegExArtistTitleMetadataProcessor.hpp"
-#include "HTMLEntityFixMetadataProcessor.hpp"
 
 using namespace std;
 
@@ -321,16 +310,10 @@ namespace inetr {
 	}
 
 	void MainWindow::initialize() {
-		metaProviders.push_back(new MetaMetadataProvider());
-		metaProviders.push_back(new OGGMetadataProvider());
-		metaProviders.push_back(new HTTPMetadataProvider());
-
-		metaProcessors.push_back(new RegExMetadataProcessor());
-		metaProcessors.push_back(new RegExArtistTitleMetadataProcessor());
-		metaProcessors.push_back(new HTMLEntityFixMetadataProcessor());
+		if (!stations.Load())
+			return;
 
 		try {
-			loadConfig();
 			loadUserConfig();
 		} catch (INETRException &e) {
 			e.mbox();
@@ -342,18 +325,6 @@ namespace inetr {
 			saveUserConfig();
 		} catch (INETRException &e) {
 			e.mbox();
-		}
-
-		for (list<MetadataProvider*>::iterator it = metaProviders.begin();
-			it != metaProviders.end(); ++it) {
-			
-			delete *it;
-		}
-			
-		for (list<MetadataProcessor*>::iterator it = metaProcessors.begin();
-			it != metaProcessors.end(); ++it) {
-
-			delete *it;
 		}
 	}
 
@@ -551,7 +522,7 @@ namespace inetr {
 	void MainWindow::populateFavoriteStationsListbox() {
 		SendMessage(stationsLbox, LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
 
-		for (list<Station*>::iterator it = favoriteStations.begin();
+		for (list<const Station*>::iterator it = favoriteStations.begin();
 			it != favoriteStations.end(); ++it) {
 
 			SendMessage(stationsLbox, LB_ADDSTRING, (WPARAM)0,
@@ -565,7 +536,7 @@ namespace inetr {
 	}
 
 	void MainWindow::populateAllStationsListbox() {
-		for (list<Station>::iterator it = stations.begin();
+		for (list<Station>::const_iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
 				SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
@@ -604,8 +575,33 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMetaThread() {
-		string meta = fetchMeta(currentStation->MyMetadataProvider,
-			currentStream, currentStation->AdditionalParameters);
+		static CRITICAL_SECTION mutex;
+		static bool mutexInitialized = false;
+		if (!mutexInitialized) {
+			InitializeCriticalSection(&mutex);
+			mutexInitialized = true;
+		}
+
+		map<string, string> metaAdParam;
+
+		metaAdParam.insert(pair<string, string>("rStream", 
+			StringUtil::PointerToString((void*)&currentStream)));
+
+		vector<string> metaSrcOut;
+		EnterCriticalSection(&mutex);
+		for (vector<MetaSource>::const_iterator it =
+			currentStation->MetaSources.begin(); it !=
+			currentStation->MetaSources.end(); ++it) {
+
+			string cMetaSrcOut;
+			if (!it->Get(metaSrcOut, cMetaSrcOut, metaAdParam))
+				break;
+			metaSrcOut.push_back(cMetaSrcOut);
+		}
+		LeaveCriticalSection(&mutex);
+
+		string meta = StringUtil::DetokenizeVectorToPattern(metaSrcOut,
+			currentStation->MetaOut);
 
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
@@ -618,13 +614,8 @@ namespace inetr {
 		meta = string(ansi);
 		delete[] ansi;
 
-		if (meta != "") {
-			processMeta(meta, currentStation->MetadataProcessors,
-				currentStation->AdditionalParameters);
-
-			radioStatus_currentMetadata = meta;
-			updateStatusLabel();
-		}
+		radioStatus_currentMetadata = meta;
+		updateStatusLabel();
 	}
 
 	void MainWindow::updateStatusLabel() {
@@ -673,35 +664,6 @@ namespace inetr {
 			SetWindowText(window, radioStatus_currentMetadata.c_str());
 		else
 			SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
-	}
-
-	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
-		HSTREAM stream, map<string, string> &additionalParameters) {
-
-		if (currentStation == nullptr ||
-			currentStation->MyMetadataProvider == nullptr)
-			return "";
-		
-		try {
-			return metadataProvider->Fetch(currentStream, additionalParameters);
-		} catch (INETRException &e) {
-			e.mbox(window, &CurrentLanguage);
-			return "";
-		}
-	}
-	
-	void MainWindow::processMeta(string &meta, vector<MetadataProcessor*>
-		&processors, map<string, string> &additionalParameters) {
-
-		for (vector<MetadataProcessor*>::iterator it = processors.begin();
-			it != processors.end(); ++it) {
-
-			try {
-				(*it)->Process(meta, additionalParameters);
-			} catch (INETRException &e) {
-				e.mbox(window, &CurrentLanguage);
-			}
-		}
 	}
 	
 	void MainWindow::expandLeftPanel() {

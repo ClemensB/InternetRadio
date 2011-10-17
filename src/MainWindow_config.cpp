@@ -13,154 +13,6 @@ using namespace std;
 using namespace Json;
 
 namespace inetr {
-	void MainWindow::loadConfig() {
-		ifstream configFile;
-		configFile.open("config.json");
-
-		if (!configFile.is_open())
-			throw INETRException("Couldn't open config file");
-
-		Value rootValue;
-		Reader jsonReader;
-
-		bool successfullyParsed = jsonReader.parse(configFile, rootValue);
-		if (!successfullyParsed)
-			throw INETRException(string("Couldn't parse config file\n") +
-			jsonReader.getFormattedErrorMessages());
-
-		Value stationList = rootValue.get("stations", Value());
-		if (!stationList.isArray())
-			throw INETRException("Error while parsing config file");
-
-		for (unsigned int i = 0; i < stationList.size(); ++i) {
-			Value stationObject = stationList[i];
-			if (!stationObject.isObject())
-				throw INETRException("Error while parsing config file");
-
-			Value nameValue = stationObject.get("name", Value());
-			if (!nameValue.isString())
-				throw INETRException("Error while parsing config file");
-			string name = nameValue.asString();
-
-			Value urlValue = stationObject.get("url", Value());
-			if (!urlValue.isString())
-				throw INETRException("Error while parsing config file");
-			string url = urlValue.asString();
-
-			Value imageValue = stationObject.get("image", Value());
-			if (!imageValue.isString())
-				throw INETRException("Error while parsing config file");
-			string image = string("img/") + imageValue.asString();
-
-			Value metaValue = stationObject.get("meta", Value("none"));
-			if (!metaValue.isString())
-				throw INETRException("Error while parsing config file");
-			string metaStr = metaValue.asString();
-
-			map<string, string> additionalParameters;
-
-			MetadataProvider* meta = nullptr;
-			if (metaStr != string("none")) {
-				for (list<MetadataProvider*>::iterator it =
-					metaProviders.begin();
-					it != metaProviders.end(); ++it) {
-
-						if ((*it)->GetIdentifier() == metaStr)
-							meta = *it;
-				}
-
-				if (meta == nullptr)
-					throw INETRException(string("Error while parsing config ") +
-					string("file\nUnsupported meta provider: ") + metaStr);
-
-				map<string, bool> *additionalParametersStr =
-					meta->GetAdditionalParameters();
-				for (map<string, bool>::iterator it =
-					additionalParametersStr->begin();
-					it != additionalParametersStr->end(); ++it) {
-
-						Value parameterValue = stationObject.get(it->first,
-							Value());
-						if (!parameterValue.isString()) {
-							if (!it->second)
-								throw INETRException(string("Missing or ") +
-								string("invalid meta provider parameter: ")
-								+ it->first);
-						} else {
-							string parameterStr = parameterValue.asString();
-
-							additionalParameters.insert(
-								pair<string, string>(it->first, parameterStr));
-						}
-				}
-			}
-
-			Value metaProcValue = stationObject.get("metaProc", Value("none"));
-			if (!metaProcValue.isString())
-				throw INETRException("Error while parsing config file");
-			string metaProcsStr = metaProcValue.asString();
-
-			vector<MetadataProcessor*> metaProcs;
-
-			if (metaProcsStr != string("none")) {
-				vector<string> metaProcsVec = StringUtil::Explode(metaProcsStr,
-					",");
-
-				for (vector<string>::iterator it = metaProcsVec.begin();
-					it != metaProcsVec.end(); ++it) {
-
-						string metaProcStr = *it;
-
-						MetadataProcessor* metaProc = nullptr;
-						for (list<MetadataProcessor*>::iterator it =
-							metaProcessors.begin(); it != metaProcessors.end();
-							++it) {
-
-							if ((*it)->GetIdentifier() == metaProcStr)
-								metaProc = *it;
-						}
-
-						if (metaProc == nullptr)
-							throw INETRException(string("Error while parsing ") +
-							string("config file\nUnsupported meta processor: ") +
-							metaProcStr);
-
-						map<string, bool> *additionalParametersStr =
-							metaProc->GetAdditionalParameters();
-						for (map<string, bool>::iterator it = 
-							additionalParametersStr->begin();
-							it != additionalParametersStr->end(); ++it) {
-
-								Value parameterValue = stationObject.get(it->first,
-									Value());
-								if (!parameterValue.isString()) {
-									if (!it->second)
-										throw INETRException(string("Missing or inv") +
-										string("alid meta processor parameter: ") +
-										it->first);
-								} else {
-									string parameterStr = parameterValue.asString();
-
-									additionalParameters.insert(pair<string, string>
-										(it->first, parameterStr));
-								}
-						}
-
-						metaProcs.push_back(metaProc);
-				}
-			}
-
-			if (meta == nullptr && !metaProcs.empty())
-				throw INETRException(string("Error while parsing config file") +
-				string("\nMetaProcessors specified, but no MetaProvider"));
-
-			stations.push_back(Station(name, url, image, meta, metaProcs,
-				additionalParameters));
-		}
-
-		configFile.close();
-	}
-
 	void MainWindow::loadUserConfig() {
 		char appDataPath[MAX_PATH];
 		SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT,
@@ -204,11 +56,11 @@ namespace inetr {
 					throw INETRException("Error while parsing config file");
 				string favoriteStationStr = favoriteStationValue.asString();
 
-				Station *favoriteStation = nullptr;
-				for (list<Station>::iterator it = stations.begin();
+				const Station *favoriteStation = nullptr;
+				for (list<Station>::const_iterator it = stations.begin();
 					it != stations.end(); ++it) {
 
-						if (it->Name == favoriteStationStr)
+						if (it->Identifier == favoriteStationStr)
 							favoriteStation = &*it;
 				}
 
@@ -234,10 +86,10 @@ namespace inetr {
 		rootValue["language"] = Value(CurrentLanguage.Identifier);
 		rootValue["favoriteStations"] = Value(arrayValue);
 
-		for (list<Station*>::iterator it = favoriteStations.begin();
+		for (list<const Station*>::iterator it = favoriteStations.begin();
 			it != favoriteStations.end(); ++it) {
 
-				rootValue["favoriteStations"].append(Value((*it)->Name));
+			rootValue["favoriteStations"].append(Value((*it)->Identifier));
 		}
 
 		rootValue["volume"] = Value(radioVolume);

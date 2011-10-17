@@ -197,16 +197,16 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::iterator it = stations.begin();
+		for (list<Station>::const_iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
-				if (text == it->Name && &*it != currentStation) {
-					currentStation = &*it;
-					ShowWindow(stationImg, SW_SHOW);
-					SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
-						(LPARAM)currentStation->Image);
-					radioOpenURL(it->URL);
-				}
+			if (text == it->Name && &*it != currentStation) {
+				currentStation = &*it;
+				ShowWindow(stationImg, SW_SHOW);
+				SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
+					(LPARAM)currentStation->Image);
+				radioOpenURL(it->StreamURL);
+			}
 		}
 	}
 
@@ -223,14 +223,14 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ) {
+		for (list<const Station*>::iterator it = favoriteStations.begin();
+			it != favoriteStations.end();) {
 
-				if (text == (*it)->Name) {
-					it = favoriteStations.erase(it);
-				} else {
+			if (text == (*it)->Name) {
+				it = favoriteStations.erase(it);
+			} else {
 					++it;
-				}
+			}
 		}
 
 		populateFavoriteStationsListbox();
@@ -250,12 +250,12 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::iterator it = stations.begin();
+		for (list<Station>::const_iterator it = stations.begin();
 			it != stations.end(); ++it) {
 
-				if (text == it->Name && find(favoriteStations.begin(),
-					favoriteStations.end(), &*it) == favoriteStations.end())
-					favoriteStations.push_back(&*it);
+			if (text == it->Name && find(favoriteStations.begin(),
+				favoriteStations.end(), &*it) == favoriteStations.end())
+				favoriteStations.push_back(&*it);
 		}
 
 		populateFavoriteStationsListbox();
@@ -280,32 +280,32 @@ namespace inetr {
 		for (vector<Language>::const_iterator it = languages.begin();
 			it != languages.end(); ++it) {
 
-				if (text == it->Name) {
-					CurrentLanguage = *it;
+			if (text == it->Name) {
+				CurrentLanguage = *it;
 
-					updateControlLanguageStrings();
+				updateControlLanguageStrings();
 
-					ITaskbarList3 *taskbarList;
-					if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
-						CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
-						reinterpret_cast<void**>(&taskbarList)))) {
+				ITaskbarList3 *taskbarList;
+				if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+					CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+					reinterpret_cast<void**>(&taskbarList)))) {
 
-						THUMBBUTTON thumbButtons[1];
-						thumbButtons[0].dwMask = THB_TOOLTIP;
-						thumbButtons[0].iId = thumbBarMuteBtnId;
-						string muteButtonStr = CurrentLanguage["mute"];
-						wstring wMuteButtonStr(muteButtonStr.length(), L'');
-						copy(muteButtonStr.begin(), muteButtonStr.end(),
-							wMuteButtonStr.begin());
-						wcscpy_s(thumbButtons[0].szTip,
-							sizeof(thumbButtons[0].szTip) /
-							sizeof(thumbButtons[0].szTip[0]),
-							wMuteButtonStr.c_str());
+					THUMBBUTTON thumbButtons[1];
+					thumbButtons[0].dwMask = THB_TOOLTIP;
+					thumbButtons[0].iId = thumbBarMuteBtnId;
+					string muteButtonStr = CurrentLanguage["mute"];
+					wstring wMuteButtonStr(muteButtonStr.length(), L'');
+					copy(muteButtonStr.begin(), muteButtonStr.end(),
+						wMuteButtonStr.begin());
+					wcscpy_s(thumbButtons[0].szTip,
+						sizeof(thumbButtons[0].szTip) /
+						sizeof(thumbButtons[0].szTip[0]),
+						wMuteButtonStr.c_str());
 
-						taskbarList->ThumbBarUpdateButtons(window, 1,
-							thumbButtons);
-					}
+					taskbarList->ThumbBarUpdateButtons(window, 1,
+						thumbButtons);
 				}
+			}
 		}
 	}
 

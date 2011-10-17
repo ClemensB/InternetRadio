@@ -1,5 +1,7 @@
 #include "StringUtil.hpp"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace inetr {
@@ -17,6 +19,34 @@ namespace inetr {
 		return results;
 	}
 
+	string StringUtil::DetokenizeVectorToPattern(vector<string> &inputList,
+		const string &pattern) {
+
+		string out;
+
+		size_t lastPos = 0;
+		size_t pos = 0;
+		while ((pos = pattern.find_first_of('$', pos)) != string::npos) {
+
+			out += pattern.substr(lastPos, (pos - lastPos));
+
+			if (++pos == pattern.length())
+				return pattern;
+
+			size_t elem = (size_t)atoi(string(size_t(1), pattern[pos]).c_str());
+
+			out += inputList[elem];
+
+			++pos;
+
+			lastPos = pos;
+		}
+
+		out += pattern.substr(lastPos, (pos - lastPos));
+
+		return out;
+	}
+
 	void StringUtil::SearchAndReplace(string &str, const string &search,
 		const string &replace) {
 
@@ -28,5 +58,29 @@ namespace inetr {
 			str.replace(next, search.length(), replace);
 			next += replace.length();
 		}
+	}
+
+	string StringUtil::PointerToString(void *ptr) {
+		char cString[(sizeof(void*) * 2) + 1];
+		unsigned char *ptrPtr = (unsigned char*)&ptr;
+		for (size_t i = 0; i < sizeof(void*); ++i) {
+			cString[i * 2] = (ptrPtr[i] & 0x0F) + 1;
+			cString[(i * 2) + 1] = ((ptrPtr[i] >> 4) & 0x0F) + 1;
+		}
+		memset(cString + (sizeof(void*) * 2), '\0', 1);
+
+		return string(cString);
+	}
+
+	void *StringUtil::StringToPointer(string str) {
+		const char *cString = str.c_str();
+		void *ptr = nullptr;
+		unsigned char *ptrPtr = (unsigned char*)&ptr;
+		for (size_t i = 0; i < sizeof(void*); ++i) {
+			ptrPtr[i] = (cString[i * 2] - 1) |
+				((cString[(i * 2) + 1] - 1) << 4);
+		}
+
+		return ptr;
 	}
 }

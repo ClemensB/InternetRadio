@@ -24,7 +24,7 @@ namespace inetr {
 
 		if (!jsonReader.parse(languageFile, rootValue, false)) {
 			MessageBox(nullptr, jsonReader.getFormattedErrorMessages().c_str(),
-				"", 0);
+				"Error", MB_OK | MB_ICONERROR);
 			return false;
 		}
 

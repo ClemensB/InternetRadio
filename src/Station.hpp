@@ -7,20 +7,14 @@
 
 #include <Windows.h>
 
-#include "MetadataProvider.hpp"
-#include "MetadataProcessor.hpp"
-
-#define INTERNETRADIO_STATION_IMAGEWIDTH 200
-#define INTERNETRADIO_STATION_IMAGEHEIGHT 200
+#include "MetaSource.hpp"
 
 namespace inetr {
 	class Station {
 	public:
-		Station(std::string name, std::string url, std::string imagePath,
-			MetadataProvider* metadataProvider,
-			std::vector<MetadataProcessor*> metadataProcessors,
-			std::map<std::string, std::string>
-			metadataProcessor_additionalParameters);
+		Station(std::string identifier, std::string name, std::string streamURL,
+			std::string imagePath, std::vector<MetaSource> metaSources,
+			std::string metaOut);
 		Station(const Station &original);
 		Station(Station &&original);
 		~Station();
@@ -28,14 +22,12 @@ namespace inetr {
 		Station& operator=(const Station &original);
 		Station& operator=(Station &&original);
 
+		std::string Identifier;
 		std::string Name;
-		std::string URL;
+		std::string StreamURL;
 		HBITMAP Image;
-		MetadataProvider* MyMetadataProvider;
-		std::vector<MetadataProcessor*> MetadataProcessors;
-
-		std::map<std::string, std::string>
-			AdditionalParameters;
+		std::vector<MetaSource> MetaSources;
+		std::string MetaOut;
 	private:
 		static const int imgWH = 200;
 

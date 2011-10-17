@@ -1,22 +1,38 @@
 #ifndef INETR_METASOURCE_HPP
 #define INETR_METASOURCE_HPP
 
+#include <algorithm>
 #include <string>
 #include <map>
+
+#include "MetaSourcePrototype.hpp"
 
 namespace inetr {
 	class MetaSource {
 	public:
-		virtual ~MetaSource() = 0;
+		MetaSource(MetaSourcePrototype *metaSourceProto, std::map<std::string,
+			std::string> parameters) {
 
-		inline std::string &GetIdentifer() { return identifier; }
+			MetaSourceProto = metaSourceProto;
+			Parameters = parameters;
+		}
 
-		virtual bool Get(std::map<std::string, std::string> &parameters,
-			std::string &out) = 0;
-	protected:
-		MetaSource(std::string identifier) { this->identifier = identifier; }
-	private:
-		std::string identifier;
+		inline bool Get(std::vector<std::string> &precedingMetaSources,
+			std::string &out, std::map<std::string, std::string>
+			&additionalParameters = std::map<std::string, std::string>())
+			const {
+
+			std::map<std::string, std::string> mParams;
+			mParams.insert(Parameters.begin(), Parameters.end());
+			mParams.insert(additionalParameters.begin(),
+				additionalParameters.end());
+
+			return MetaSourceProto->Get(mParams, precedingMetaSources, out);
+		}
+
+		MetaSourcePrototype *MetaSourceProto;
+
+		std::map<std::string, std::string> Parameters;
 	};
 }
 
