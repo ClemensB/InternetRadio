@@ -73,7 +73,7 @@ namespace inetr {
 			return false;
 		}
 
-		for (size_t i = 0; i < stationsValue.size(); ++i) {
+		for (size_t i = 0; i < (size_t)stationsValue.size(); ++i) {
 			string staIdentifier = stationsValue.getMemberNames().at(i);
 
 			Value staValue = stationsValue.get(staIdentifier, Value(nullValue));
