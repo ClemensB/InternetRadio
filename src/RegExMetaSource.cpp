@@ -18,7 +18,7 @@ namespace inetr {
 		regex_search(rIn.c_str(), res, rx);
 
 		vector<string> lRes;
-		for (int i = 1; i <= res.size(); ++i) {
+		for (size_t i = 1; i <= res.size(); ++i) {
 			lRes.push_back(res[i]);
 		}
 
