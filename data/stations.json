@@ -1,0 +1,519 @@
+{
+	"minVersion" : "1.7",
+	"stations" : {
+		"ndr1nds" : {
+			"name" : "NDR 1 Niedersachsen",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1niedersachsen_hi_mp3",
+			"image" : "ndr_1_nds.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/ndr1niedersachsen/onaircenter109-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndr1rmv" : {
+			"name" : "NDR 1 Radio MV",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1radiomv_hi_mp3",
+			"image" : "ndr_1_radio_mv.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/radiomv/onaircenter107-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndr1wellenord" : {
+			"name" : "NDR 1 Welle Nord",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1wellenord_hi_mp3",
+			"image" : "ndr_1_welle_nord.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/wellenord/onaircenter111-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndr903" : {
+			"name" : "NDR 90,3",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr903_hi_mp3",
+			"image" : "ndr_90_3.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/903/onaircenter105-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndr2" : {
+			"name" : "NDR 2",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3",
+			"image" : "ndr_2.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/ndr2/onaircenter101-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"njoy" : {
+			"name" : "N-Joy",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3",
+			"image" : "n-joy.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.n-joy.de/onaircenter121-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "currentsong\">\\n<div class=\"scrollingtext\">\\n<p>\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndrinfo" : {
+			"name" : "NDR Info",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrinfo_hi_mp3",
+			"image" : "ndr_info.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/info/onaircenter113-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "<h2>([^<>]+)</h2>\\n<p class=\"timing\">",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"ndrkultur" : {
+			"name" : "NDR Kultur",
+			"streamURL" : "http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrkultur_hi_mp3",
+			"image" : "ndr_kultur.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.ndr.de/ndrkultur/onaircenter115-onaircenterpopup.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "webradio_song_now\">\\n([^<>]+)",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"wdr2" : {
+			"name" : "WDR 2",
+			"streamURL" : "http://wdr-2.akacast.akamaistream.net/7/48/119436/v1/gnl.akacast.akamaistream.net/wdr-2",
+			"image" : "wdr_2.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"wdr3" : {
+			"name" : "WDR 3",
+			"streamURL" : "http://wdr-3-320.akacast.akamaistream.net/7/827/119437/v1/gnl.akacast.akamaistream.net/wdr-3-320",
+			"image" : "wdr_3.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.wdr3.de"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "Jetzt im Programm: <strong>(.+)</strong>",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"wdr4" : {
+			"name" : "WDR 4",
+			"streamURL" : "http://wdr-4.akacast.akamaistream.net/7/42/119438/v1/gnl.akacast.akamaistream.net/wdr-4",
+			"image" : "wdr_4.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.wdr.de/radio/wdr4/playlist/index.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "songtitel\">(.+)</td>",
+						"sOut" : "$0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"wdr5" : {
+			"name" : "WDR 5",
+			"streamURL" : "http://wdr-5.akacast.akamaistream.net/7/41/119439/v1/gnl.akacast.akamaistream.net/wdr-5",
+			"image" : "wdr_5.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"ffn" : {
+			"name" : "FFN",
+			"streamURL" : "http://rs20.stream24.org:8000/stream",
+			"image" : "ffn.bmp",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"deutschlandfunk" : {
+			"name" : "Deutschlandfunk",
+			"streamURL" : "http://dradio.ic.llnwd.net/stream/dradio_dlf_m_a",
+			"image" : "deutschlandfunk.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"dlrkultur" : {
+			"name" : "Deutschlandradio Kultur",
+			"streamURL" : "http://dradio.ic.llnwd.net/stream/dradio_dkultur_m_a",
+			"image" : "deutschlandradio_kultur.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"klassikradio" : {
+			"name" : "Klassik Radio",
+			"streamURL" : "http://edge.live.mp3.mdn.newmedia.nacamar.net/klassikradio128/livestream.mp3",
+			"image" : "klassik_radio.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"1live" : {
+			"name" : "1Live",
+			"streamURL" : "http://gffstream.ic.llnwd.net/stream/gffstream_stream_wdr_einslive_b",
+			"image" : "1live.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "meta"
+					}
+				],
+				"out" : "$0"
+			}
+		},
+		"mdrsputnik" : {
+			"name" : "MDR SPUTNIK",
+			"streamURL": "http://c22033-l.i.core.cdn.streamfarm.net/22005mdrsputnik/live/3087mdr_sputnik/live_de_128.mp3",
+			"image" : "mdr_sputnik.png"
+		},
+		"radioaktiv" : {
+			"name" : "Radio Aktiv",
+			"streamURL": "http://92.51.133.241:8000/",
+			"image" : "radio_aktiv.gif"
+		},
+		"bigfm" : {
+			"name" : "bigFM",
+			"streamURL" : "http://217.151.152.245/bigfm-mp3-96",
+			"image" : "bigfm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.bigfm.de/content/html/shared/playlist/index.html"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "win-pls-track-rgt\">\\n   <h1>([^<>]+)</h1>\\n   <h2>([^<>]+)",
+						"sOut" : "$1 - $0"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"890rtl" : {
+			"name" : "89.0 RTL",
+			"streamURL" : "http://62.75.176.45/rtl-high",
+			"image" : "89_0_rtl.png"
+		},
+		"technobasefm" : {
+			"name" : "TechnoBase.FM",
+			"streamURL": "http://listen.technobase.fm/tunein-dsl-pls",
+			"image" : "technobase_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.technobase.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"housetimefm" : {
+			"name" : "HouseTime.FM",
+			"streamURL": "http://listen.housetime.fm/tunein-dsl-pls",
+			"image" : "housetime_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.housetime.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"hardbasefm" : {
+			"name" : "HardBase.FM",
+			"streamURL": "http://listen.hardbase.fm/tunein-dsl-pls",
+			"image" : "hardbase_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.hardbase.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"trancebasefm" : {
+			"name" : "TranceBase.FM",
+			"streamURL": "http://listen.trancebase.fm/tunein-dsl-pls",
+			"image" : "trancebase_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.trancebase.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"coretimefm" : {
+			"name" : "CoreTime.FM",
+			"streamURL": "http://listen.coretime.fm/tunein-dsl-pls",
+			"image" : "coretime_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.coretime.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		},
+		"clubtimefm" : {
+			"name" : "ClubTime.FM",
+			"streamURL": "http://listen.clubtime.fm/tunein-dsl-pls",
+			"image" : "clubtime_fm.png",
+			"meta" : {
+				"sources" : [
+					{
+						"id" : "http",
+						"sURL" : "http://www.clubtime.fm"
+					},
+					{
+						"id" : "regex",
+						"sIn" : "$0",
+						"sRegex" : "345px;float:left; margin-top:11px; overflow:hidden\">\\s+(<a href=\"/release/[0-9]+\" style=\"color: #FFFFFF\">)?([^<>]+)",
+						"sOut" : "$1"
+					},
+					{
+						"id" : "htmlFix",
+						"sIn" : "$1"
+					}
+				],
+				"out" : "$2"
+			}
+		}
+	}
+}

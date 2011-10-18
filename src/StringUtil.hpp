@@ -9,9 +9,18 @@ namespace inetr {
 	public:
 		static std::vector<std::string> Explode(std::string str,
 			std::string separator);
+		static std::string TrimLeft(std::string str);
+		static std::string TrimRight(std::string str);
+		static std::string Trim(std::string str);
+
+		static std::string DetokenizeVectorToPattern(std::vector<std::string>
+			&inputList, const std::string &pattern);
 
 		static void SearchAndReplace(std::string &str,
 			const std::string &search, const std::string &replace);
+
+		static std::string PointerToString(void *ptr);
+		static void *StringToPointer(std::string str);
 	};
 }
 

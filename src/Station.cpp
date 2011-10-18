@@ -5,19 +5,15 @@
 using namespace std;
 
 namespace inetr {
-	Station::Station(string name, string url, string imagePath,
-		MetadataProvider* metadataProvider,
-		vector<MetadataProcessor*> metadataProcessors,
-		map<string, string> metadataAdditionalParameters) {
+	Station::Station(string identifier, string name, string streamURL,
+		string imagePath, vector<MetaSource> metaSources, string metaOut) {
 
+		this->Identifier = identifier;
 		this->Name = name;
-		this->URL = url;
-		this->MyMetadataProvider = metadataProvider;
-		this->MetadataProcessors = metadataProcessors;
+		this->StreamURL = streamURL;
+		this->MetaSources = metaSources;
+		this->MetaOut = metaOut;
 		this->imagePath = imagePath;
-
-		this->AdditionalParameters =
-			metadataAdditionalParameters;
 
 		loadImage();
 
@@ -27,14 +23,12 @@ namespace inetr {
 	}
 
 	Station::Station(const Station &original) {
+		this->Identifier = original.Identifier;
 		this->Name = original.Name;
-		this->URL = original.URL;
-		this->MyMetadataProvider = original.MyMetadataProvider;
-		this->MetadataProcessors = original.MetadataProcessors;
+		this->StreamURL = original.StreamURL;
+		this->MetaSources = original.MetaSources;
+		this->MetaOut = original.MetaOut;
 		this->imagePath = original.imagePath;
-
-		this->AdditionalParameters =
-			original.AdditionalParameters;
 
 		loadImage();
 
@@ -44,14 +38,12 @@ namespace inetr {
 	}
 
 	Station::Station(Station &&original) {
+		this->Identifier = original.Identifier;
 		this->Name = original.Name;
-		this->URL = original.URL;
-		this->MyMetadataProvider = original.MyMetadataProvider;
-		this->MetadataProcessors = original.MetadataProcessors;
+		this->StreamURL = original.StreamURL;
+		this->MetaSources = move(original.MetaSources);
+		this->MetaOut = original.MetaOut;
 		this->imagePath = original.imagePath;
-
-		this->AdditionalParameters =
-			original.AdditionalParameters;
 
 		this->Image = original.Image;
 
@@ -68,14 +60,12 @@ namespace inetr {
 			if (this->Image != nullptr)
 				DeleteObject((HGDIOBJ)this->Image);
 
+			this->Identifier = original.Identifier;
 			this->Name = original.Name;
-			this->URL = original.URL;
-			this->MyMetadataProvider = original.MyMetadataProvider;
-			this->MetadataProcessors = original.MetadataProcessors;
+			this->StreamURL = original.StreamURL;
+			this->MetaSources = original.MetaSources;
+			this->MetaOut = original.MetaOut;
 			this->imagePath = original.imagePath;
-
-			this->AdditionalParameters =
-				original.AdditionalParameters;
 
 			loadImage();
 
@@ -92,14 +82,12 @@ namespace inetr {
 			if (this->Image != nullptr)
 				DeleteObject((HGDIOBJ)this->Image);
 
+			this->Identifier = original.Identifier;
 			this->Name = original.Name;
-			this->URL = original.URL;
-			this->MyMetadataProvider = original.MyMetadataProvider;
-			this->MetadataProcessors = original.MetadataProcessors;
+			this->StreamURL = original.StreamURL;
+			this->MetaSources = move(original.MetaSources);
+			this->MetaOut = original.MetaOut;
 			this->imagePath = original.imagePath;
-
-			this->AdditionalParameters =
-				original.AdditionalParameters;
 
 			this->Image = original.Image;
 

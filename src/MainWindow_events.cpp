@@ -19,7 +19,7 @@ namespace inetr {
 
 				KillTimer(window, bufferTimerId);
 
-				radioStatus = Connected;
+				radioStatus = INTER_RS_Connected;
 				updateStatusLabel();
 
 				updateMeta();
@@ -36,7 +36,7 @@ namespace inetr {
 				SetTimer(window, metaTimerId, 5000,
 					nullptr);
 		} else {
-			radioStatus = Buffering;
+			radioStatus = INETR_RS_Buffering;
 			radioStatus_bufferingProgress = progress;
 			updateStatusLabel();
 		}
@@ -50,60 +50,64 @@ namespace inetr {
 		int oSlideOffset = leftPanelSlideProgress;
 
 		switch (leftPanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			leftPanelSlideProgress += slideStep;
 			if (leftPanelSlideProgress >= slideMax_Left) {
 				leftPanelSlideProgress = slideMax_Left;
-				leftPanelSlideStatus = Expanded;
+				leftPanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			leftPanelSlideProgress -= slideStep;
 			if (leftPanelSlideProgress <= 0) {
 				leftPanelSlideProgress = 0;
-				leftPanelSlideStatus = Retracted;
+				leftPanelSlideStatus = INETR_WSS_Retracted;
 			}
 		}
 		switch (bottomPanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			bottomPanelSlideProgress += slideStep;
 			if (bottomPanelSlideProgress >= slideMax_Bottom) {
 				bottomPanelSlideProgress = slideMax_Bottom;
-				bottomPanelSlideStatus = Expanded;
+				bottomPanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			bottomPanelSlideProgress -= slideStep;
 			if (bottomPanelSlideProgress <= 0) {
 				bottomPanelSlideProgress = 0;
-				bottomPanelSlideStatus = Retracted;
+				bottomPanelSlideStatus = INETR_WSS_Retracted;
 
 				ShowWindow(updateBtn, SW_HIDE);
 				ShowWindow(dontUpdateBtn, SW_HIDE);
 			}
 		}
 		switch (bottom2PanelSlideStatus) {
-		case Expanding:
+		case INETR_WSS_Expanding:
 			bottom2PanelSlideProgress += slideStep;
 			if (bottom2PanelSlideProgress >= slideMax_Bottom2) {
 				bottom2PanelSlideProgress = slideMax_Bottom2;
-				bottom2PanelSlideStatus = Expanded;
+				bottom2PanelSlideStatus = INETR_WSS_Expanded;
 			}
 			break;
-		case Retracting:
+		case INETR_WSS_Retracting:
 			bottom2PanelSlideProgress -= slideStep;
 			if (bottom2PanelSlideProgress <= 0) {
 				bottom2PanelSlideProgress = 0;
-				bottom2PanelSlideStatus = Retracted;
+				bottom2PanelSlideStatus = INETR_WSS_Retracted;
 			}
 			break;
 		}
 
-		if (leftPanelSlideStatus != Expanding && leftPanelSlideStatus !=
-			Retracting && bottomPanelSlideStatus != Expanding &&
-			bottomPanelSlideStatus != Retracting && bottom2PanelSlideStatus !=
-			Expanding && bottom2PanelSlideStatus != Retracting)
+		if (leftPanelSlideStatus != INETR_WSS_Expanding && leftPanelSlideStatus
+			!= INETR_WSS_Retracting && bottomPanelSlideStatus !=
+			INETR_WSS_Expanding && bottomPanelSlideStatus !=
+			INETR_WSS_Retracting && bottom2PanelSlideStatus !=
+			INETR_WSS_Expanding && bottom2PanelSlideStatus !=
+			INETR_WSS_Retracting) {
+
 			KillTimer(window, slideTimerId);
+		}
 
 		calculateControlPositions(window);
 
@@ -185,7 +189,7 @@ namespace inetr {
 
 
 	void MainWindow::stationsListBox_SelChange() {
-		if (leftPanelSlideStatus != Retracted)
+		if (leftPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
 		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -197,21 +201,27 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::iterator it = stations.begin();
-			it != stations.end(); ++it) {
+		list<Station>::const_iterator it = find_if(stations.begin(),
+			stations.end(), [&text](const Station &elem) {
 
-				if (text == it->Name && &*it != currentStation) {
-					currentStation = &*it;
-					ShowWindow(stationImg, SW_SHOW);
-					SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
-						(LPARAM)currentStation->Image);
-					radioOpenURL(it->URL);
-				}
+			return elem.Name == text;
+		});
+
+		if (it == stations.end() || &*it == currentStation) {
+			if (radioStatus == INETR_RS_ConnectionError)
+				radioOpenURL(it->StreamURL);
+			return;
 		}
+
+		currentStation = &*it;
+		ShowWindow(stationImg, SW_SHOW);
+		SendMessage(stationImg, STM_SETIMAGE, IMAGE_BITMAP,
+			(LPARAM)currentStation->Image);
+		radioOpenURL(it->StreamURL);
 	}
 
 	void MainWindow::stationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(stationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -223,21 +233,15 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ) {
-
-				if (text == (*it)->Name) {
-					it = favoriteStations.erase(it);
-				} else {
-					++it;
-				}
-		}
+		userConfig.FavoriteStations.remove_if([&text](const Station* &elem) {
+			return elem->Name == text;
+		});
 
 		populateFavoriteStationsListbox();
 	}
 
 	void MainWindow::moreStationsListBox_DblClick() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(allStationsLbox, LB_GETCURSEL, (WPARAM)0,
@@ -250,19 +254,24 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		for (list<Station>::iterator it = stations.begin();
-			it != stations.end(); ++it) {
+		list<Station>::const_iterator it = find_if(stations.begin(),
+			stations.end(), [&text](const Station &elem) {
 
-				if (text == it->Name && find(favoriteStations.begin(),
-					favoriteStations.end(), &*it) == favoriteStations.end())
-					favoriteStations.push_back(&*it);
+			return elem.Name == text;
+		});
+
+		if (it != stations.end() && find(userConfig.FavoriteStations.begin(),
+			userConfig.FavoriteStations.end(), &*it) ==
+			userConfig.FavoriteStations.end()) {
+
+			userConfig.FavoriteStations.push_back(&*it);
 		}
 
 		populateFavoriteStationsListbox();
 	}
 
 	void MainWindow::languageComboBox_SelChange() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
 		LRESULT index = SendMessage(languageCbox, CB_GETCURSEL, 0, 0);
@@ -274,38 +283,41 @@ namespace inetr {
 		string text(cText);
 		delete[] cText;
 
-		if (CurrentLanguage.Name == text)
+		if (userConfig.CurrentLanguage.Name == text)
 			return;
 
-		for (list<Language>::iterator it = languages.begin();
-			it != languages.end(); ++it) {
+		vector<Language>::const_iterator it = find_if(languages.begin(),
+			languages.end(), [&text](const Language &elem) {
 
-				if (text == it->Name) {
-					CurrentLanguage = *it;
+			return elem.Name == text;
+		});
 
-					updateControlLanguageStrings();
+		if (it == languages.end())
+			return;
 
-					ITaskbarList3 *taskbarList;
-					if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
-						CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
-						reinterpret_cast<void**>(&taskbarList)))) {
+		userConfig.CurrentLanguage = *it;
 
-						THUMBBUTTON thumbButtons[1];
-						thumbButtons[0].dwMask = THB_TOOLTIP;
-						thumbButtons[0].iId = thumbBarMuteBtnId;
-						string muteButtonStr = CurrentLanguage["mute"];
-						wstring wMuteButtonStr(muteButtonStr.length(), L'');
-						copy(muteButtonStr.begin(), muteButtonStr.end(),
-							wMuteButtonStr.begin());
-						wcscpy_s(thumbButtons[0].szTip,
-							sizeof(thumbButtons[0].szTip) /
-							sizeof(thumbButtons[0].szTip[0]),
-							wMuteButtonStr.c_str());
+		updateControlLanguageStrings();
 
-						taskbarList->ThumbBarUpdateButtons(window, 1,
-							thumbButtons);
-					}
-				}
+		ITaskbarList3 *taskbarList;
+		if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+			CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+			reinterpret_cast<void**>(&taskbarList)))) {
+
+			THUMBBUTTON thumbButtons[1];
+			thumbButtons[0].dwMask = THB_TOOLTIP;
+			thumbButtons[0].iId = thumbBarMuteBtnId;
+			string muteButtonStr = userConfig.CurrentLanguage["mute"];
+			wstring wMuteButtonStr(muteButtonStr.length(), L'');
+			copy(muteButtonStr.begin(), muteButtonStr.end(),
+				wMuteButtonStr.begin());
+			wcscpy_s(thumbButtons[0].szTip,
+				sizeof(thumbButtons[0].szTip) /
+				sizeof(thumbButtons[0].szTip[0]),
+				wMuteButtonStr.c_str());
+
+			taskbarList->ThumbBarUpdateButtons(window, 1,
+				thumbButtons);
 		}
 	}
 
@@ -324,8 +336,8 @@ namespace inetr {
 		EnableWindow(updateInfoEd, FALSE);
 		EnableWindow(window, FALSE);
 
-		if (leftPanelSlideStatus != Retracted) {
-			leftPanelSlideStatus = Retracting;
+		if (leftPanelSlideStatus != INETR_WSS_Retracted) {
+			leftPanelSlideStatus = INETR_WSS_Retracting;
 			SetTimer(window, slideTimerId, slideSpeed,
 				nullptr);
 		}
@@ -338,14 +350,14 @@ namespace inetr {
 
 	void MainWindow::dontUpdateButton_Click() {
 		retractBottomPanel();
-		if (bottom2PanelSlideStatus == Expanded)
+		if (bottom2PanelSlideStatus == INETR_WSS_Expanded)
 			retractBottom2Panel();
 	}
 
 
 	void MainWindow::mouseScroll(short delta) {
 		float rDelta = (float)delta / (float)WHEEL_DELTA;
-		float nVolume = radioVolume + (rDelta * 0.1f);
+		float nVolume = userConfig.RadioVolume + (rDelta * 0.1f);
 		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
 			nVolume);
 		radioSetVolume(nVolume);

@@ -2,6 +2,8 @@
 This project is a simple lightweight internet radio client for Windows.
 
 --- CREDITS ---
+Thanks to Un4seen for their nice bass.dll library (http://www.un4seen.com)
+
 resource/mute.ico
 resource/sound.ico
-Taken from the Token Dark Pack by brsev (http://brsev.deviantart.com)
+From the Token Dark Pack by brsev (http://brsev.deviantart.com)

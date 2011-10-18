@@ -1,11 +1,11 @@
-#include "HTMLEntityFixMetadataProcessor.hpp"
+#include "HTMLFixMetaSource.hpp"
 
-#include "INETRException.hpp"
+#include "StringUtil.hpp"
 
 using namespace std;
 
 namespace inetr {
-	const char* const HTMLEntityFixMetadataProcessor::entities[][2] = {
+	const char* const HTMLFixMetaSource::entities[][2] = {
 		{ "amp", "&" },
 		{ "lt", "<" },
 		{ "gt", ">" },
@@ -29,12 +29,14 @@ namespace inetr {
 		{ "szlig", "ß" }
 	};
 
-	const size_t HTMLEntityFixMetadataProcessor::entityCount = (sizeof(entities) /
-		sizeof(entities[0]));
+	const size_t HTMLFixMetaSource::entityCount = (sizeof(entities)
+		/ sizeof(entities[0]));
 
-	void HTMLEntityFixMetadataProcessor::Process(string &meta,
-		map<string, string> &additionalParameterValues) {
+	bool HTMLFixMetaSource::Get(const map<string, string> &parameters,
+		vector<string> &precedingMetaSources, string &out) const {
 
+		string meta = StringUtil::DetokenizeVectorToPattern(
+			precedingMetaSources, parameters.find("sIn")->second);
 		const char* const metaStr = meta.c_str();
 		char* const newStr = new char[strlen(metaStr) + 1];
 
@@ -73,7 +75,7 @@ namespace inetr {
 						else
 							n = sscanf_s(&buf[1], "%u", &id);
 						if (n != 1)
-							throw INETRException("[error]");
+							return false;
 
 						*ptrNew = id;
 					} else {
@@ -84,7 +86,7 @@ namespace inetr {
 					}
 
 					if (*ptrNew == 0)
-						throw INETRException("[unkHTMLEnt]: " + string(buf));
+						return false;
 				} else {
 					ptrMeta = ptrMetaOld;
 					*ptrNew = *ptrMeta;
@@ -99,7 +101,9 @@ namespace inetr {
 
 		*ptrNew = 0;
 
-		meta = string(newStr);
+		out = string(newStr);
 		delete[] newStr;
+
+		return true;
 	}
 }

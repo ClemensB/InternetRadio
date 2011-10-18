@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include <process.h>
 #include <CommCtrl.h>
@@ -12,25 +11,16 @@
 #include <ShObjIdl.h>
 
 #include "MUtil.hpp"
-#include "HTTP.hpp"
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
-#include "CryptUtil.hpp"
 #include "OSUtil.hpp"
-
-#include "MetaMetadataProvider.hpp"
-#include "OGGMetadataProvider.hpp"
-#include "HTTPMetadataProvider.hpp"
-
-#include "RegExMetadataProcessor.hpp"
-#include "RegExArtistTitleMetadataProcessor.hpp"
-#include "HTMLEntityFixMetadataProcessor.hpp"
 
 using namespace std;
 
 namespace inetr {
 	MainWindow::MainWindow() :
-		updater(string("http://internetradio.clemensboos.net/publish")) {
+		updater(string("http://internetradio.clemensboos.net/publish")),
+		userConfig(stations, languages) {
 
 		updater.OptionalFiles.push_back("InternetRadio.pdb");
 
@@ -38,21 +28,18 @@ namespace inetr {
 
 		isColorblindModeEnabled = false;
 
-		defaultLanguage = nullptr;
-
 		currentStation = nullptr;
 		currentStream = 0;
 
-		leftPanelSlideStatus = Retracted;
+		leftPanelSlideStatus = INETR_WSS_Retracted;
 		leftPanelSlideProgress = 0;
-		bottomPanelSlideStatus = Retracted;
+		bottomPanelSlideStatus = INETR_WSS_Retracted;
 		bottomPanelSlideProgress = 0;
-		bottom2PanelSlideStatus = Retracted;
+		bottom2PanelSlideStatus = INETR_WSS_Retracted;
 		bottom2PanelSlideProgress = 0;
 
-		radioStatus = Idle;
+		radioStatus = INETR_RS_Idle;
 
-		radioVolume = 1.0f;
 		radioMuted = false;
 
 		taskbarBtnCreatedMsg = RegisterWindowMessage("TaskbarButtonCreated");
@@ -61,18 +48,19 @@ namespace inetr {
 	int MainWindow::Main(string commandLine, HINSTANCE instance, int showCmd) {
 		MainWindow::instance = instance;
 
+		if (!languages.Load())
+			return 1;
+
 		bool performUpdateCheck = true;
 
 		vector<string> cmdLineArgs = StringUtil::Explode(commandLine, " ");
-		for(vector<string>::iterator it = cmdLineArgs.begin(); it !=
-			cmdLineArgs.end(); ++it) {
-
-			if (*it == "-noupdate") {
+		for_each(cmdLineArgs.begin(), cmdLineArgs.end(), [&](const string &a) {
+			if (a == "-noupdate") {
 				performUpdateCheck = false;
-			} else if (*it == "-cb") {
+			} else if (a == "-cb") {
 				isColorblindModeEnabled = true;
 			}
-		}
+		});
 
 		CoInitialize(nullptr);
 
@@ -89,7 +77,7 @@ namespace inetr {
 		try {
 			createWindow();
 		} catch (INETRException &e) {
-			e.mbox(nullptr, &CurrentLanguage);
+			e.mbox(nullptr, &userConfig.CurrentLanguage);
 		}
 
 		ShowWindow(window, showCmd);
@@ -131,7 +119,7 @@ namespace inetr {
 			throw INETRException("[wndRegFailed]");
 
 		window = CreateWindowEx(WS_EX_CLIENTEDGE,
-			windowClassName, CurrentLanguage["windowTitle"].c_str(),
+			windowClassName, userConfig.CurrentLanguage["windowTitle"].c_str(),
 			WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			windowWidth, windowHeight,
@@ -287,8 +275,8 @@ namespace inetr {
 		if (volumePbar == nullptr)
 			throw INETRException("[ctlCreFailed]: volumePbar");
 
-		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(radioVolume * 100.0f),
-			(LPARAM)0);
+		SendMessage(volumePbar, PBM_SETPOS, (WPARAM)(userConfig.RadioVolume
+			* 100.0f), (LPARAM)0);
 
 		updateInfoEd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD |
 			ES_MULTILINE | ES_WANTRETURN | ES_READONLY,
@@ -302,8 +290,8 @@ namespace inetr {
 			throw INETRException("[ctlCreFailed]: updateInfoEd");
 
 		updatingLbl = CreateWindow("STATIC",
-			CurrentLanguage["updatingLbl"].c_str(), WS_CHILD | SS_CENTER,
-			controlPositions["updatingLbl"].left,
+			userConfig.CurrentLanguage["updatingLbl"].c_str(), WS_CHILD |
+			SS_CENTER, controlPositions["updatingLbl"].left,
 			controlPositions["updatingLbl"].top,
 			RWIDTH(controlPositions["updatingLbl"]),
 			RHEIGHT(controlPositions["updatingLbl"]),
@@ -319,40 +307,14 @@ namespace inetr {
 	}
 
 	void MainWindow::initialize() {
-		metaProviders.push_back(new MetaMetadataProvider());
-		metaProviders.push_back(new OGGMetadataProvider());
-		metaProviders.push_back(new HTTPMetadataProvider());
+		if (!stations.Load())
+			return;
 
-		metaProcessors.push_back(new RegExMetadataProcessor());
-		metaProcessors.push_back(new RegExArtistTitleMetadataProcessor());
-		metaProcessors.push_back(new HTMLEntityFixMetadataProcessor());
-
-		try {
-			loadConfig();
-			loadUserConfig();
-		} catch (INETRException &e) {
-			e.mbox();
-		}
+		userConfig.Load();
 	}
 
 	void MainWindow::uninitialize() {
-		try {
-			saveUserConfig();
-		} catch (INETRException &e) {
-			e.mbox();
-		}
-
-		for (list<MetadataProvider*>::iterator it = metaProviders.begin();
-			it != metaProviders.end(); ++it) {
-			
-			delete *it;
-		}
-			
-		for (list<MetadataProcessor*>::iterator it = metaProcessors.begin();
-			it != metaProcessors.end(); ++it) {
-
-			delete *it;
-		}
+		userConfig.Save();
 	}
 
 	void MainWindow::initializeWindow(HWND hwnd) {
@@ -499,12 +461,16 @@ namespace inetr {
 	}
 
 	void MainWindow::updateControlLanguageStrings() {
-		SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
+		SetWindowText(window,
+			userConfig.CurrentLanguage["windowTitle"].c_str());
 		SetWindowText(noStationsInfoLbl,
-			CurrentLanguage["noStationsInfo"].c_str());
-		SetWindowText(updateInfoLbl, CurrentLanguage["updateAvail"].c_str());
-		SetWindowText(updateBtn, CurrentLanguage["updateBtn"].c_str());
-		SetWindowText(dontUpdateBtn, CurrentLanguage["dUpdateBtn"].c_str());
+			userConfig.CurrentLanguage["noStationsInfo"].c_str());
+		SetWindowText(updateInfoLbl,
+			userConfig.CurrentLanguage["updateAvail"].c_str());
+		SetWindowText(updateBtn,
+			userConfig.CurrentLanguage["updateBtn"].c_str());
+		SetWindowText(dontUpdateBtn,
+			userConfig.CurrentLanguage["dUpdateBtn"].c_str());
 	}
 
 	void MainWindow::checkUpdate() {
@@ -549,39 +515,35 @@ namespace inetr {
 	void MainWindow::populateFavoriteStationsListbox() {
 		SendMessage(stationsLbox, LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
 
-		for (list<Station*>::iterator it = favoriteStations.begin();
-			it != favoriteStations.end(); ++it) {
+		for_each(userConfig.FavoriteStations.begin(),
+			userConfig.FavoriteStations.end(), [&](const Station* &elem){
 
 			SendMessage(stationsLbox, LB_ADDSTRING, (WPARAM)0,
-				(LPARAM)(*it)->Name.c_str());
-		}
+				(LPARAM)elem->Name.c_str());
+		});
 
-		if (favoriteStations.empty())
+		if (userConfig.FavoriteStations.empty())
 			ShowWindow(noStationsInfoLbl, SW_SHOW);
 		else
 			ShowWindow(noStationsInfoLbl, SW_HIDE);
 	}
 
 	void MainWindow::populateAllStationsListbox() {
-		for (list<Station>::iterator it = stations.begin();
-			it != stations.end(); ++it) {
-
-				SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
-					(LPARAM)it->Name.c_str());
-		}
+		for_each(stations.begin(), stations.end(), [&](const Station &elem) {
+			SendMessage(allStationsLbox, LB_ADDSTRING, (WPARAM)0,
+				(LPARAM)elem.Name.c_str());
+		});
 	}
 
 	void MainWindow::populateLanguageComboBox() {
-		for (list<Language>::iterator it = languages.begin();
-			it != languages.end(); ++it) {
-			
+		for_each(languages.begin(), languages.end(), [&](const Language &elem) {
 			LRESULT i = SendMessage(languageCbox, CB_ADDSTRING, (WPARAM)0,
-				(LPARAM)it->Name.c_str());
+				(LPARAM)elem.Name.c_str());
 
-			if (CurrentLanguage.Name == it->Name)
+			if (userConfig.CurrentLanguage.Name == elem.Name)
 				SendMessage(languageCbox, CB_SETCURSEL, (WPARAM)i,
 				(LPARAM)0);
-		}
+		});
 	}
 
 	void MainWindow::downloadUpdates() {
@@ -591,8 +553,9 @@ namespace inetr {
 	void MainWindow::downloadUpdatesThread() {
 
 		if (!updater.LaunchPreparedUpdateProcess())
-			MessageBox(window, CurrentLanguage["error"].c_str(),
-				CurrentLanguage["error"].c_str(), MB_OK | MB_ICONERROR);
+			MessageBox(window, userConfig.CurrentLanguage["error"].c_str(),
+				userConfig.CurrentLanguage["error"].c_str(), MB_OK |
+				MB_ICONERROR);
 
 		SendMessage(window, WM_CLOSE, (WPARAM)0, (LPARAM)0);
 	}
@@ -602,8 +565,42 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMetaThread() {
-		string meta = fetchMeta(currentStation->MyMetadataProvider,
-			currentStream, currentStation->AdditionalParameters);
+		static CRITICAL_SECTION mutex;
+		static bool mutexInitialized = false;
+		if (!mutexInitialized) {
+			InitializeCriticalSection(&mutex);
+			mutexInitialized = true;
+		}
+
+		map<string, string> metaAdParam;
+
+		metaAdParam.insert(pair<string, string>("rStream", 
+			StringUtil::PointerToString((void*)&currentStream)));
+
+		vector<string> metaSrcOut;
+		bool failed = false;
+		EnterCriticalSection(&mutex);
+		for_each(currentStation->MetaSources.begin(),
+			currentStation->MetaSources.end(),
+			[&metaSrcOut,&metaAdParam,&failed](const MetaSource &elem) {
+
+			if (failed)
+				return;
+
+			string cMetaSrcOut;
+			if (elem.Get(metaSrcOut, cMetaSrcOut, metaAdParam))
+				metaSrcOut.push_back(cMetaSrcOut);
+			else {
+				failed = true;
+			}
+		});
+		LeaveCriticalSection(&mutex);
+
+		string meta = failed ? string("ERROR") :
+			StringUtil::DetokenizeVectorToPattern(metaSrcOut,
+			currentStation->MetaOut);
+
+		meta = StringUtil::Trim(meta);
 
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
@@ -616,23 +613,18 @@ namespace inetr {
 		meta = string(ansi);
 		delete[] ansi;
 
-		if (meta != "") {
-			processMeta(meta, currentStation->MetadataProcessors,
-				currentStation->AdditionalParameters);
-
-			radioStatus_currentMetadata = meta;
-			updateStatusLabel();
-		}
+		radioStatus_currentMetadata = meta;
+		updateStatusLabel();
 	}
 
 	void MainWindow::updateStatusLabel() {
 		string statusText = "";
 
 		switch (radioStatus) {
-		case Connecting:
+		case INETR_RS_Connecting:
 			statusText = "[connecting]...";
 			break;
-		case Buffering:
+		case INETR_RS_Buffering:
 			{
 				stringstream sstext;
 				sstext << "[buffering]... ";
@@ -641,16 +633,16 @@ namespace inetr {
 				statusText = sstext.str();
 			}
 			break;
-		case Connected:
+		case INTER_RS_Connected:
 			if (radioStatus_currentMetadata == "")
 				statusText = "[connected]";
 			else 
 				statusText = radioStatus_currentMetadata;
 			break;
-		case Idle:
+		case INETR_RS_Idle:
 			statusText = "";
 			break;
-		case ConnectionError:
+		case INETR_RS_ConnectionError:
 			statusText = "[connectionError]";
 			break;
 		}
@@ -662,93 +654,67 @@ namespace inetr {
 				statusText = "[muted]";
 		}
 
-		statusText = CurrentLanguage.LocalizeStringTokens(statusText);
+		statusText =
+			userConfig.CurrentLanguage.LocalizeStringTokens(statusText);
 
 		StringUtil::SearchAndReplace(statusText, string("&"), string("&&"));
 		SetWindowText(statusLbl, statusText.c_str());
 
-		if (radioStatus == Connected && radioStatus_currentMetadata != "")
+		if (radioStatus == INTER_RS_Connected && radioStatus_currentMetadata
+			!= "")
 			SetWindowText(window, radioStatus_currentMetadata.c_str());
 		else
-			SetWindowText(window, CurrentLanguage["windowTitle"].c_str());
-	}
-
-	string MainWindow::fetchMeta(MetadataProvider* metadataProvider,
-		HSTREAM stream, map<string, string> &additionalParameters) {
-
-		if (currentStation == nullptr ||
-			currentStation->MyMetadataProvider == nullptr)
-			return "";
-		
-		try {
-			return metadataProvider->Fetch(currentStream, additionalParameters);
-		} catch (INETRException &e) {
-			e.mbox(window, &CurrentLanguage);
-			return "";
-		}
-	}
-	
-	void MainWindow::processMeta(string &meta, vector<MetadataProcessor*>
-		&processors, map<string, string> &additionalParameters) {
-
-		for (vector<MetadataProcessor*>::iterator it = processors.begin();
-			it != processors.end(); ++it) {
-
-			try {
-				(*it)->Process(meta, additionalParameters);
-			} catch (INETRException &e) {
-				e.mbox(window, &CurrentLanguage);
-			}
-		}
+			SetWindowText(window,
+				userConfig.CurrentLanguage["windowTitle"].c_str());
 	}
 	
 	void MainWindow::expandLeftPanel() {
-		if (leftPanelSlideStatus != Retracted)
+		if (leftPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		leftPanelSlideStatus = Expanding;
+		leftPanelSlideStatus = INETR_WSS_Expanding;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractLeftPanel() {
-		if (leftPanelSlideStatus != Expanded)
+		if (leftPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		leftPanelSlideStatus = Retracting;
+		leftPanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::expandBottomPanel() {
-		if (bottomPanelSlideStatus != Retracted)
+		if (bottomPanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		bottomPanelSlideStatus = Expanding;
+		bottomPanelSlideStatus = INETR_WSS_Expanding;
 		ShowWindow(updateBtn, SW_SHOW);
 		ShowWindow(dontUpdateBtn, SW_SHOW);
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractBottomPanel() {
-		if (bottomPanelSlideStatus != Expanded)
+		if (bottomPanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		bottomPanelSlideStatus = Retracting;
+		bottomPanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::expandBottom2Panel() {
-		if (bottom2PanelSlideStatus != Retracted)
+		if (bottom2PanelSlideStatus != INETR_WSS_Retracted)
 			return;
 
-		bottom2PanelSlideStatus = Expanding;
+		bottom2PanelSlideStatus = INETR_WSS_Expanding;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
 	void MainWindow::retractBottom2Panel() {
-		if (bottom2PanelSlideStatus != Expanded)
+		if (bottom2PanelSlideStatus != INETR_WSS_Expanded)
 			return;
 
-		bottom2PanelSlideStatus = Retracting;
+		bottom2PanelSlideStatus = INETR_WSS_Retracting;
 		SetTimer(window, slideTimerId, slideSpeed, nullptr);
 	}
 
@@ -825,7 +791,7 @@ namespace inetr {
 			try {
 				createControls(hwnd);
 			} catch (INETRException &e) {
-				e.mbox(hwnd, &CurrentLanguage);
+				e.mbox(hwnd, &userConfig.CurrentLanguage);
 			}
 			initializeWindow(hwnd);
 			break;
@@ -833,10 +799,10 @@ namespace inetr {
 			return (INT_PTR)GetStockObject(WHITE_BRUSH);
 			break;
 		case WM_LBUTTONDBLCLK:
-			if (leftPanelSlideStatus == Retracted) {
+			if (leftPanelSlideStatus == INETR_WSS_Retracted) {
 				radioStop();
 				expandLeftPanel();
-			} else if (leftPanelSlideStatus == Expanded) {
+			} else if (leftPanelSlideStatus == INETR_WSS_Expanded) {
 				retractLeftPanel();
 			}
 			break;
@@ -874,7 +840,7 @@ namespace inetr {
 					thumbButtons[0].dwMask = THB_ICON | THB_TOOLTIP;
 					thumbButtons[0].iId = thumbBarMuteBtnId;
 					thumbButtons[0].hIcon = icon;
-					string muteButtonStr = CurrentLanguage["mute"];
+					string muteButtonStr = userConfig.CurrentLanguage["mute"];
 					wstring wMuteButtonStr(muteButtonStr.length(), L'');
 					copy(muteButtonStr.begin(), muteButtonStr.end(),
 						wMuteButtonStr.begin());
