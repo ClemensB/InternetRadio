@@ -5,6 +5,7 @@
 #include <ShObjIdl.h>
 
 #include "MUtil.hpp"
+#include "OSUtil.hpp"
 
 using namespace std;
 
@@ -178,6 +179,20 @@ namespace inetr {
 				RWIDTH(controlPositions["updateInfoEd"]),
 				RHEIGHT(controlPositions["updateInfoEd"]),
 				SWP_NOMOVE);
+		}
+
+		if (OSUtil::IsWin7OrLater()) {
+			ITaskbarList3 *taskbarList = nullptr;
+
+			if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+				CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+				reinterpret_cast<void**>(&taskbarList)))) {
+
+				taskbarList->SetThumbnailClip(window,
+					&controlPositions["stationImg"]);
+
+				taskbarList->Release();
+			}
 		}
 	}
 
