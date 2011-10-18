@@ -41,8 +41,13 @@ namespace inetr {
 	bool HTMLFixMetaSource::Get(const map<string, string> &parameters,
 		vector<string> &precedingMetaSources, string &out) const {
 
+		map<string, string>::const_iterator it = parameters.find("sIn");
+
+		if (it == parameters.end())
+			return false;
+
 		string meta = StringUtil::DetokenizeVectorToPattern(
-			precedingMetaSources, parameters.find("sIn")->second);
+			precedingMetaSources, it->second);
 		const char* const metaStr = meta.c_str();
 		char* const newStr = new char[strlen(metaStr) + 1];
 
