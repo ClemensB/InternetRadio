@@ -24,8 +24,8 @@ def releaseForArchitecture(arch):
 	shutil.copy(binDirArch + "/InternetRadio.exe", outDirArch)
 	shutil.copy(binDirArch + "/InternetRadio.pdb", outDirArch)
 	shutil.copy("dependencies/bass/bin/" + arch + "/bass.dll", outDirArch)
-	shutil.copy("data/config.json", outDirArch)
 	shutil.copy("data/language.json", outDirArch)
+	shutil.copy("data/stations.json", outDirArch)
 	shutil.copytree("data/img", outDirArch + "/img")
 	fChecksums = open(outDirArch + "/checksums", "w")
 	for root, dirs, files in os.walk(outDirArch):
