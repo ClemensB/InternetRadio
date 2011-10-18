@@ -10,4 +10,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_OSUTIL_HPP
+#endif  // !INETR_OSUTIL_HPP

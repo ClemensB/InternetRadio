@@ -1,8 +1,10 @@
 #include "INETRException.hpp"
 
+#include <string>
+
 #include "INETRLogger.hpp"
 
-using namespace std;
+using std::string;
 
 namespace inetr {
 	INETRException::INETRException(string message) {

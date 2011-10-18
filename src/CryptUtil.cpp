@@ -2,10 +2,14 @@
 
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include "INETRException.hpp"
 
-using namespace std;
+using std::ifstream;
+using std::ios;
+using std::string;
+using std::stringstream;
 
 namespace inetr {
 	HCRYPTPROV CryptUtil::hCryptProv;
@@ -13,12 +17,14 @@ namespace inetr {
 	BOOL CryptUtil::CryptStartup() {
 		if (CryptAcquireContext(&hCryptProv, nullptr, MS_ENHANCED_PROV,
 			PROV_RSA_FULL, CRYPT_VERIFYCONTEXT) == 0) {
-			
-			if (GetLastError() == NTE_EXISTS) {
-				if (CryptAcquireContext(&hCryptProv, nullptr, MS_ENHANCED_PROV,
-					PROV_RSA_FULL, 0) == 0)
+
+				if (GetLastError() == NTE_EXISTS) {
+					if (CryptAcquireContext(&hCryptProv, nullptr, MS_ENHANCED_PROV,
+						PROV_RSA_FULL, 0) == 0)
+						return FALSE;
+				} else {
 					return FALSE;
-			} else return FALSE;
+				}
 		}
 		return TRUE;
 	}
@@ -35,8 +41,8 @@ namespace inetr {
 
 	void CryptUtil::MD5Update(MD5Context *context, unsigned char const *buf,
 		unsigned int length) {
-		
-		CryptHashData(context->Hash, buf, length, 0);
+
+			CryptHashData(context->Hash, buf, length, 0);
 	}
 
 	void CryptUtil::MD5Final(MD5Context *context) {
@@ -63,10 +69,10 @@ namespace inetr {
 
 		unsigned char bBuffer[4096];
 		while(!fInput.eof()) {
-			fInput.read((char*)&bBuffer[0], 4096);
+			fInput.read(reinterpret_cast<char*>(bBuffer), 4096);
 			MD5Update(&md5Hash, bBuffer, (unsigned int)fInput.gcount());
 		}
-		
+
 		MD5Final(&md5Hash);
 
 		fInput.close();
@@ -75,7 +81,7 @@ namespace inetr {
 		for (int i = 0; i < 16; ++i) {
 			unsigned char b = md5Hash.Digest[i];
 			for (int j = 4; j >= 0; j -= 4) {
-				char c = ((char)(b >> j) & 0x0F);
+				char c = (static_cast<char>(b >> j) & 0x0F);
 				if (c < 10)
 					c += '0';
 				else

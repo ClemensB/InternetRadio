@@ -1,13 +1,16 @@
 #include "VersionUtil.hpp"
 
-#include <sstream>
-#include <vector>
-
 #include <Windows.h>
+
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "StringUtil.hpp"
 
-using namespace std;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 namespace inetr {
 	struct LANGANDCODEPAGE {
@@ -15,7 +18,7 @@ namespace inetr {
 		WORD wCodepage;
 	};
 
-	bool VersionUtil::GetInstalledVersion(unsigned short *version) {
+	bool VersionUtil::GetInstalledVersion(uint16_t *version) {
 		HMODULE hMod = GetModuleHandle(nullptr);
 
 		HRSRC hVersion = FindResource(hMod, MAKEINTRESOURCE(VS_VERSION_INFO),
@@ -37,7 +40,7 @@ namespace inetr {
 		UINT cbTranslate;
 
 		BOOL retVal = VerQueryValue(versionInfo, "\\VarFileInfo\\Translation",
-			(LPVOID*)&lpTranslate, &cbTranslate);
+			reinterpret_cast<LPVOID*>(&lpTranslate), &cbTranslate);
 
 		if (!retVal || cbTranslate != 4) {
 			UnlockResource(hGlobal);
@@ -53,8 +56,8 @@ namespace inetr {
 		char* lpVerStr = nullptr;
 		UINT cbVerStr = 0;
 
-		retVal = VerQueryValue(versionInfo, versionEntry, (LPVOID*)&lpVerStr,
-			&cbVerStr);
+		retVal = VerQueryValue(versionInfo, versionEntry,
+			reinterpret_cast<LPVOID*>(&lpVerStr), &cbVerStr);
 
 		UnlockResource(hGlobal);
 		FreeResource(hGlobal);
@@ -68,7 +71,7 @@ namespace inetr {
 		return true;
 	}
 
-	void VersionUtil::VersionStrToArr(string &verStr, unsigned short *version) {
+	void VersionUtil::VersionStrToArr(string &verStr, uint16_t *version) {
 		vector<string> verDigitStrs = StringUtil::Explode(verStr, ".");
 
 		for (size_t i = 0; i < 4; ++i) {
@@ -79,7 +82,7 @@ namespace inetr {
 		}
 	}
 
-	void VersionUtil::VersionArrToStr(unsigned short *version, string &verStr,
+	void VersionUtil::VersionArrToStr(uint16_t *version, string &verStr,
 		bool omitTrailingZeros /* = false */) {
 
 			for (size_t i = 4; i > 0; --i) {
@@ -93,8 +96,8 @@ namespace inetr {
 			}
 	}
 
-	VersionComparisonResult VersionUtil::CompareVersions(unsigned short *v1,
-		unsigned short *v2) {
+	VersionComparisonResult VersionUtil::CompareVersions(uint16_t *v1,
+		uint16_t *v2) {
 
 			for (size_t i = 0; i < 4; ++i) {
 				if (v1[i] > v2[i])

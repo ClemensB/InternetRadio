@@ -1,7 +1,7 @@
 #include "OSUtil.hpp"
 
 #include <Windows.h>
-  
+
 namespace inetr {
 	bool OSUtil::IsVistaOrLater() {
 		OSVERSIONINFO osVerI;

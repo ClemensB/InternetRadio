@@ -1,11 +1,11 @@
-#ifndef INETR_EXCEPTION
-#define INETR_EXCEPTION
+#ifndef INETR_EXCEPTION_HPP
+#define INETR_EXCEPTION_HPP
+
+#include <Windows.h>
 
 #include <string>
 #include <vector>
 #include <exception>
-
-#include <Windows.h>
 
 #include "Language.hpp"
 
@@ -24,4 +24,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_EXCEPTION
+#endif  // !INETR_EXCEPTION_HPP

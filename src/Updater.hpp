@@ -1,6 +1,8 @@
 #ifndef INETR_UPDATER_HPP
 #define INETR_UPDATER_HPP
 
+#include <cstdint>
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -10,20 +12,21 @@ namespace inetr {
 	public:
 		Updater(std::string remoteUpdateRoot);
 
-		bool GetRemoteVersion(unsigned short *version);
-		bool IsInstalledVersionUpToDate(bool &isUpToDate, unsigned short
+		bool GetRemoteVersion(uint16_t *version);
+		bool IsInstalledVersionUpToDate(bool &isUpToDate, uint16_t
 			*upToDateVersion);
-		bool ReceiveRemoteVersionInfo(unsigned short *version, std::stringstream
+		bool ReceiveRemoteVersionInfo(uint16_t *version, std::stringstream
 			&info);
-		bool PrepareUpdateToRemoteVersion(unsigned short *version);
+		bool PrepareUpdateToRemoteVersion(uint16_t *version);
 		bool LaunchPreparedUpdateProcess();
 		bool PerformPreparedUpdate();
-		
+
 		bool WriteUpdateInformationToSharedMemory();
 		bool FetchUpdateInformationFromSharedMemory();
 		void FreeUpdateInformationSharedMemory();
 
 		std::vector<std::string> OptionalFiles;
+
 	private:
 		std::string remoteUpdateRoot;
 
@@ -31,9 +34,9 @@ namespace inetr {
 		void *remoteFilesToDownloadSizeMapping;
 		void *remoteFilesToDownloadMapping;
 
-		unsigned short versionToUpdateTo[4];
+		uint16_t versionToUpdateTo[4];
 		std::vector<std::string> remoteFilesToDownload;
 	};
 }
 
-#endif // !INETR_UPDATER_HPP
+#endif  // !INETR_UPDATER_HPP

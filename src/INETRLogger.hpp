@@ -28,4 +28,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_INETRLOGGER_HPP
+#endif  // !INETR_INETRLOGGER_HPP

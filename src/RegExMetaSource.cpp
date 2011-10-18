@@ -1,11 +1,17 @@
 #include "RegExMetaSource.hpp"
 
-#include <list>
+#include <map>
 #include <regex>
+#include <string>
+#include <vector>
 
 #include "StringUtil.hpp"
 
-using namespace std;
+using std::cmatch;
+using std::map;
+using std::regex;
+using std::string;
+using std::vector;
 
 namespace inetr {
 	bool RegExMetaSource::Get(const map<string, string> &parameters,
@@ -32,7 +38,7 @@ namespace inetr {
 
 		out = StringUtil::DetokenizeVectorToPattern(lRes,
 			itSOut->second);
-			
+
 		return true;
 	}
 }

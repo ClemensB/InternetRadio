@@ -1,13 +1,17 @@
 #include <Windows.h>
 
+#include <string>
 #include <vector>
 
 #include "MainWindow.hpp"
 #include "StringUtil.hpp"
 #include "Updater.hpp"
 
-using namespace std;
-using namespace inetr;
+using std::string;
+using std::vector;
+using inetr::MainWindow;
+using inetr::StringUtil;
+using inetr::Updater;
 
 int CALLBACK WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance,
 	__in LPSTR lpCmdLine, __in int nShowCmd) {

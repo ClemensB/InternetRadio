@@ -8,7 +8,7 @@
 namespace inetr {
 	class MetaSourcePrototype {
 	public:
-		virtual ~MetaSourcePrototype() { };
+		virtual ~MetaSourcePrototype() { }
 
 		inline std::string &GetIdentifer() { return identifier; }
 
@@ -23,4 +23,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_METASOURCEPROTOTYPE_HPP
+#endif  // !INETR_METASOURCEPROTOTYPE_HPP

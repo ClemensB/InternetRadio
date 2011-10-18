@@ -2,8 +2,11 @@
 
 #include <algorithm>
 #include <cctype>
+#include <string>
+#include <vector>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 namespace inetr {
 	vector<string> StringUtil::Explode(string str, string separator) {

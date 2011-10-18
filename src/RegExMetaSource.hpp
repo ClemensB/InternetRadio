@@ -1,6 +1,10 @@
 #ifndef INETR_REGEXMETASOURCE_HPP
 #define INETR_REGEXMETASOURCE_HPP
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "MetaSourcePrototype.hpp"
 
 namespace inetr {
@@ -15,4 +19,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_REGEXMETASOURCE_HPP
+#endif  // !INETR_REGEXMETASOURCE_HPP

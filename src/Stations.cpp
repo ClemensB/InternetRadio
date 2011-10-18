@@ -1,9 +1,16 @@
 #include "Stations.hpp"
 
-#include <algorithm>
-#include <fstream>
+#include <cstdint>
 
 #include <json/json.h>
+
+#include <algorithm>
+#include <fstream>
+#include <list>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "VersionUtil.hpp"
 
@@ -12,8 +19,17 @@
 #include "RegExMetaSource.hpp"
 #include "HTMLFixMetaSource.hpp"
 
-using namespace std;
-using namespace Json;
+using std::find_if;
+using std::ifstream;
+using std::ios;
+using std::list;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
+using Json::nullValue;
+using Json::Reader;
+using Json::Value;
 
 namespace inetr {
 	Stations::Stations() {
@@ -56,9 +72,9 @@ namespace inetr {
 			return false;
 		}
 
-		unsigned short minVersion[4];
+		uint16_t minVersion[4];
 		VersionUtil::VersionStrToArr(minVersionValue.asString(), minVersion);
-		unsigned short installedVersion[4];
+		uint16_t installedVersion[4];
 		VersionUtil::GetInstalledVersion(installedVersion);
 		if (VersionUtil::CompareVersions(minVersion, installedVersion) ==
 			VCR_Newer) {

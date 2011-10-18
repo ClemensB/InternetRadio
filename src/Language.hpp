@@ -23,4 +23,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INTERNETRADIO_LANGUAGE_HPP
+#endif  // !INTERNETRADIO_LANGUAGE_HPP

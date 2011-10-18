@@ -1,21 +1,33 @@
 #include "MainWindow.hpp"
 
-#include "../resource/resource.h"
-
-#include <iostream>
-#include <sstream>
+#include <cstdint>
 
 #include <process.h>
 #include <CommCtrl.h>
 #include <Uxtheme.h>
 #include <ShObjIdl.h>
 
+#include <algorithm>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <utility>
+
+#include "../resource/resource.h"
+
 #include "MUtil.hpp"
 #include "StringUtil.hpp"
 #include "INETRException.hpp"
 #include "OSUtil.hpp"
 
-using namespace std;
+using std::for_each;
+using std::map;
+using std::pair;
+using std::string;
+using std::stringstream;
+using std::vector;
+using std::wstring;
 
 namespace inetr {
 	MainWindow::MainWindow() :
@@ -76,7 +88,7 @@ namespace inetr {
 
 		try {
 			createWindow();
-		} catch (INETRException &e) {
+		} catch(INETRException &e) {
 			e.mbox(nullptr, &userConfig.CurrentLanguage);
 		}
 
@@ -95,7 +107,7 @@ namespace inetr {
 
 		CoUninitialize();
 
-		return int(msg.wParam);
+		return static_cast<int>(msg.wParam);
 	}
 
 	void MainWindow::createWindow() {
@@ -131,7 +143,7 @@ namespace inetr {
 
 	void MainWindow::createControls(HWND hwnd) {
 		calculateControlPositions(hwnd);
-		
+
 		stationsLbox = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "",
 			WS_CHILD | WS_VISIBLE | LBS_STANDARD | LBS_SORT | WS_VSCROLL |
 			WS_TABSTOP,
@@ -299,7 +311,7 @@ namespace inetr {
 
 		if (updatingLbl == nullptr)
 			throw INETRException("[ctlCreFailed]: updatingLbl");
-		
+
 		SendMessage(updatingLbl, WM_SETFONT,
 			(WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)0);
 
@@ -405,7 +417,7 @@ namespace inetr {
 		RECT updateBtnRect = dontUpdateBtnRect;
 		updateBtnRect.right = dontUpdateBtnRect.left - 5;
 		updateBtnRect.left = updateBtnRect.right - updateBtnWidth;
-		
+
 		RECT updateInfoLblRect;
 		updateInfoLblRect.left = 10;
 		updateInfoLblRect.right = updateBtnRect.left - 5;
@@ -474,12 +486,12 @@ namespace inetr {
 	}
 
 	void MainWindow::checkUpdate() {
-		_beginthread(staticCheckUpdateThread, 0, (void*)this);
+		_beginthread(staticCheckUpdateThread, 0, reinterpret_cast<void*>(this));
 	}
 
 	void MainWindow::checkUpdateThread() {
 		bool isUpToDate;
-		unsigned short upToDateVersion[4];
+		uint16_t upToDateVersion[4];
 		if (!updater.IsInstalledVersionUpToDate(isUpToDate, upToDateVersion) ||
 			isUpToDate)
 			return;
@@ -511,12 +523,12 @@ namespace inetr {
 		expandBottomPanel();
 		expandBottom2Panel();
 	}
-	
+
 	void MainWindow::populateFavoriteStationsListbox() {
 		SendMessage(stationsLbox, LB_RESETCONTENT, (WPARAM)0, (LPARAM)0);
 
 		for_each(userConfig.FavoriteStations.begin(),
-			userConfig.FavoriteStations.end(), [&](const Station* &elem){
+			userConfig.FavoriteStations.end(), [&](const Station* &elem) {
 
 			SendMessage(stationsLbox, LB_ADDSTRING, (WPARAM)0,
 				(LPARAM)elem->Name.c_str());
@@ -547,7 +559,8 @@ namespace inetr {
 	}
 
 	void MainWindow::downloadUpdates() {
-		_beginthread(staticDownloadUpdatesThread, 0, (void*)this);
+		_beginthread(staticDownloadUpdatesThread, 0, reinterpret_cast<void*>(
+			this));
 	}
 
 	void MainWindow::downloadUpdatesThread() {
@@ -561,7 +574,7 @@ namespace inetr {
 	}
 
 	void MainWindow::updateMeta() {
-		_beginthread(staticUpdateMetaThread, 0, (void*)this);
+		_beginthread(staticUpdateMetaThread, 0, reinterpret_cast<void*>(this));
 	}
 
 	void MainWindow::updateMetaThread() {
@@ -574,23 +587,24 @@ namespace inetr {
 
 		map<string, string> metaAdParam;
 
-		metaAdParam.insert(pair<string, string>("rStream", 
-			StringUtil::PointerToString((void*)&currentStream)));
+		metaAdParam.insert(pair<string, string>("rStream",
+			StringUtil::PointerToString(reinterpret_cast<void*>(
+			&currentStream))));
 
 		vector<string> metaSrcOut;
 		bool failed = false;
 		EnterCriticalSection(&mutex);
 		for_each(currentStation->MetaSources.begin(),
 			currentStation->MetaSources.end(),
-			[&metaSrcOut,&metaAdParam,&failed](const MetaSource &elem) {
+			[&metaSrcOut, &metaAdParam, &failed](const MetaSource &elem) {
 
 			if (failed)
 				return;
 
 			string cMetaSrcOut;
-			if (elem.Get(metaSrcOut, cMetaSrcOut, metaAdParam))
+			if (elem.Get(metaSrcOut, cMetaSrcOut, metaAdParam)) {
 				metaSrcOut.push_back(cMetaSrcOut);
-			else {
+			} else {
 				failed = true;
 			}
 		});
@@ -604,7 +618,7 @@ namespace inetr {
 
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
-			int(strlen(metaStr)), nullptr, 0);
+			static_cast<int>(strlen(metaStr)), nullptr, 0);
 		wchar_t *wide = new wchar_t[size_t(length + 1)];
 		MultiByteToWideChar(CP_UTF8, 0, metaStr, -1, wide, length + 1);
 		char *ansi = new char[size_t(length + 1)];
@@ -624,19 +638,18 @@ namespace inetr {
 		case INETR_RS_Connecting:
 			statusText = "[connecting]...";
 			break;
-		case INETR_RS_Buffering:
-			{
+		case INETR_RS_Buffering: {
 				stringstream sstext;
 				sstext << "[buffering]... ";
 				sstext << radioStatus_bufferingProgress;
 				sstext << "%";
 				statusText = sstext.str();
+				break;
 			}
-			break;
 		case INTER_RS_Connected:
 			if (radioStatus_currentMetadata == "")
 				statusText = "[connected]";
-			else 
+			else
 				statusText = radioStatus_currentMetadata;
 			break;
 		case INETR_RS_Idle:
@@ -667,7 +680,7 @@ namespace inetr {
 			SetWindowText(window,
 				userConfig.CurrentLanguage["windowTitle"].c_str());
 	}
-	
+
 	void MainWindow::expandLeftPanel() {
 		if (leftPanelSlideStatus != INETR_WSS_Retracted)
 			return;
@@ -720,7 +733,7 @@ namespace inetr {
 
 	LRESULT CALLBACK MainWindow::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 		LPARAM lParam) {
-		
+
 		switch (uMsg) {
 		case WM_TIMER:
 			switch (wParam) {
@@ -790,7 +803,7 @@ namespace inetr {
 		case WM_CREATE:
 			try {
 				createControls(hwnd);
-			} catch (INETRException &e) {
+			} catch(INETRException &e) {
 				e.mbox(hwnd, &userConfig.CurrentLanguage);
 			}
 			initializeWindow(hwnd);

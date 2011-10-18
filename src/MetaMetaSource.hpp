@@ -1,6 +1,10 @@
 #ifndef INETR_METAMETASOURCE_HPP
 #define INETR_METAMETASOURCE_HPP
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "MetaSourcePrototype.hpp"
 
 namespace inetr {
@@ -15,4 +19,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_METAMETASOURCE_HPP
+#endif  // !INETR_METAMETASOURCE_HPP

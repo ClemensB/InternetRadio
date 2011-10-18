@@ -24,4 +24,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INTERNETRADIO_STRINGUTIL_HPP
+#endif  // !INTERNETRADIO_STRINGUTIL_HPP

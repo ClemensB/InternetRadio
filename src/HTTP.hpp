@@ -4,10 +4,10 @@
 #include <string>
 #include <ostream>
 
-#include <BaseTsd.h>
-
+// From BaseTsd.h
+typedef unsigned long long UINT_PTR;
 // From WinSock2.h
-typedef UINT_PTR        SOCKET;
+typedef UINT_PTR SOCKET;
 
 namespace inetr {
 	class HTTP {
@@ -19,4 +19,4 @@ namespace inetr {
 	};
 }
 
-#endif // INTERNETRADIO_HTTP_HPP
+#endif  // INTERNETRADIO_HTTP_HPP

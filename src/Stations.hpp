@@ -27,4 +27,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_STATIONS_HPP
+#endif  // !INETR_STATIONS_HPP

@@ -3,9 +3,11 @@
 #include <Shlwapi.h>
 #include <wincodec.h>
 
+#include <string>
+
 #include "INETRException.hpp"
 
-using namespace std;
+using std::string;
 
 namespace inetr {
 	HBITMAP ImageUtil::LoadImage(string path) {
@@ -29,8 +31,8 @@ namespace inetr {
 			throw INETRException("[unsupportedImg]: " + ext);
 
 		IStream *pngFileStream;
-		if (FAILED(SHCreateStreamOnFile(path.c_str(), STGM_READ, &pngFileStream
-			)))
+		if (FAILED(SHCreateStreamOnFile(path.c_str(), STGM_READ,
+			&pngFileStream)))
 			throw INETRException("[imgLoadFailed]:\n" + path);
 
 		IWICBitmapDecoder *bmpDecoder = nullptr;

@@ -1,10 +1,16 @@
 #include "Updater.hpp"
 
-#include <algorithm>
-#include <sstream>
-#include <fstream>
+#include <cstdint>
 
 #include <Windows.h>
+
+#include <algorithm>
+#include <fstream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "../resource/resource.h"
 #include "StringUtil.hpp"
@@ -14,18 +20,25 @@
 #include "MUtil.hpp"
 #include "VersionUtil.hpp"
 
-using namespace std;
+using std::ifstream;
+using std::ios;
+using std::vector;
+using std::map;
+using std::ofstream;
+using std::pair;
+using std::string;
+using std::stringstream;
 
 namespace inetr {
 	Updater::Updater(string remoteUpdateRoot) {
 		this->remoteUpdateRoot = remoteUpdateRoot;
 	}
 
-	bool Updater::GetRemoteVersion(unsigned short *version) {
+	bool Updater::GetRemoteVersion(uint16_t *version) {
 		stringstream versionFileStream;
 		try {
 			HTTP::Get(remoteUpdateRoot + "/version", &versionFileStream);
-		} catch (INETRException) {
+		} catch(INETRException) {
 			return false;
 		}
 
@@ -35,9 +48,9 @@ namespace inetr {
 		return (versionStr != "");
 	}
 
-	bool Updater::IsInstalledVersionUpToDate(bool &isUpToDate, unsigned short
+	bool Updater::IsInstalledVersionUpToDate(bool &isUpToDate, uint16_t
 		*upToDateVersion) {
-		unsigned short installedVersion[4], remoteVersion[4];
+		uint16_t installedVersion[4], remoteVersion[4];
 		if (!VersionUtil::GetInstalledVersion(installedVersion))
 			return false;
 		if (!GetRemoteVersion(remoteVersion))
@@ -52,7 +65,7 @@ namespace inetr {
 		return true;
 	}
 
-	bool Updater::ReceiveRemoteVersionInfo(unsigned short *version,
+	bool Updater::ReceiveRemoteVersionInfo(uint16_t *version,
 		stringstream &info) {
 
 		string versionStr;
@@ -61,17 +74,17 @@ namespace inetr {
 		try {
 			HTTP::Get(remoteUpdateRoot + "/" + versionStr + "/changelog",
 				&info);
-		} catch (INETRException) {
+		} catch(INETRException) {
 			return false;
 		}
 
 		return true;
 	}
 
-	bool Updater::PrepareUpdateToRemoteVersion(unsigned short *version) {
+	bool Updater::PrepareUpdateToRemoteVersion(uint16_t *version) {
 		memset(versionToUpdateTo, 0, sizeof(versionToUpdateTo));
 		remoteFilesToDownload.clear();
-		
+
 		string versionStr;
 		VersionUtil::VersionArrToStr(version, versionStr, true);
 
@@ -79,7 +92,7 @@ namespace inetr {
 		try {
 			HTTP::Get(remoteUpdateRoot + "/" + versionStr + "/" + INETR_ARCH +
 				"/checksums", &remoteChecksumsStream);
-		} catch (INETRException) {
+		} catch(INETRException) {
 			return false;
 		}
 
@@ -104,7 +117,7 @@ namespace inetr {
 				string md5Hash;
 				try {
 					md5Hash = CryptUtil::FileMD5Hash(it->first);
-				} catch (INETRException) {
+				} catch(INETRException) {
 					return false;
 				}
 				if (md5Hash != "" && md5Hash == it->second)
@@ -127,7 +140,7 @@ namespace inetr {
 	}
 
 	bool Updater::LaunchPreparedUpdateProcess() {
-		if (reinterpret_cast<unsigned long long>(versionToUpdateTo) == 0L ||
+		if (reinterpret_cast<uint64_t>(versionToUpdateTo) == 0L ||
 			remoteFilesToDownload.empty())
 			return false;
 
@@ -187,7 +200,7 @@ namespace inetr {
 			stringstream remoteFileStream;
 			try {
 				HTTP::Get(remoteURL, &remoteFileStream);
-			} catch (INETRException) {
+			} catch(INETRException) {
 				return false;
 			}
 
@@ -206,20 +219,21 @@ namespace inetr {
 
 	bool Updater::WriteUpdateInformationToSharedMemory() {
 		versionToUpdateToMapping = CreateFileMapping(INVALID_HANDLE_VALUE,
-			nullptr, PAGE_READWRITE, 0, DWORD(4 * sizeof(short)),
+			nullptr, PAGE_READWRITE, 0, DWORD(4 * sizeof(uint16_t)),
 			"inetrUpdateVersionMapping");
 		if (versionToUpdateToMapping == nullptr || versionToUpdateToMapping ==
 			INVALID_HANDLE_VALUE)
 			return false;
 
 		LPVOID versionMappingPtr = MapViewOfFile(versionToUpdateToMapping,
-			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(short));
+			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(uint16_t));
 		if (versionMappingPtr == nullptr) {
 			CloseHandle(versionToUpdateToMapping);
 			return false;
 		}
 
-		memcpy(versionMappingPtr, (void*)versionToUpdateTo, 4 * sizeof(short));
+		memcpy(versionMappingPtr, reinterpret_cast<void*>(versionToUpdateTo), 4
+			* sizeof(uint16_t));
 		UnmapViewOfFile(versionMappingPtr);
 
 		size_t filesToDlMappingSize = 0;
@@ -249,9 +263,9 @@ namespace inetr {
 
 		remoteFilesToDownloadMapping = CreateFileMapping(
 			INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
-			(DWORD)(((unsigned long long)filesToDlMappingSize &
+			(DWORD)(((uint64_t)filesToDlMappingSize &
 			0xffffffff00000000) >> 4),
-			(DWORD)((unsigned long long)filesToDlMappingSize &
+			(DWORD)((uint64_t)filesToDlMappingSize &
 			0x00000000ffffffff), "inetrUpdateMapping");
 		if (remoteFilesToDownloadMapping == nullptr ||
 			remoteFilesToDownloadMapping == INVALID_HANDLE_VALUE)
@@ -264,7 +278,7 @@ namespace inetr {
 			return false;
 		}
 
-		char *ptr = (char*)filesToDlPtr;
+		char *ptr = reinterpret_cast<char*>(filesToDlPtr);
 		for (vector<string>::iterator it = remoteFilesToDownload.begin();
 			it != remoteFilesToDownload.end(); ++it) {
 
@@ -285,13 +299,13 @@ namespace inetr {
 			return false;
 
 		LPVOID versionMappingPtr = MapViewOfFile(versionMapping,
-			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(short));
+			FILE_MAP_ALL_ACCESS, 0, 0, 4 * sizeof(uint16_t));
 		if (versionMappingPtr == nullptr) {
 			CloseHandle(versionMapping);
 			return false;
 		}
 
-		memcpy(versionToUpdateTo, versionMappingPtr, 4 * sizeof(short));
+		memcpy(versionToUpdateTo, versionMappingPtr, 4 * sizeof(uint16_t));
 		UnmapViewOfFile(versionMappingPtr);
 		CloseHandle(versionMapping);
 
@@ -325,7 +339,7 @@ namespace inetr {
 			return false;
 		}
 
-		char *ptr = (char*)filesToDlPtr;
+		char *ptr = reinterpret_cast<char*>(filesToDlPtr);
 		while (*ptr != '\0') {
 			remoteFilesToDownload.push_back(string(ptr));
 			ptr += (ptrdiff_t)(strlen(ptr) + 1);

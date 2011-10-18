@@ -1,12 +1,16 @@
 #include "INETRLogger.hpp"
 
-#include <ctime>
-#include <fstream>
-
 #include <Windows.h>
 #include <ShlObj.h>
 
-using namespace std;
+#include <ctime>
+#include <fstream>
+#include <string>
+
+using std::ios;
+using std::endl;
+using std::ofstream;
+using std::string;
 
 namespace inetr {
 	INETRLogger INETRLogger::instance;
@@ -68,13 +72,13 @@ namespace inetr {
 
 		logFile.close();
 	}
-	
+
 	void INETRLogger::LogInfo(string str) {
 		log(string("INFO: ") + str);
 	}
 
 	void INETRLogger::LogError(string str) {
-		log (string("ERROR: ") + str);
+		log(string("ERROR: ") + str);
 	}
 
 

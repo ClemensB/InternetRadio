@@ -1,10 +1,16 @@
 #include "HTTPMetaSource.hpp"
 
+#include <map>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "HTTP.hpp"
 
-using namespace std;
+using std::map;
+using std::stringstream;
+using std::string;
+using std::vector;
 
 namespace inetr {
 	bool HTTPMetaSource::Get(const map<string, string> &parameters,
@@ -15,7 +21,7 @@ namespace inetr {
 			return false;
 		try {
 			HTTP::Get(sURLIt->second, &httpStream);
-		} catch (...) {
+		} catch(...) {
 			return false;
 		}
 		out = httpStream.str();

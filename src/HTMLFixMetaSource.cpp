@@ -1,8 +1,14 @@
 #include "HTMLFixMetaSource.hpp"
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "StringUtil.hpp"
 
-using namespace std;
+using std::string;
+using std::map;
+using std::vector;
 
 namespace inetr {
 	const char* const HTMLFixMetaSource::entities[][2] = {

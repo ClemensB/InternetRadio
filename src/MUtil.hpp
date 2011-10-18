@@ -6,9 +6,9 @@
 
 #ifdef _WIN64
 #define INETR_ARCH string("x64")
-#else // _WIN64
+#else  // _WIN64
 #define INETR_ARCH string("Win32")
-#endif // _WIN64
+#endif  // _WIN64
 
 
-#endif // !INETR_MUTIL_HPP
+#endif  // !INETR_MUTIL_HPP

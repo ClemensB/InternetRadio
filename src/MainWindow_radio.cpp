@@ -5,10 +5,12 @@
 #include <Uxtheme.h>
 #include <ShObjIdl.h>
 
+#include <string>
+
 #include "OSUtil.hpp"
 #include "../resource/resource.h"
 
-using namespace std;
+using std::string;
 
 namespace inetr {
 	void MainWindow::radioOpenURL(string url) {
@@ -20,7 +22,8 @@ namespace inetr {
 
 		currentStreamURL = url;
 
-		_beginthread(staticRadioOpenURLThread, 0, (void*)args);
+		_beginthread(staticRadioOpenURLThread, 0,
+			reinterpret_cast<void*>(args));
 	}
 
 	void MainWindow::radioOpenURLThread(string url) {
@@ -37,8 +40,8 @@ namespace inetr {
 		radioStatus = INETR_RS_Connecting;
 		updateStatusLabel();
 
-		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, nullptr
-			, 0);
+		HSTREAM tempStream = BASS_StreamCreateURL(url.c_str(), 0, 0, nullptr,
+			0);
 
 		if (currentStreamURL != url || radioStatus != INETR_RS_Connecting) {
 			BASS_StreamFree(tempStream);
