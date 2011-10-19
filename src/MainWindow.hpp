@@ -3,18 +3,18 @@
 
 #include <cstdint>
 
+#include <string>
+#include <map>
+
 #include <Windows.h>
 
 #include <bass.h>
 
-#include <string>
-#include <map>
-
+#include "Languages.hpp"
 #include "Station.hpp"
 #include "Stations.hpp"
-#include "Languages.hpp"
-#include "UserConfig.hpp"
 #include "Updater.hpp"
+#include "UserConfig.hpp"
 
 namespace inetr {
 	enum WindowSlideStatus { INETR_WSS_Retracted, INETR_WSS_Expanded,

@@ -3,6 +3,10 @@
 #include <map>
 #include <string>
 
+#include <Windows.h>
+
+#include <bass.h>
+
 using std::string;
 using std::map;
 

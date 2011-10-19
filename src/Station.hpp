@@ -1,11 +1,11 @@
 #ifndef INTERNETRADIO_STATION_HPP
 #define INTERNETRADIO_STATION_HPP
 
-#include <Windows.h>
-
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
+#include <Windows.h>
 
 #include "MetaSource.hpp"
 

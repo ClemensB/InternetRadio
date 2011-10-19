@@ -1,8 +1,8 @@
 #ifndef INTERNETRADIO_HTTP_HPP
 #define INTERNETRADIO_HTTP_HPP
 
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace inetr {
 	class HTTP {

@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include <Windows.h>
-
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -12,12 +10,15 @@
 #include <utility>
 #include <vector>
 
+#include <Windows.h>
+
 #include "../resource/resource.h"
-#include "StringUtil.hpp"
-#include "HTTP.hpp"
+
 #include "CryptUtil.hpp"
+#include "HTTP.hpp"
 #include "INETRException.hpp"
 #include "MUtil.hpp"
+#include "StringUtil.hpp"
 #include "VersionUtil.hpp"
 
 using std::ifstream;

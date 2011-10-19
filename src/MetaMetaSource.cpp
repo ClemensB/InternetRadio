@@ -1,10 +1,10 @@
 #include "MetaMetaSource.hpp"
 
-#include <bass.h>
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include <bass.h>
 
 #include "StringUtil.hpp"
 

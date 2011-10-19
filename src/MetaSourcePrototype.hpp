@@ -1,8 +1,8 @@
 #ifndef INETR_METASOURCEPROTOTYPE_HPP
 #define INETR_METASOURCEPROTOTYPE_HPP
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace inetr {

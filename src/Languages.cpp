@@ -1,13 +1,13 @@
 #include "Languages.hpp"
 
-#include <json/json.h>
-
 #include <algorithm>
 #include <fstream>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <json/json.h>
 
 #include "INETRException.hpp"
 

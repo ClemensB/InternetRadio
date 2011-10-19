@@ -2,11 +2,6 @@
 
 #include <cstdint>
 
-#include <process.h>
-#include <CommCtrl.h>
-#include <Uxtheme.h>
-#include <ShObjIdl.h>
-
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -14,12 +9,20 @@
 #include <vector>
 #include <utility>
 
+#include <CommCtrl.h>
+#include <process.h>
+#include <ShObjIdl.h>
+#include <Uxtheme.h>
+#include <Windows.h>
+
+#include <bass.h>
+
 #include "../resource/resource.h"
 
-#include "MUtil.hpp"
-#include "StringUtil.hpp"
 #include "INETRException.hpp"
+#include "MUtil.hpp"
 #include "OSUtil.hpp"
+#include "StringUtil.hpp"
 
 using std::for_each;
 using std::map;

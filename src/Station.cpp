@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <Windows.h>
+
 #include "ImageUtil.hpp"
 
 using std::string;

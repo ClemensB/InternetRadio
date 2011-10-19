@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 namespace inetr {
 	class Updater {

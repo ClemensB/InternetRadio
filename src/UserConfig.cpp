@@ -1,14 +1,14 @@
 #include "UserConfig.hpp"
 
-#include <ShlObj.h>
-
-#include <json/json.h>
-
 #include <algorithm>
 #include <fstream>
 #include <list>
 #include <string>
 #include <vector>
+
+#include <ShlObj.h>
+
+#include <json/json.h>
 
 using std::find_if;
 using std::for_each;

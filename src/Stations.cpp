@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include <json/json.h>
-
 #include <algorithm>
 #include <fstream>
 #include <list>
@@ -12,12 +10,14 @@
 #include <utility>
 #include <vector>
 
+#include <json/json.h>
+
 #include "VersionUtil.hpp"
 
-#include "MetaMetaSource.hpp"
-#include "HTTPMetaSource.hpp"
-#include "RegExMetaSource.hpp"
 #include "HTMLFixMetaSource.hpp"
+#include "HTTPMetaSource.hpp"
+#include "MetaMetaSource.hpp"
+#include "RegExMetaSource.hpp"
 
 using std::find_if;
 using std::ifstream;

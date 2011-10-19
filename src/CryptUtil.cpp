@@ -4,6 +4,9 @@
 #include <sstream>
 #include <string>
 
+#include <Windows.h>
+#include <WinCrypt.h>
+
 #include "INETRException.hpp"
 
 using std::ifstream;

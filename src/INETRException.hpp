@@ -1,11 +1,11 @@
 #ifndef INETR_EXCEPTION_HPP
 #define INETR_EXCEPTION_HPP
 
-#include <Windows.h>
-
+#include <exception>
 #include <string>
 #include <vector>
-#include <exception>
+
+#include <Windows.h>
 
 #include "Language.hpp"
 

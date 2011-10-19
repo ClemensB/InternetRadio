@@ -1,14 +1,18 @@
 #include "MainWindow.hpp"
 
-#include <process.h>
-#include <CommCtrl.h>
-#include <Uxtheme.h>
-#include <ShObjIdl.h>
-
 #include <string>
 
-#include "OSUtil.hpp"
+#include <CommCtrl.h>
+#include <process.h>
+#include <ShObjIdl.h>
+#include <Uxtheme.h>
+#include <Windows.h>
+
+#include <bass.h>
+
 #include "../resource/resource.h"
+
+#include "OSUtil.hpp"
 
 using std::string;
 

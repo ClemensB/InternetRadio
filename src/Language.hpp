@@ -1,8 +1,8 @@
 #ifndef INTERNETRADIO_LANGUAGE_HPP
 #define INTERNETRADIO_LANGUAGE_HPP
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace inetr {
 	class Language {

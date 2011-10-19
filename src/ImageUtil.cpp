@@ -1,9 +1,10 @@
 #include "ImageUtil.hpp"
 
+#include <string>
+
 #include <Shlwapi.h>
 #include <wincodec.h>
-
-#include <string>
+#include <Windows.h>
 
 #include "INETRException.hpp"
 

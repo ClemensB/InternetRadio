@@ -1,10 +1,10 @@
 #ifndef INETR_CRYPTUTIL_HPP
 #define INETR_CRYPTUTIL_HPP
 
+#include <string>
+
 #include <Windows.h>
 #include <WinCrypt.h>
-
-#include <string>
 
 namespace inetr {
 	struct MD5Context {

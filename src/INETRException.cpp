@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <Windows.h>
+
 #include "INETRLogger.hpp"
 
 using std::string;

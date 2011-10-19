@@ -1,9 +1,10 @@
 #include "INETRLogger.hpp"
 
-#include <Windows.h>
-#include <ShlObj.h>
-
 #include <ctime>
+
+#include <ShlObj.h>
+#include <Windows.h>
+
 #include <fstream>
 #include <string>
 

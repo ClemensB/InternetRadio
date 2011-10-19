@@ -1,9 +1,9 @@
 #ifndef INETR_IMAGEUTIL_HPP
 #define INETR_IMAGEUTIL_HPP
 
-#include <Windows.h>
-
 #include <string>
+
+#include <Windows.h>
 
 namespace inetr {
 	class ImageUtil {

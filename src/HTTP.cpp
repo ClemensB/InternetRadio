@@ -1,12 +1,12 @@
 #include "HTTP.hpp"
 
-#include <WS2tcpip.h>
-
 #include <sstream>
 #include <string>
 
-#include "ssize_t.h"
+#include <WS2tcpip.h>
+
 #include "INETRException.hpp"
+#include "ssize_t.h"
 
 using std::ostream;
 using std::streamsize;

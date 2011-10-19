@@ -1,10 +1,10 @@
 #include "VersionUtil.hpp"
 
-#include <Windows.h>
-
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include <Windows.h>
 
 #include "StringUtil.hpp"
 

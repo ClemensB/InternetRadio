@@ -2,12 +2,15 @@
 
 #include <cstdint>
 
-#include <ShObjIdl.h>
-
 #include <algorithm>
 #include <list>
 #include <string>
 #include <vector>
+
+#include <ShObjIdl.h>
+#include <Windows.h>
+
+#include <bass.h>
 
 #include "MUtil.hpp"
 #include "OSUtil.hpp"

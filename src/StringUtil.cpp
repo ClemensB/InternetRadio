@@ -1,7 +1,8 @@
 #include "StringUtil.hpp"
 
-#include <algorithm>
 #include <cctype>
+
+#include <algorithm>
 #include <string>
 #include <vector>
 
