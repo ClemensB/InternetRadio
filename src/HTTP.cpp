@@ -197,14 +197,14 @@ namespace inetr {
 		closesocket(sock);
 	}
 
-	void HTTP::getLine(SOCKET socket, std::stringstream &out) {
+	void HTTP::getLine(size_t socket, std::stringstream &out) {
 		for (char c; recv(socket, &c, 1, 0) > 0; out << c) {
 			if (c == '\n')
 				return;
 		}
 	}
 
-	void HTTP::sendAll(SOCKET socket, const char* const buf,
+	void HTTP::sendAll(size_t socket, const char* const buf,
 		const size_t size) {
 
 		size_t bytesSent = 0;
