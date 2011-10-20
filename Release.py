@@ -13,6 +13,7 @@ def fileMD5(file):
 		if not data:
 			break
 		md5.update(data)
+	f.close()
 	return md5.hexdigest()
 
 def releaseForArchitecture(arch):
