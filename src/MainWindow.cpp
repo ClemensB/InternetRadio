@@ -618,6 +618,7 @@ namespace inetr {
 			currentStation->MetaOut);
 
 		meta = StringUtil::Trim(meta);
+		StringUtil::SearchAndReplace(meta, "\t", "");
 
 		const char* metaStr = meta.c_str();
 		int length = MultiByteToWideChar(CP_UTF8, 0, metaStr,
