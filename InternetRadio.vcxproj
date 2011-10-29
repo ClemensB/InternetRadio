@@ -150,7 +150,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="data\language.json" />
-    <None Include="data\stations.json" />
     <None Include="README" />
     <None Include="Release.py" />
     <None Include="resource\icon.ico" />

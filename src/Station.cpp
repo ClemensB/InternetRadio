@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include <ShlObj.h>
 #include <Windows.h>
 
 #include "ImageUtil.hpp"
@@ -104,7 +105,20 @@ namespace inetr {
 	}
 
 	void Station::loadImage() {
-		HBITMAP hbm = ImageUtil::LoadImage(imagePath);
+		HBITMAP hbm;
+
+		char appDataPath[MAX_PATH];
+		SHGetFolderPath(nullptr, CSIDL_COMMON_APPDATA, nullptr,
+			SHGFP_TYPE_CURRENT, appDataPath);
+
+		string appDataImgPath = string(appDataPath) + "\\InternetRadio\\"
+			+ imagePath;
+
+		try {
+			hbm = ImageUtil::LoadImage(appDataImgPath);
+		} catch (...) {
+			return;
+		}
 
 		BITMAP bm;
 		GetObject(hbm, sizeof(BITMAP), &bm);
