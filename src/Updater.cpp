@@ -18,6 +18,7 @@
 #include "HTTP.hpp"
 #include "INETRException.hpp"
 #include "MUtil.hpp"
+#include "OSUtil.hpp"
 #include "StringUtil.hpp"
 #include "VersionUtil.hpp"
 
@@ -144,6 +145,10 @@ namespace inetr {
 		if (reinterpret_cast<uint64_t>(versionToUpdateTo) == 0L ||
 			remoteFilesToDownload.empty())
 			return false;
+
+		if (OSUtil::IsProcessElevated()) {
+			return PerformPreparedUpdate();
+		}
 
 		if (!WriteUpdateInformationToSharedMemory())
 			return false;

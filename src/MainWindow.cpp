@@ -567,7 +567,6 @@ namespace inetr {
 	}
 
 	void MainWindow::downloadUpdatesThread() {
-
 		if (!updater.LaunchPreparedUpdateProcess())
 			MessageBox(window, userConfig.CurrentLanguage["error"].c_str(),
 				userConfig.CurrentLanguage["error"].c_str(), MB_OK |

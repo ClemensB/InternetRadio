@@ -44,4 +44,40 @@ namespace inetr {
 		else
 			return (aeroEnabled == TRUE);
 	}
+	
+	bool OSUtil::IsUACEnabled() {
+		if (!IsVistaOrLater())
+			return false;
+
+		HKEY key;
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+			"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+			0, KEY_READ, &key) != ERROR_SUCCESS)
+			return false;
+
+		DWORD value;
+		DWORD bufSize = static_cast<DWORD>(sizeof(value));
+		if (RegQueryValueEx(key, "EnableLUA", nullptr, nullptr,
+			reinterpret_cast<LPBYTE>(&value), &bufSize)!= ERROR_SUCCESS)
+			return false;
+
+		return (value == 1);
+	}
+
+	bool OSUtil::IsProcessElevated() {
+		if (!IsVistaOrLater() || !IsUACEnabled())
+			return true;
+
+		HANDLE token;
+		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_READ, &token))
+			return false;
+
+		TOKEN_ELEVATION_TYPE tokenInfo;
+		DWORD retLen;
+		if (!GetTokenInformation(token, TokenElevationType, &tokenInfo,
+			sizeof(tokenInfo), &retLen))
+			return false;
+
+		return tokenInfo == TokenElevationTypeFull;
+	}
 }
