@@ -1,6 +1,10 @@
 #ifndef INETR_HTMLFIXMETASOURCE_HPP
 #define INETR_HTMLFIXMETASOURCE_HPP
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "MetaSourcePrototype.hpp"
 
 namespace inetr {
@@ -18,4 +22,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_HTMLFIXMETASOURCE_HPP
+#endif  // !INETR_HTMLFIXMETASOURCE_HPP

@@ -29,4 +29,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_USERCONFIG_HPP
+#endif  // !INETR_USERCONFIG_HPP

@@ -40,8 +40,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\InternetRadio.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\language.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\stations.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\img\*"; DestDir: "{app}\img"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "publish\{#MyAppVersion}\{#MyAppArchitecture}\bass.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 

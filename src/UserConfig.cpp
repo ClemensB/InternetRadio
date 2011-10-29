@@ -2,13 +2,28 @@
 
 #include <algorithm>
 #include <fstream>
+#include <list>
+#include <string>
+#include <vector>
 
 #include <ShlObj.h>
 
 #include <json/json.h>
 
-using namespace std;
-using namespace Json;
+using std::find_if;
+using std::for_each;
+using std::ifstream;
+using std::ios;
+using std::list;
+using std::ofstream;
+using std::string;
+using std::vector;
+using Json::arrayValue;
+using Json::nullValue;
+using Json::objectValue;
+using Json::Reader;
+using Json::StyledWriter;
+using Json::Value;
 
 namespace inetr {
 	bool UserConfig::Load() {
@@ -97,7 +112,7 @@ namespace inetr {
 			MessageBox(nullptr, "Unable to load user config, couldn't read \
 				volume", "Error", MB_OK | MB_ICONERROR);
 		} else {
-			RadioVolume = (float)volumeVal.asDouble();
+			RadioVolume = static_cast<float>(volumeVal.asDouble());
 		}
 
 		return true;
@@ -115,8 +130,8 @@ namespace inetr {
 		});
 
 		rootValue["language"] = Value(CurrentLanguage.Identifier);
-		
-		rootValue["volume"] = Value(double(RadioVolume));
+
+		rootValue["volume"] = Value(static_cast<double>(RadioVolume));
 
 		StyledWriter jsonWriter;
 		string jsonStr = jsonWriter.write(rootValue);

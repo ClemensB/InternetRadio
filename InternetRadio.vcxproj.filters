@@ -48,9 +48,6 @@
     <None Include="setup.iss">
       <Filter>Other Files</Filter>
     </None>
-    <None Include="data\stations.json">
-      <Filter>Data Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MainWindow.hpp">

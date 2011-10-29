@@ -1,6 +1,7 @@
 #ifndef INETR_LANGUAGES_HPP
 #define INETR_LANGUAGES_HPP
 
+#include <string>
 #include <vector>
 
 #include "Language.hpp"
@@ -8,7 +9,7 @@
 namespace inetr {
 	class Languages {
 	public:
-		Languages() : DefaultLanguage(Languages::None) { };
+		Languages() : DefaultLanguage(Languages::None) { }
 
 		bool Load();
 
@@ -31,4 +32,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_LANGUAGES_HPP
+#endif  // !INETR_LANGUAGES_HPP

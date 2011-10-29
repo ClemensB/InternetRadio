@@ -3,8 +3,8 @@
 
 #include <list>
 
-#include "Station.hpp"
 #include "MetaSourcePrototype.hpp"
+#include "Station.hpp"
 
 namespace inetr {
 	class Stations {
@@ -27,4 +27,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_STATIONS_HPP
+#endif  // !INETR_STATIONS_HPP

@@ -12,4 +12,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_IMAGEUTIL_HPP
+#endif  // !INETR_IMAGEUTIL_HPP

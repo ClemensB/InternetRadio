@@ -1,13 +1,17 @@
 #include "HTTP.hpp"
 
 #include <sstream>
+#include <string>
 
 #include <WS2tcpip.h>
 
-#include "ssize_t.h"
 #include "INETRException.hpp"
+#include "ssize_t.h"
 
-using namespace std;
+using std::ostream;
+using std::streamsize;
+using std::string;
+using std::stringstream;
 
 namespace inetr {
 	void HTTP::Get(string url, ostream *stream) {
@@ -56,7 +60,8 @@ namespace inetr {
 				ptr->ai_protocol)) == -1)
 				continue;
 
-			if (connect(sock, ptr->ai_addr, (int)ptr->ai_addrlen) == -1)
+			if (connect(sock, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen))
+				== -1)
 				closesocket(sock);
 
 			break;
@@ -108,7 +113,7 @@ namespace inetr {
 					}
 				}
 			}
-			
+
 			stringstream sscode;
 			sscode << code;
 			throw INETRException("[unhHTTPStatus]:\n" + sscode.str());
@@ -145,7 +150,7 @@ namespace inetr {
 			while (recvSize < (size_t)size) {
 				if ((bytesRecv = (ssize_t)recv(sock, buf, sizeof(buf), 0)) <= 0)
 					throw INETRException("[recvErr]");
-				
+
 				recvSize += (size_t)bytesRecv;
 				stream->write(buf, (streamsize)bytesRecv);
 			}
@@ -173,8 +178,8 @@ namespace inetr {
 						size_t bytesToRecv = chunkSize - recvSize;
 
 						if ((bytesRecv = (ssize_t)recv(sock, buf,
-							int(bytesToRecv > sizeof(buf) ? sizeof(buf) :
-							bytesToRecv), 0)) <= 0)
+							static_cast<int>(bytesToRecv > sizeof(buf) ?
+							sizeof(buf) : bytesToRecv), 0)) <= 0)
 							throw INETRException("[recvErr]");
 
 						recvSize += (size_t)bytesRecv;
@@ -192,20 +197,20 @@ namespace inetr {
 		closesocket(sock);
 	}
 
-	void HTTP::getLine(SOCKET socket, std::stringstream &out) {
+	void HTTP::getLine(size_t socket, std::stringstream &out) {
 		for (char c; recv(socket, &c, 1, 0) > 0; out << c) {
 			if (c == '\n')
 				return;
 		}
 	}
-	
-	void HTTP::sendAll(SOCKET socket, const char* const buf,
+
+	void HTTP::sendAll(size_t socket, const char* const buf,
 		const size_t size) {
 
 		size_t bytesSent = 0;
 		do {
 			int result = send(socket, buf + ptrdiff_t(bytesSent),
-				int(size - bytesSent), 0);
+				static_cast<int>(size - bytesSent), 0);
 			if (result < 0)
 				return;
 			bytesSent += size_t(result);

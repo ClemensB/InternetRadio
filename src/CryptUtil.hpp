@@ -28,4 +28,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_CRYPTUTIL_HPP
+#endif  // !INETR_CRYPTUTIL_HPP

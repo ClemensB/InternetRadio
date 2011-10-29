@@ -1,19 +1,43 @@
 #include "Stations.hpp"
 
+#include <cstdint>
+
 #include <algorithm>
 #include <fstream>
+#include <list>
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <ShlObj.h>
 
 #include <json/json.h>
 
+#include "CryptUtil.hpp"
+#include "HTTP.hpp"
+#include "StringUtil.hpp"
 #include "VersionUtil.hpp"
 
-#include "MetaMetaSource.hpp"
-#include "HTTPMetaSource.hpp"
-#include "RegExMetaSource.hpp"
 #include "HTMLFixMetaSource.hpp"
+#include "HTTPMetaSource.hpp"
+#include "MetaMetaSource.hpp"
+#include "RegExMetaSource.hpp"
 
-using namespace std;
-using namespace Json;
+using std::find_if;
+using std::ifstream;
+using std::ios;
+using std::list;
+using std::map;
+using std::ofstream;
+using std::pair;
+using std::string;
+using std::stringstream;
+using std::vector;
+using Json::nullValue;
+using Json::Reader;
+using Json::Value;
 
 namespace inetr {
 	Stations::Stations() {
@@ -33,12 +57,122 @@ namespace inetr {
 	}
 
 	bool Stations::Load() {
-		ifstream stationsFile;
-		stationsFile.open("stations.json", ios::in);
-		if (!stationsFile.is_open())
-			return false;
+		char appDataPath[MAX_PATH];
+		SHGetFolderPath(nullptr, CSIDL_COMMON_APPDATA, nullptr,
+			SHGFP_TYPE_CURRENT, appDataPath);
+
+		string path = string(appDataPath) + "\\InternetRadio\\stations.json";
+
+		stringstream ssArchive;
+		try {
+			HTTP::Get(
+				"http://internetradio.clemensboos.net/stations/archive.json",
+				&ssArchive);
+		} catch(...) { }
 
 		Reader jsonReader;
+		Value archiveRootValue;
+
+		jsonReader.parse(ssArchive, archiveRootValue);
+
+		map<int, string> staVersions;
+		for (size_t i = 0; i < (size_t)archiveRootValue.size(); ++i) {
+			string versionStr = archiveRootValue.getMemberNames().at(i);
+
+			Value versionMinVerVal = archiveRootValue.get(versionStr, Value(
+				nullValue));
+			if (!versionMinVerVal.isString())
+				continue;
+
+			staVersions.insert(pair<int, string>(
+				atoi(versionStr.c_str()), versionMinVerVal.asString()));
+		}
+
+		uint16_t installedVersion[4];
+		VersionUtil::GetInstalledVersion(installedVersion);
+
+		for (map<int, string>::reverse_iterator it =
+			staVersions.rbegin(); it != staVersions.rend(); ++it) {
+
+			uint16_t staVer[4];
+			VersionUtil::VersionStrToArr(it->second, staVer);
+
+			if (VersionUtil::CompareVersions(installedVersion, staVer) !=
+				VCR_Older) {
+
+				stringstream ssVer;
+				ssVer << it->first;
+				stringstream ssNewStaChecksumsF;
+				try {
+					HTTP::Get("http://internetradio.clemensboos.net/stations/" +
+						ssVer.str() + "/checksums", &ssNewStaChecksumsF);
+				} catch(...) {
+					break;
+				}
+
+				while (ssNewStaChecksumsF.good()) {
+					string filePathAndChecksum;
+					ssNewStaChecksumsF >> filePathAndChecksum;
+					if (filePathAndChecksum == "")
+						continue;
+
+					vector<string> filePathAndChecksumSplit =
+						StringUtil::Explode(filePathAndChecksum, ":");
+					if (filePathAndChecksumSplit.size() != 2)
+						continue;
+
+					string fileName = filePathAndChecksumSplit[0];
+					string locPath = string(appDataPath) + "\\InternetRadio\\"
+						+ fileName;
+					StringUtil::SearchAndReplace(locPath, "/", "\\");
+					string remoteChecksum = filePathAndChecksumSplit[1];
+
+					bool update = false;
+
+					ifstream fileStream(locPath);
+					if (fileStream.is_open()) {
+						fileStream.close();
+						string localChecksum = CryptUtil::FileMD5Hash(locPath);
+						if (remoteChecksum != localChecksum)
+							update = true;
+					} else {
+						update = true;
+					}
+
+					if (!update)
+						continue;
+
+					string fileRemURL =
+						"http://internetradio.clemensboos.net/stations/" +
+						ssVer.str() + "/" + fileName;
+					StringUtil::SearchAndReplace(fileRemURL, "\\", "/");
+					stringstream ssRemFile;
+					try {
+						HTTP::Get(fileRemURL, &ssRemFile);
+					} catch(...) {
+						continue;
+					}
+
+					string locDir = locPath.substr(0,
+						locPath.find_last_of("\\"));
+					CreateDirectory(locDir.c_str(), nullptr);
+
+					ofstream fOutStream;
+					fOutStream.open(locPath, ios::out | ios::binary);
+					fOutStream << ssRemFile.rdbuf();
+					fOutStream.close();
+				}
+
+				break;
+			}
+		}
+
+		ifstream stationsFile;
+		stationsFile.open(path, ios::in);
+		if (!stationsFile.is_open()) {
+			return false;
+		}
+
 		Value rootValue;
 
 		if (!jsonReader.parse(stationsFile, rootValue, false)) {
@@ -56,10 +190,8 @@ namespace inetr {
 			return false;
 		}
 
-		unsigned short minVersion[4];
+		uint16_t minVersion[4];
 		VersionUtil::VersionStrToArr(minVersionValue.asString(), minVersion);
-		unsigned short installedVersion[4];
-		VersionUtil::GetInstalledVersion(installedVersion);
 		if (VersionUtil::CompareVersions(minVersion, installedVersion) ==
 			VCR_Newer) {
 

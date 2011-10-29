@@ -1,17 +1,23 @@
 #include "MetaMetaSource.hpp"
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include <bass.h>
 
 #include "StringUtil.hpp"
 
-using namespace std;
+using std::map;
+using std::string;
+using std::vector;
 
 namespace inetr {
 	bool MetaMetaSource::Get(const map<string, string> &parameters,
 		vector<string> &precedingMetaSources, string &out) const {
 
-		HSTREAM *currentStreamPtr = (HSTREAM*)StringUtil::StringToPointer(
-			parameters.find("rStream")->second);
+		HSTREAM *currentStreamPtr = reinterpret_cast<HSTREAM*>(
+			StringUtil::StringToPointer(parameters.find("rStream")->second));
 
 		const char *csMetadata =
 			BASS_ChannelGetTags(*currentStreamPtr, BASS_TAG_META);

@@ -1,12 +1,25 @@
 #include "MainWindow.hpp"
 
+#include <cstdint>
+
 #include <algorithm>
+#include <list>
+#include <string>
+#include <vector>
 
 #include <ShObjIdl.h>
+#include <Windows.h>
+
+#include <bass.h>
 
 #include "MUtil.hpp"
+#include "OSUtil.hpp"
 
-using namespace std;
+using std::find_if;
+using std::list;
+using std::string;
+using std::vector;
+using std::wstring;
 
 namespace inetr {
 	void MainWindow::bufferTimer_Tick() {
@@ -25,9 +38,9 @@ namespace inetr {
 				updateMeta();
 
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_META, 0,
-					&staticMetaSync, (void*)this);
+					&staticMetaSync, reinterpret_cast<void*>(this));
 				BASS_ChannelSetSync(currentStream, BASS_SYNC_OGG_CHANGE, 0,
-					&staticMetaSync, (void*)this);
+					&staticMetaSync, reinterpret_cast<void*>(this));
 
 				BASS_ChannelSetAttribute(currentStream, BASS_ATTRIB_VOL,
 					radioGetVolume());
@@ -178,6 +191,20 @@ namespace inetr {
 				RWIDTH(controlPositions["updateInfoEd"]),
 				RHEIGHT(controlPositions["updateInfoEd"]),
 				SWP_NOMOVE);
+		}
+
+		if (OSUtil::IsWin7OrLater()) {
+			ITaskbarList3 *taskbarList = nullptr;
+
+			if (SUCCEEDED(CoCreateInstance(CLSID_TaskbarList, nullptr,
+				CLSCTX_INPROC_SERVER, __uuidof(taskbarList),
+				reinterpret_cast<void**>(&taskbarList)))) {
+
+				taskbarList->SetThumbnailClip(window,
+					&controlPositions["stationImg"]);
+
+				taskbarList->Release();
+			}
 		}
 	}
 
@@ -342,7 +369,7 @@ namespace inetr {
 				nullptr);
 		}
 		retractBottomPanel();
-		
+
 		ShowWindow(updatingLbl, SW_SHOW);
 
 		downloadUpdates();
@@ -355,8 +382,9 @@ namespace inetr {
 	}
 
 
-	void MainWindow::mouseScroll(short delta) {
-		float rDelta = (float)delta / (float)WHEEL_DELTA;
+	void MainWindow::mouseScroll(int16_t delta) {
+		float rDelta = static_cast<float>(delta) /
+			static_cast<float>(WHEEL_DELTA);
 		float nVolume = userConfig.RadioVolume + (rDelta * 0.1f);
 		nVolume = (nVolume > 1.0f) ? 1.0f : ((nVolume < 0.0f) ? 0.0f :
 			nVolume);

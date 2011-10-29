@@ -1,14 +1,14 @@
 #ifndef INETR_METASOURCEPROTOTYPE_HPP
 #define INETR_METASOURCEPROTOTYPE_HPP
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace inetr {
 	class MetaSourcePrototype {
 	public:
-		virtual ~MetaSourcePrototype() { };
+		virtual ~MetaSourcePrototype() { }
 
 		inline std::string &GetIdentifer() { return identifier; }
 
@@ -23,4 +23,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_METASOURCEPROTOTYPE_HPP
+#endif  // !INETR_METASOURCEPROTOTYPE_HPP

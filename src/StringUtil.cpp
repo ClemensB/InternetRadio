@@ -1,9 +1,13 @@
 #include "StringUtil.hpp"
 
-#include <algorithm>
 #include <cctype>
 
-using namespace std;
+#include <algorithm>
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 namespace inetr {
 	vector<string> StringUtil::Explode(string str, string separator) {

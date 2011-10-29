@@ -1,6 +1,8 @@
 #ifndef INTERNETRADIO_MAINWINDOW_HPP
 #define INTERNETRADIO_MAINWINDOW_HPP
 
+#include <cstdint>
+
 #include <string>
 #include <map>
 
@@ -8,11 +10,11 @@
 
 #include <bass.h>
 
+#include "Languages.hpp"
 #include "Station.hpp"
 #include "Stations.hpp"
-#include "Languages.hpp"
-#include "UserConfig.hpp"
 #include "Updater.hpp"
+#include "UserConfig.hpp"
 
 namespace inetr {
 	enum WindowSlideStatus { INETR_WSS_Retracted, INETR_WSS_Expanded,
@@ -26,6 +28,7 @@ namespace inetr {
 		MainWindow();
 
 		int Main(std::string commandLine, HINSTANCE instance, int showCmd);
+
 	private:
 		static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 			wParam, LPARAM lParam);
@@ -89,7 +92,7 @@ namespace inetr {
 		void updateButton_Click();
 		void dontUpdateButton_Click();
 
-		void mouseScroll(short delta);
+		void mouseScroll(int16_t delta);
 
 
 		void radioOpenURL(std::string url);
@@ -108,7 +111,7 @@ namespace inetr {
 
 		static const int windowWidth = 350;
 		static const int windowHeight = 292;
-		
+
 		static const int stationsLboxId = 101;
 		static const int statusLblId = 102;
 		static const int stationImgId = 103;
@@ -128,13 +131,13 @@ namespace inetr {
 		static const int slideTimerId = 2;
 		static const int metaTimerId = 3;
 		static const int hideVolBarTimerId = 4;
-		
+
 		static const int slideMax_Left = 110;
 		static const int slideMax_Bottom = 20;
 		static const int slideMax_Bottom2 = 100;
 		static const int slideSpeed = 1;
 		static const int slideStep = 2;
-		
+
 
 		static WNDPROC staticListBoxOriginalWndProc;
 		static std::map<HWND, MainWindow*> staticParentLookupTable;
@@ -190,4 +193,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INTERNETRADIO_MAINWINDOW_HPP
+#endif  // !INTERNETRADIO_MAINWINDOW_HPP

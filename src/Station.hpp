@@ -1,9 +1,9 @@
 #ifndef INTERNETRADIO_STATION_HPP
 #define INTERNETRADIO_STATION_HPP
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <Windows.h>
 
@@ -37,4 +37,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INTERNETRADIO_STATION_HPP
+#endif  // !INTERNETRADIO_STATION_HPP

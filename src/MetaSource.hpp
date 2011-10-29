@@ -2,8 +2,9 @@
 #define INETR_METASOURCE_HPP
 
 #include <algorithm>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "MetaSourcePrototype.hpp"
 
@@ -36,4 +37,4 @@ namespace inetr {
 	};
 }
 
-#endif // !INETR_METASOURCE_HPP
+#endif  // !INETR_METASOURCE_HPP

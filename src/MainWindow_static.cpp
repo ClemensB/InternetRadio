@@ -1,23 +1,33 @@
 #include "MainWindow.hpp"
 
-using namespace std;
+#include <map>
+#include <string>
+
+#include <Windows.h>
+
+#include <bass.h>
+
+using std::string;
+using std::map;
 
 namespace inetr {
 	const char* const MainWindow::windowClassName = "InternetRadio";
 
 	WNDPROC MainWindow::staticListBoxOriginalWndProc;
 	map<HWND, MainWindow*> MainWindow::staticParentLookupTable;
-	
+
 
 	LRESULT CALLBACK MainWindow::staticWndProc(HWND hwnd, UINT uMsg, WPARAM
 		wParam, LPARAM lParam) {
 
 			MainWindow *parent;
 			if (uMsg == WM_CREATE) {
-				parent = (MainWindow*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+				parent = reinterpret_cast<MainWindow*>(
+					((LPCREATESTRUCT)lParam)->lpCreateParams);
 				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)parent);
 			} else {
-				parent = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				parent = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hwnd,
+					GWLP_USERDATA));
 				if (!parent)
 					return DefWindowProc(hwnd, uMsg, wParam, lParam);
 			}
@@ -44,17 +54,17 @@ namespace inetr {
 	}
 
 
-	void __cdecl MainWindow::staticUpdateMetaThread(void *param){
-		MainWindow *parent = (MainWindow*)param;
+	void __cdecl MainWindow::staticUpdateMetaThread(void *param) {
+		MainWindow *parent = reinterpret_cast<MainWindow*>(param);
 		if (parent)
 			parent->updateMetaThread();
 	}
 
 	void __cdecl MainWindow::staticRadioOpenURLThread(void *param) {
-		LPVOID *args = (LPVOID*)param;
+		void **args = reinterpret_cast<void**>(param);
 
-		MainWindow *parent = (MainWindow*)*args;
-		string *strPtr = (string*)*(args + 1);
+		MainWindow *parent = reinterpret_cast<MainWindow*>(*args);
+		string *strPtr = reinterpret_cast<string*>(*(args + 1));
 
 		string str(*strPtr);
 
@@ -65,13 +75,13 @@ namespace inetr {
 	}
 
 	void __cdecl MainWindow::staticCheckUpdateThread(void *param) {
-		MainWindow *parent = (MainWindow*)param;
+		MainWindow *parent = reinterpret_cast<MainWindow*>(param);
 		if (parent)
 			parent->checkUpdateThread();
 	}
 
 	void __cdecl MainWindow::staticDownloadUpdatesThread(void *param) {
-		MainWindow *parent = (MainWindow*)param;
+		MainWindow *parent = reinterpret_cast<MainWindow*>(param);
 		if (parent)
 			parent->downloadUpdatesThread();
 	}
@@ -80,7 +90,7 @@ namespace inetr {
 	void CALLBACK MainWindow::staticMetaSync(HSYNC handle, DWORD channel,
 		DWORD data, void *user) {
 
-		MainWindow* parent = (MainWindow*)user;
+		MainWindow* parent = reinterpret_cast<MainWindow*>(user);
 		if (parent)
 			parent->updateMeta();
 	}

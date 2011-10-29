@@ -2,13 +2,25 @@
 
 #include <algorithm>
 #include <fstream>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <json/json.h>
 
 #include "INETRException.hpp"
 
-using namespace std;
-using namespace Json;
+using std::find_if;
+using std::ifstream;
+using std::ios;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
+using Json::Reader;
+using Json::Value;
+using Json::nullValue;
 
 namespace inetr {
 	Language Languages::None;
@@ -47,7 +59,7 @@ namespace inetr {
 					"Error", MB_OK | MB_ICONERROR);
 				continue;
 			}
-			
+
 			Value lngStringsValue = lngValue.get("strings", Value(nullValue));
 			if (!lngStringsValue.isObject()) {
 				MessageBox(nullptr, ("Unable to load language: " +
@@ -99,12 +111,14 @@ namespace inetr {
 	}
 
 	const Language &Languages::operator[](const string &identifier) const {
-		for (vector<Language>::const_iterator it = languages.begin();
-			it != languages.end(); ++it) {
+		vector<Language>::const_iterator it = find_if(languages.begin(),
+			languages.end(), [&identifier](const Language &elem) {
 
-			if (it->Identifier == identifier)
-				return *it;
-		}
+			return elem.Identifier == identifier;
+		});
+
+		if (it != languages.end())
+			return *it;
 
 		throw INETRException(string("Unknown Language: ") + identifier);
 	}

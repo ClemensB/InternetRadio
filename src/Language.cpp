@@ -1,8 +1,12 @@
 #include "Language.hpp"
 
+#include <map>
+#include <string>
+
 #include "ssize_t.h"
 
-using namespace std;
+using std::map;
+using std::string;
 
 namespace inetr {
 	Language::Language() {
@@ -56,7 +60,7 @@ namespace inetr {
 
 			pos = str.find_first_of('[', lastPos);
 		}
-		if (lastPos < (int)str.length())
+		if (lastPos < static_cast<ssize_t>(str.length()))
 			newStr += str.substr(lastPos + 1);
 		return newStr;
 	}

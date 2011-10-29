@@ -13,6 +13,7 @@ def fileMD5(file):
 		if not data:
 			break
 		md5.update(data)
+	f.close()
 	return md5.hexdigest()
 
 def releaseForArchitecture(arch):
@@ -25,8 +26,6 @@ def releaseForArchitecture(arch):
 	shutil.copy(binDirArch + "/InternetRadio.pdb", outDirArch)
 	shutil.copy("dependencies/bass/bin/" + arch + "/bass.dll", outDirArch)
 	shutil.copy("data/language.json", outDirArch)
-	shutil.copy("data/stations.json", outDirArch)
-	shutil.copytree("data/img", outDirArch + "/img")
 	fChecksums = open(outDirArch + "/checksums", "w")
 	for root, dirs, files in os.walk(outDirArch):
 		for file in files:

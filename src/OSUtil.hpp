@@ -7,7 +7,9 @@ namespace inetr {
 		static bool IsVistaOrLater();
 		static bool IsWin7OrLater();
 		static bool IsAeroEnabled();
+		static bool IsUACEnabled();
+		static bool IsProcessElevated();
 	};
 }
 
-#endif // !INETR_OSUTIL_HPP
+#endif  // !INETR_OSUTIL_HPP
